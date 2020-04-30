@@ -1,5 +1,5 @@
 
-package ru.avalon.java.dev.j120.practice.commons;
+package ru.avalon.java.dev.j120.practice.entity;
 
 
 public enum OrderStatus { 
