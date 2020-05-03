@@ -1,19 +1,10 @@
 package ru.avalon.java.dev.j120.practice.IO;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-
-import java.io.IOException;
-import java.io.FileNotFoundException;
-
-import java.util.HashMap;
-import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import ru.avalon.java.dev.j120.practice.entity.Config;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.*;
 
 public class ConfigIO {
     private static final String CONFIGPATH = "config.config";

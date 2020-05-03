@@ -1,65 +1,59 @@
 package ru.avalon.java.dev.j120.practice.IO;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import ru.avalon.java.dev.j120.practice.entity.Goods;
 
-public class GoodsIO {    
-    private Deque<Goods> goodsDeque;
+import java.io.*;
+import java.math.BigDecimal;
+import java.util.*;
+
+public class GoodsIO {
     
-    public GoodsIO(String filePath){
-        goodsDeque = new LinkedList<>();  
-        init(filePath);
-    }
-    private void init(String filePath){        
-        long article = 0;
-        String variety = "";
-        String color;
-        BigDecimal price;
-        long instock;
+    private GoodsIO(){}
+    
+    public static HashMap<Long, Goods> read(String filePath) throws IOException{        
         
-        StringBuilder sb = new StringBuilder();
-        StringTokenizer tokenizer;        
-        HashMap<String,String> hm = new HashMap<>();
+        StringBuilder sb = new StringBuilder();        
+        File file = new File(filePath);
         
-        try (FileReader fr = new FileReader(filePath);
-             BufferedReader br = new BufferedReader(fr))
-        {
-            String line;
-            while ((line = br.readLine()) != null){
+        if (file.isFile()){
+            try (FileReader fr = new FileReader(filePath);
+                 BufferedReader br = new BufferedReader(fr))
+            {
+                String line;
+                while ((line = br.readLine()) != null){
                 sb.append(line);
                 sb.append("\n");
             }
-        } catch (IOException ex) {
-            Logger.getLogger(ConfigIO.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                throw new IOException("IO exception");
+            }
         }
-        tokenizer = new StringTokenizer(sb.toString(),";\n");
+        else{
+            //создатьПустойФайл(filePath);
+            throw new FileNotFoundException("File Not Found");
+        }
+        return splitAndPut(sb.toString());
+    }
+    
+    private static HashMap<Long, Goods> splitAndPut(String builderString) {
         
+        HashMap<Long, Goods> goodsMap = new HashMap<>();        
+        long article = 0;
+        String variety = "";
+        String color = "";
+        BigDecimal price = new BigDecimal(0);
+        long instock = 0;
+        StringTokenizer tokenizer = new StringTokenizer(builderString,";\n");
+            
         while (tokenizer.hasMoreTokens()){
             article = Long.parseLong(tokenizer.nextToken().trim());
-            if (tokenizer.hasMoreTokens()){variety = tokenizer.nextToken();};
-            color = tokenizer.nextToken();
-            price = BigDecimal.valueOf(Double.valueOf(tokenizer.nextToken().trim()));
-            instock = Long.parseLong(tokenizer.nextToken().trim());
-            goodsDeque.add(new Goods(article, variety, color, price, instock));
-        }
-    };
-    public int size(){
-        return goodsDeque.size();
+            if (tokenizer.hasMoreTokens()){variety = tokenizer.nextToken();}
+            if (tokenizer.hasMoreTokens()){color = tokenizer.nextToken();}
+            if (tokenizer.hasMoreTokens()){price = BigDecimal.valueOf( Double.valueOf( tokenizer.nextToken().trim() ) );}
+            if (tokenizer.hasMoreTokens()){instock = Long.parseLong(tokenizer.nextToken().trim());}
+           
+            goodsMap.put(article, new Goods(article, variety, color, price, instock));
+        }        
+        return goodsMap;
     }
-    
-    public Goods pop(){        
-        return goodsDeque.pop();        
-    }
-    
-    
 }

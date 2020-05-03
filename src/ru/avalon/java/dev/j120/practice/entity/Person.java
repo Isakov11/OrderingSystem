@@ -1,5 +1,7 @@
 package ru.avalon.java.dev.j120.practice.entity;
 
+import java.util.Objects;
+
 
 public class Person {
     private String contactPerson;
@@ -12,6 +14,12 @@ public class Person {
         this.phoneNumber = phoneNumber;
     }
 
+    public Person(Person person) {
+        this.contactPerson = person.contactPerson;
+        this.deliveryAddress = person.deliveryAddress;
+        this.phoneNumber = person.phoneNumber;
+    }
+    
     public String getContactPerson() {
         return contactPerson;
     }
@@ -35,5 +43,40 @@ public class Person {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
+    @Override
+    public String toString() {
+        return "{Contact person: " + contactPerson + 
+                ", Delivery address: " + deliveryAddress + 
+                ", Phone number: " + phoneNumber + "}";
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 59 * hash + Objects.hashCode(this.contactPerson);
+        hash = 59 * hash + Objects.hashCode(this.deliveryAddress);
+        hash = 59 * hash + Objects.hashCode(this.phoneNumber);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Person other = (Person) obj;
+        if (!Objects.equals(this.contactPerson, other.contactPerson)) {
+            return false;
+        }
+        return true;
+    }
+    
     
 }

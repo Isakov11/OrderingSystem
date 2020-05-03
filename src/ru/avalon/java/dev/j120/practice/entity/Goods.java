@@ -1,6 +1,7 @@
 package ru.avalon.java.dev.j120.practice.entity;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class Goods {
     private long article;
@@ -8,9 +9,7 @@ public class Goods {
     private String color;
     private BigDecimal price;
     private long instock;
-    
-    private Goods(){}
-        
+
     public Goods(long article, String variety, String color, BigDecimal price, long instock) {
         this.article = article;
         this.variety = variety;
@@ -22,7 +21,15 @@ public class Goods {
     public Goods(long article, String variety, BigDecimal price, long instock) {        
         this(article, variety, "n/a", price, instock);
     }
-        
+     
+    public Goods(Goods goods){
+        this.article = goods.article;
+        this.variety = goods.variety;
+        this.color = goods.color;
+        setPrice(goods.price);
+        addInstock(goods.instock);
+    }
+    
     public long getArticle() {
         return article;
     }
@@ -76,7 +83,9 @@ public class Goods {
                 return stack;
             }
             else{
-                throw new IllegalArgumentException("Only " + this.instock + " item(s) left");
+                this.instock = 0;
+                return (this.instock - stack);
+                //throw new IllegalArgumentException("Only " + this.instock + " item(s) left");
             }        
         }
         else{ 
@@ -87,28 +96,40 @@ public class Goods {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Goods{article=");
+        sb.append("Goods{article: ");
         sb.append(article);
-        sb.append(", variety=");
+        sb.append(", variety: ");
         sb.append(variety);
-        sb.append(", color=");
+        sb.append(", color: ");
         sb.append(color);
-        sb.append(", price=");
+        sb.append(", price: ");
         sb.append(price.doubleValue());
-        sb.append(", instock=");
+        sb.append(", instock: ");
         sb.append(instock);
         sb.append("}");
         return sb.toString();
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj); //To change body of generated methods, choose Tools | Templates.
+    public boolean equals(Object obj) {        
+        if (obj == this) { 
+            return true; 
+        }
+        if (!(obj instanceof Goods)) { 
+            return false; 
+        }
+        Goods good = (Goods) obj;
+        return this.article == good.article;        
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode(); //To change body of generated methods, choose Tools | Templates.
+        int hash = 7;
+        hash = 97 * hash + (int) (this.article ^ (this.article >>> 32));
+        hash = 97 * hash + Objects.hashCode(this.variety);
+        hash = 97 * hash + Objects.hashCode(this.color);
+        hash = 97 * hash + Objects.hashCode(this.price);
+        hash = 97 * hash + (int) (this.instock ^ (this.instock >>> 32));
+        return hash;
     }
-    
 }
