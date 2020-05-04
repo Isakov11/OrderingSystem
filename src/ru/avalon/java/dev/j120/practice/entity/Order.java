@@ -73,8 +73,8 @@ public class Order implements Serializable {
         return totalPrice;
     }
     
-    public BigDecimal getPriceWithDiscount() {
-        return totalPrice.multiply(new BigDecimal(this.discount));
+    public BigDecimal getDiscountPrice() {
+        return totalPrice.multiply(new BigDecimal(1 - this.discount*0.01));
     }
     
     public void setContactPerson(Person contactPerson) throws IllegalArgumentException {
@@ -96,11 +96,11 @@ public class Order implements Serializable {
     }
     
     private void setDiscntWtCheck(int discount) throws IllegalArgumentException {
-        if ( (discount > 0) && (discount <= Config.getInstance().getMaxDiscount()) ){
+        if ( (discount > 0) && (discount <= Config.get().getMaxDiscount()) ){
             this.discount = discount;
         }       
-        if ( discount > Config.getInstance().getMaxDiscount() ){
-            this.discount = Config.getInstance().getMaxDiscount();
+        if ( discount > Config.get().getMaxDiscount() ){
+            this.discount = Config.get().getMaxDiscount();
         }
     } 
     
@@ -171,6 +171,8 @@ public class Order implements Serializable {
         sb.append(orderStatus);
         sb.append("\nTotal Price: ");
         sb.append(totalPrice);        
+        sb.append("\nDiscount Price: ");
+        sb.append(getDiscountPrice());       
         sb.append("\nOrder list:\n");
         
         orderList.forEach((k,v) -> {sb.append(v);

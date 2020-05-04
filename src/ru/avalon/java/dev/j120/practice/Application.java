@@ -12,13 +12,11 @@ import java.time.LocalDate;
 import java.util.Properties;
 import ru.avalon.java.dev.j120.practice.IO.OrderIO;
 
-public class Application {
-    static Properties prop = new Properties();
+public class Application {    
     
-    
-    public static void main(String[] args) throws ClassNotFoundException {
+    public static void main(String[] args) throws ClassNotFoundException, IOException {
         
-        prop = ConfigIO.readConfig();        
+        //ConfigIO.readConfig();        
         try{           
             init();
            //PriceList pl = new PriceList();           
@@ -28,16 +26,14 @@ public class Application {
            pl.addNew("DDD",new BigDecimal(2),7);
            pl.addExist(new Goods(new Long(10),"EEE",new BigDecimal(1),10));
            pl.addNew("FFF",new BigDecimal(5),67);*/
-           //System.out.println(pl.toString());           
-
-            //PriceList pl = new PriceList(GoodsIO.read(Config.getInstance().getFilePath()));
-            PriceList pl = new PriceList(GoodsIO.read(prop.getProperty("PricePath")));
-            OrderList orderList = new OrderList(OrderIO.read(prop.getProperty("OrderPath")));
+           //System.out.println(pl.toString());
+            PriceList pl = new PriceList(GoodsIO.read(Config.get().getPricePath()));           
+            OrderList orderList = new OrderList(OrderIO.read(Config.get().getOrderPath()));
             
             System.out.println(pl.toString());
             System.out.println(orderList.toString());            
         }
-        catch (IllegalArgumentException | IOException e){
+        catch (IllegalArgumentException e ){
            System.out.println(e);
         }
     }

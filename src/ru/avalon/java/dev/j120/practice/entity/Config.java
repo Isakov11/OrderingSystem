@@ -1,50 +1,57 @@
 
 package ru.avalon.java.dev.j120.practice.entity;
 
+import java.util.Properties;
+
 public class Config {
     private static Config instance;
-    private String filePath;
-    private int maxDiscount;
+    private Properties prop;
 
-    private Config(String filePath, int maxDiscount) {
-        this.filePath = filePath;
-        this.maxDiscount = maxDiscount;        
+    private Config(Properties prop) {
+        this.prop = prop;
     }
 
-    public static Config getInstance(String filePath, int maxDiscount) {
+    public static Config get(Properties prop) {
         if (instance == null) {
-            instance = new Config(filePath, maxDiscount);
+            if (prop.isEmpty()){
+                instance = new Config(new Properties());
+            }
+            instance = new Config(prop);
         }
         return instance;
     }
-    public static Config getInstance() {                
+    
+    public static Config get() {                
         return instance;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public String getPricePath() {        
+        return prop.getProperty("PricePath");
+    }
+    
+    public String getOrderPath() {
+        return prop.getProperty("OrderPath");
     }
 
     public int getMaxDiscount() {
-        return maxDiscount;
+        return Integer.valueOf(prop.getProperty("maxDiscount","0"));
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setPricePath(String pricePath) {
+        prop.setProperty("PricePath", pricePath);
     }
 
-    public boolean setMaxDiscount(int maxDiscount) {
+    public void setOrderPath(String orderPath) {
+        prop.setProperty("PricePath", orderPath);
+    }
+    public void setMaxDiscount(int maxDiscount) {
         if (maxDiscount >= 0 && maxDiscount <= 100){
-            this.maxDiscount = maxDiscount;
-            return true;
-        }
-        return false;
+            prop.setProperty("maxDiscount", String.valueOf(maxDiscount));            
+        }        
     }
 
     @Override
     public String toString() {
-        return "filePath: " + filePath + " maxDiscount: " + maxDiscount;
+        return prop.toString() ;
     }
-    
-    
 }
