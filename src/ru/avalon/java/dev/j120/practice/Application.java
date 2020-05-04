@@ -7,7 +7,7 @@ public class Application {
     
     public static void main(String[] args) {
         Controller controller  = new Controller();
-        
+        controller.main();
     }
            /*PriceList pl = new PriceList();           
            pl.addNew("AAA",new BigDecimal(1.67),14);
