@@ -13,7 +13,7 @@ public class PriceList {
         priceList = new HashMap<>();
     }
     
-    public PriceList(HashMap<Long, Goods> priceList) {        
+    public PriceList(HashMap<Long, Goods> priceList) {                
         this.priceList = priceList;
         currentFreeArticle = getFreeArticle();
     }
@@ -74,8 +74,16 @@ public class PriceList {
         priceList.remove(article);
     }
     
+    public void replaceGoods(long article, Goods goods) {
+        priceList.replace(article, goods);
+    }
+    
     /**Возвращает наименьший неиспользованный артикул*/
     private long getFreeArticle(){        
+        if (priceList.isEmpty()) {
+            return 1;
+        }
+        
         Long[] keyArray = new Long[priceList.keySet().size()];
         keyArray = priceList.keySet().toArray(keyArray);
         
@@ -85,7 +93,7 @@ public class PriceList {
                 return keyArray[i] + 1;
             }
         }
-        //Свободный артикул следующий после максимального имеющегося
+        //Свободный артикул следующий после максимального имеющегося        
         return (keyArray[keyArray.length-1]) + 1;
     }
     

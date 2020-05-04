@@ -56,10 +56,6 @@ public class OrderList {
         }        
     }
     
-    public HashMap<Long, Order> getPriceList() {
-        return new HashMap<> (orderList);
-    }
-    
     public Order getOrder(long number) {
         return new Order(orderList.get(number));
     }
@@ -92,6 +88,10 @@ public class OrderList {
     }
         
     private long getFreeNumber(){        
+        if (orderList.isEmpty()) {
+            return 1;
+        }
+        
         Long[] keyArray = new Long[orderList.keySet().size()];
         keyArray = orderList.keySet().toArray(keyArray);
         

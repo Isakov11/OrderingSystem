@@ -1,10 +1,11 @@
 package ru.avalon.java.dev.j120.practice.entity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
 
-public class Order {    
+public class Order implements Serializable {    
     private final long orderNumber;
     private final LocalDate orderDate;    
     private Person contactPerson;    

@@ -28,7 +28,8 @@ public class ConfigIO {
         return false;
     }
     
-    public static boolean readConfig(){
+    /*public static boolean readConfig(){
+       
         StringBuilder sb = new StringBuilder();
         StringTokenizer tokenizer;        
         HashMap<String,String> hm = new HashMap<>();
@@ -36,6 +37,10 @@ public class ConfigIO {
         try (FileReader fr = new FileReader(CONFIGPATH);
              BufferedReader br = new BufferedReader(fr))
         {
+            Properties prop = new Properties();
+            prop.load(br);
+            System.out.println(prop.toString() );
+            
             String line;
             while ((line = br.readLine()) != null){
                 sb.append(line);
@@ -51,5 +56,20 @@ public class ConfigIO {
         }
         Config.getInstance(hm.get("filePath"), Integer.parseInt(hm.get("maxDiscount")));        
         return true;
+    }*/
+    
+    public static Properties readConfig(){
+        
+        StringBuilder sb = new StringBuilder();
+        Properties prop = new Properties();
+        try (FileReader fr = new FileReader(CONFIGPATH);
+             BufferedReader br = new BufferedReader(fr))
+        {            
+            prop.load(br);            
+        } 
+        catch (IOException ex) {
+            Logger.getLogger(ConfigIO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return prop;
     }
 }

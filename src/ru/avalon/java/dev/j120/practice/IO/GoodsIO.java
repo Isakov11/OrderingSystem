@@ -29,8 +29,8 @@ public class GoodsIO {
             }
         }
         else{
-            //создатьПустойФайл(filePath);
-            throw new FileNotFoundException("File Not Found");
+            write (filePath, new HashMap<Long, Goods>());
+            //throw new FileNotFoundException("File Not Found");
         }
         return splitAndPut(sb.toString());
     }
@@ -55,5 +55,29 @@ public class GoodsIO {
             goodsMap.put(article, new Goods(article, variety, color, price, instock));
         }        
         return goodsMap;
+    }
+    
+    public static void write(String filePath, HashMap<Long, Goods> map) throws IOException{
+        
+        StringBuilder sb = new StringBuilder();
+        
+        map.forEach((k,v) -> {  sb.append(v.getArticle());
+                                sb.append(";");
+                                sb.append(v.getVariety());
+                                sb.append(";");
+                                sb.append(v.getColor());
+                                sb.append(";");
+                                sb.append(v.getPrice());
+                                sb.append(";");
+                                sb.append(v.getInstock());
+                                sb.append(";");
+                                sb.append("\n");});
+        
+        File file = new File(filePath);
+        try (FileWriter fw = new FileWriter(filePath);
+                 BufferedWriter bw = new BufferedWriter(fw))
+            {
+                bw.write(sb.toString());
+            }
     }
 }

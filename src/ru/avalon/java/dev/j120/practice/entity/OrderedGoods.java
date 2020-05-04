@@ -1,9 +1,10 @@
 package ru.avalon.java.dev.j120.practice.entity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public class OrderedGoods {
+public class OrderedGoods implements Serializable{
     private final long article;
     private final BigDecimal fixedPrice;
     private long orderedQuantity;

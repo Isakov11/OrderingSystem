@@ -1,7 +1,6 @@
 
 package ru.avalon.java.dev.j120.practice.entity;
 
-
 public class Config {
     private static Config instance;
     private String filePath;

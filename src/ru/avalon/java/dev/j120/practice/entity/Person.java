@@ -1,9 +1,10 @@
 package ru.avalon.java.dev.j120.practice.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 
-public class Person {
+public class Person implements Serializable{
     private String contactPerson;
     private String deliveryAddress;
     private String phoneNumber;
