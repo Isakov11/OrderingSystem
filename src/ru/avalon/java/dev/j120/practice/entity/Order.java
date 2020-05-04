@@ -43,7 +43,6 @@ public class Order implements Serializable {
         this.orderList = order.orderList;
         calcTotalPrice();
     }
-    
 
     public long getOrderNumber() {
         return orderNumber;
@@ -112,7 +111,7 @@ public class Order implements Serializable {
             throw new IllegalArgumentException("Order status is " + this.orderStatus);
         }
     }
-    
+
     public void add(OrderedGoods orderedGoods)throws IllegalArgumentException{
         if (this.orderStatus == OrderStatus.PREPARING){
             OrderedGoods tempGood = this.orderList.putIfAbsent(orderedGoods.getArticle(), orderedGoods);
@@ -172,7 +171,7 @@ public class Order implements Serializable {
         sb.append("\nTotal Price: ");
         sb.append(totalPrice);        
         sb.append("\nDiscount Price: ");
-        sb.append(getDiscountPrice());       
+        sb.append(getDiscountPrice().doubleValue());       
         sb.append("\nOrder list:\n");
         
         orderList.forEach((k,v) -> {sb.append(v);
