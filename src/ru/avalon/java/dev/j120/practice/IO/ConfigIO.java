@@ -11,7 +11,7 @@ public class ConfigIO {
     
     private ConfigIO(){}
     
-    public static void readConfig(){                
+    public static Properties readConfig(){                
         Properties prop = new Properties();
         try (FileReader fr = new FileReader(CONFIGPATH);
              BufferedReader br = new BufferedReader(fr))
@@ -21,7 +21,7 @@ public class ConfigIO {
         catch (IOException ex) {
             Logger.getLogger(ConfigIO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Config.get(prop);
+        return prop;
     }
     
     public static boolean writeConfig(Properties prop){

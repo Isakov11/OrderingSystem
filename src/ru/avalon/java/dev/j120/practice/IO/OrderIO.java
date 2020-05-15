@@ -1,11 +1,9 @@
-
 package ru.avalon.java.dev.j120.practice.IO;
 
 import ru.avalon.java.dev.j120.practice.entity.Order;
 import java.io.*;
 import java.util.HashMap;
 import java.util.logging.*;
-
 
 public class OrderIO {
 

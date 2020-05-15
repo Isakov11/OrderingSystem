@@ -10,11 +10,12 @@ public class Order implements Serializable {
     private final LocalDate orderDate;    
     private Person contactPerson;    
     private int discount;
-    private OrderStatus orderStatus;
+    private OrderStatusEnum orderStatus;
     private BigDecimal totalPrice;
-    private HashMap<Long, OrderedGoods> orderList;
+    //HashMap<артикул, товар> orderList;
+    private HashMap<Long, OrderedItem> orderList;
 
-    public Order(long orderNumber, LocalDate orderDate, Person contactPerson, int discount, OrderStatus orderStatus) {
+    public Order(long orderNumber, LocalDate orderDate, Person contactPerson, int discount, OrderStatusEnum orderStatus) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
         this.contactPerson = contactPerson;
@@ -24,7 +25,7 @@ public class Order implements Serializable {
         totalPrice = new BigDecimal(0);
     }
 
-    public Order(long orderNumber, LocalDate orderDate, Person contactPerson, int discount, OrderStatus orderStatus, HashMap<Long, OrderedGoods> orderList) {
+    public Order(long orderNumber, LocalDate orderDate, Person contactPerson, int discount, OrderStatusEnum orderStatus, HashMap<Long, OrderedItem> orderList) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
         this.contactPerson = contactPerson;
@@ -60,11 +61,11 @@ public class Order implements Serializable {
         return discount;
     }
 
-    public OrderStatus getOrderStatus() {
+    public OrderStatusEnum getOrderStatus() {
         return orderStatus;
     }
 
-    public HashMap<Long, OrderedGoods> getOrderList() {
+    public HashMap<Long, OrderedItem> getOrderList() {
         return new HashMap<> (orderList);
     }
 
@@ -77,7 +78,7 @@ public class Order implements Serializable {
     }
     
     public void setContactPerson(Person contactPerson) throws IllegalArgumentException {
-        if (this.orderStatus == OrderStatus.PREPARING){
+        if (this.orderStatus == OrderStatusEnum.PREPARING){
             this.contactPerson = contactPerson;
         }
         else {
@@ -86,7 +87,7 @@ public class Order implements Serializable {
     }
 
     public void setDiscount(int discount) throws IllegalArgumentException {
-        if (this.orderStatus == OrderStatus.PREPARING){
+        if (this.orderStatus == OrderStatusEnum.PREPARING){
             setDiscntWtCheck(discount);
         }
         else {
@@ -103,8 +104,8 @@ public class Order implements Serializable {
         }
     } 
     
-    public void setOrderStatus(OrderStatus orderStatus) throws IllegalArgumentException {
-        if (this.orderStatus == OrderStatus.PREPARING){
+    public void setOrderStatus(OrderStatusEnum orderStatus) throws IllegalArgumentException {
+        if (this.orderStatus == OrderStatusEnum.PREPARING){
             this.orderStatus = orderStatus;
         }
         else {
@@ -112,13 +113,13 @@ public class Order implements Serializable {
         }
     }
 
-    public void add(OrderedGoods orderedGoods)throws IllegalArgumentException{
-        if (this.orderStatus == OrderStatus.PREPARING){
-            OrderedGoods tempGood = this.orderList.putIfAbsent(orderedGoods.getArticle(), orderedGoods);
+    public void add(OrderedItem orderedItem)throws IllegalArgumentException{
+        if (this.orderStatus == OrderStatusEnum.PREPARING){
+            OrderedItem tempGood = this.orderList.putIfAbsent(orderedItem.getArticle(), orderedItem);
             if (tempGood != null){
                 //Если товар уже присутствует в списке, то прибавить и заменить
-                tempGood.addQuantity(orderedGoods.getOrderedQuantity());
-                this.orderList.replace(orderedGoods.getArticle(), tempGood);
+                tempGood.addQuantity(orderedItem.getOrderedQuantity());
+                this.orderList.replace(orderedItem.getArticle(), tempGood);
             }
             calcTotalPrice();
         }
@@ -128,7 +129,7 @@ public class Order implements Serializable {
     }
     
     public void reduce(long article,long quantity)throws IllegalArgumentException{
-        if (this.orderStatus == OrderStatus.PREPARING){
+        if (this.orderStatus == OrderStatusEnum.PREPARING){
             if (this.orderList.containsKey(article)){
                 this.orderList.get(article).reduceQuantity(quantity);
                 calcTotalPrice();
@@ -140,7 +141,7 @@ public class Order implements Serializable {
     }
     
     public void remove(long article){
-        if (this.orderStatus == OrderStatus.PREPARING){
+        if (this.orderStatus == OrderStatusEnum.PREPARING){
             this.orderList.remove(article);
             calcTotalPrice();
         }
@@ -148,7 +149,7 @@ public class Order implements Serializable {
     
     private void calcTotalPrice(){       
         BigDecimal temp = new BigDecimal(0);
-        for (OrderedGoods value : this.orderList.values()) {
+        for (OrderedItem value : this.orderList.values()) {
            temp = temp.add(value.getTotalPrice());
         }
         this.totalPrice = temp;

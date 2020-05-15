@@ -28,13 +28,13 @@ public class PriceList {
      * @param instock
      * @throws IllegalArgumentException 
      */
-    public void addNew(String variety, BigDecimal price, long instock) throws IllegalArgumentException {
+    public long addNew(String variety, BigDecimal price, long instock) throws IllegalArgumentException {
         //Если не удалось вставить товар по текущему артикулу, то найти наименьший свободный артикул и вставить
         if(priceList.putIfAbsent(currentFreeArticle, new Goods (currentFreeArticle, variety, price, instock)) != null){
             currentFreeArticle = this.getFreeArticle();
             priceList.put(currentFreeArticle, new Goods (currentFreeArticle, variety, price, instock));        
         }        
-        currentFreeArticle++;
+        return currentFreeArticle++;
     }
     /**Добавляет новый элемент в priceList
      * @param variety
@@ -43,13 +43,15 @@ public class PriceList {
      * @param instock
      * @throws IllegalArgumentException 
      */    
-    public void addNew(String variety, String color, BigDecimal price, long instock) throws IllegalArgumentException {
+    public long addNew(String variety, String color, BigDecimal price, long instock) throws IllegalArgumentException {
         //Если не удалось вставить товар по текущему артикулу, то найти наименьший свободный артикул и вставить
         if(priceList.putIfAbsent(currentFreeArticle, new Goods (currentFreeArticle, variety,color, price, instock)) != null){
             currentFreeArticle = this.getFreeArticle();
             priceList.put(currentFreeArticle, new Goods (currentFreeArticle, variety,color, price, instock));            
         }
-        currentFreeArticle++;
+        
+        //currentFreeArticle++;
+        return currentFreeArticle++;
     }
     
     /** Вставляет в priceList товар уже имеющий артикул    
@@ -66,8 +68,11 @@ public class PriceList {
         return new HashMap<> (priceList);
     }
     
-    public Goods getGoods(long article) {
-        return new Goods(priceList.get(article));
+    public Goods getGoods(long article) throws IllegalArgumentException{
+        if (priceList.containsKey(article)){
+            return new Goods(priceList.get(article));
+        }
+        throw new IllegalArgumentException("Article " + article +" not exist");
     }
     
     public void removeGoods(long article) {
@@ -100,6 +105,7 @@ public class PriceList {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("PriceList size:" + priceList.size());
         sb.append("PriceList:\ncurrentFreeArticle: ");
         sb.append(currentFreeArticle);
         sb.append("\nMap:\n");

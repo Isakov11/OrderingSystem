@@ -2,6 +2,7 @@
 package ru.avalon.java.dev.j120.practice.entity;
 
 import java.util.Properties;
+import ru.avalon.java.dev.j120.practice.IO.ConfigIO;
 
 public class Config {
     private static Config instance;
@@ -11,19 +12,16 @@ public class Config {
         this.prop = prop;
     }
 
-    public static Config get(Properties prop) {
+    public static Config get() {
         if (instance == null) {
-            if (prop.isEmpty()){
+            Properties temp = ConfigIO.readConfig();
+            if (temp.isEmpty()){
                 instance = new Config(new Properties());
             }
-            instance = new Config(prop);
+            instance = new Config(temp);
         }
         return instance;
-    }
-    
-    public static Config get() {                
-        return instance;
-    }
+    }   
 
     public String getPricePath() {        
         return prop.getProperty("PricePath");

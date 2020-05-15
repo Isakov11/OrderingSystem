@@ -5,6 +5,8 @@ import ru.avalon.java.dev.j120.practice.entity.Goods;
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GoodsIO {
     
@@ -15,64 +17,85 @@ public class GoodsIO {
         File file = new File(filePath);
         HashMap<Long, Goods> goodsMap = new HashMap<>();
         Goods goods;
-        
+        //Паттерны для регулярных выражений:
+        //1-й поиск целого числа,
+        //2-й поиск натурального числа
+        Pattern[] pattern = {Pattern.compile("\\d+"), Pattern.compile("\\d+[.,]{1}\\d+")};
+        String[] subs;
         if (file.isFile()){
             try (FileReader fr = new FileReader(filePath);
                  BufferedReader br = new BufferedReader(fr))
             {
                 String line;
-                while ((line = br.readLine()) != null){
-                goods = split(line);
-                if (goods != null){
-                    goodsMap.putIfAbsent(goods.getArticle(), goods);
+                while ((line = br.readLine()) != null){                
+                    goods = CreateGoods(line, pattern);
+                    if (goods != null){
+                        goodsMap.putIfAbsent(goods.getArticle(), goods);
+                    }
+                    else {
+                        throw new IllegalArgumentException("Error in line: " + line);
+                    }    
                 }
-            }
             } catch (IOException ex) {
                 throw new IOException("IO exception");
             }
         }
         else{
-            write (filePath, new HashMap<>());
+            return new HashMap<Long, Goods>();
         }
         return goodsMap;
     }
     
-    private static Goods split(String string) {   
-        long article = 0;
-        String variety = "";
-        String color = "";
-        BigDecimal price = new BigDecimal(0);
-        long instock = 0;
-        StringTokenizer tokenizer = new StringTokenizer(string,";");       
-        boolean errorFlag = false;
+    private static Goods CreateGoods(String string, Pattern[] pattern) {   
+        long article;
+        String variety;
+        String color;
+        BigDecimal price;
+        long instock;        
         
-        if (tokenizer.hasMoreTokens()){
-            article = Long.parseLong(tokenizer.nextToken().trim());
+        String[] SubStringArray = string.split(";");
+        Pattern digitPattern = pattern[0];
+        Pattern pricePattern = pattern[1];
+        Matcher matcher;
+        
+        if (!SubStringArray[0].isEmpty()){
+           matcher = digitPattern.matcher(SubStringArray[0].trim());
+            if (matcher.find()){
+                article = Long.parseLong(matcher.group());
+            }
+            else {return null;}
         } 
-        else {errorFlag = true;}
+        else {return null;}
         
-        if (tokenizer.hasMoreTokens()){
-            variety = tokenizer.nextToken().trim();
+        if (!SubStringArray[1].isEmpty()){
+            variety = SubStringArray[1].trim();
         }
-        else {errorFlag = true;}
+        else {return null;}
         
-        if (tokenizer.hasMoreTokens()){
-            color = tokenizer.nextToken().trim();
+        if (!SubStringArray[2].isEmpty()){
+            color = SubStringArray[2].trim();
         }
-        else {errorFlag = true;}
+        else {color="n/a";}
         
-        if (tokenizer.hasMoreTokens()){
-            price = BigDecimal.valueOf(Double.valueOf( tokenizer.nextToken().trim() ) );
+        if (!SubStringArray[3].isEmpty()){            
+            matcher = pricePattern.matcher(SubStringArray[3].trim());
+            if (matcher.find()){
+                price = BigDecimal.valueOf(Double.valueOf ( matcher.group() ));
+            }
+            else {return null;}
         }
-        else {errorFlag = true;}
+        else {return null;}
         
-        if (tokenizer.hasMoreTokens()){
-            instock = Long.parseLong(tokenizer.nextToken().trim());
+        if (!SubStringArray[4].isEmpty()){
+            matcher = digitPattern.matcher(SubStringArray[4].trim());
+            if (matcher.find()){
+                instock = Long.parseLong(matcher.group());
+            }
+            else {return null;}
         }
-        else {errorFlag = true;}
+        else {return null;}
         
-        if (errorFlag == false) {return new Goods(article, variety, color, price, instock);}
-        return null;
+        return new Goods(article, variety, color, price, instock);
     }
     
     public static void write(String filePath, HashMap<Long, Goods> map) throws IOException{

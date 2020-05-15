@@ -4,7 +4,7 @@ package ru.avalon.java.dev.j120.practice.datastorage;
 
 
 import ru.avalon.java.dev.j120.practice.entity.Order;
-import ru.avalon.java.dev.j120.practice.entity.OrderStatus;
+import ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum;
 
 import java.util.HashMap;
 
@@ -61,8 +61,8 @@ public class OrderList {
     }
     
     public void cancelOrder(long number) throws IllegalArgumentException{
-        if (orderList.get(number).getOrderStatus() == OrderStatus.PREPARING){
-            orderList.get(number).setOrderStatus(OrderStatus.CANCELED);
+        if (orderList.get(number).getOrderStatus() == OrderStatusEnum.PREPARING){
+            orderList.get(number).setOrderStatus(OrderStatusEnum.CANCELED);
         }
         else{
             throw new IllegalArgumentException("Order status is " + orderList.get(number).getOrderStatus());
@@ -70,7 +70,7 @@ public class OrderList {
     }
     
     public void removeOrder(long number) throws IllegalArgumentException {
-        if (orderList.get(number).getOrderStatus() == OrderStatus.PREPARING){
+        if (orderList.get(number).getOrderStatus() == OrderStatusEnum.PREPARING){
             orderList.remove(number);
         }
         else{
@@ -79,7 +79,7 @@ public class OrderList {
     }
         
     public void replaceOrder(long number,Order order) throws IllegalArgumentException {
-        if (orderList.get(number).getOrderStatus() == OrderStatus.PREPARING){
+        if (orderList.get(number).getOrderStatus() == OrderStatusEnum.PREPARING){
             orderList.replace(number, order);
         }
         else{

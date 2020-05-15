@@ -2,15 +2,15 @@ package ru.avalon.java.dev.j120.practice.entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Objects;
 
-public class OrderedGoods implements Serializable{
+
+public class OrderedItem implements Serializable{
     private final long article;
     private final BigDecimal fixedPrice;
     private long orderedQuantity;
     private BigDecimal totalPrice;
 
-    public OrderedGoods(long article, BigDecimal fixedPrice, long orderedQuantity) {
+    public OrderedItem(long article, BigDecimal fixedPrice, long orderedQuantity) {
         this.article = article;
         this.fixedPrice = fixedPrice;
         this.orderedQuantity = orderedQuantity;
@@ -31,7 +31,6 @@ public class OrderedGoods implements Serializable{
     public BigDecimal getTotalPrice() {
         return totalPrice;
     }
-
     
     public void addQuantity(long quantity) {        
         if (quantity >= 0){
@@ -72,20 +71,17 @@ public class OrderedGoods implements Serializable{
         if (obj == this) { 
             return true; 
         }
-        if (!(obj instanceof OrderedGoods)) { 
+        if (!(obj instanceof OrderedItem)) { 
             return false; 
         }
-        OrderedGoods orderedGoods = (OrderedGoods) obj;
-        return this.article == orderedGoods.article;
+        OrderedItem orderedItem = (OrderedItem) obj;
+        return this.article == orderedItem.article;
     }
 
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 59 * hash + (int) (this.article ^ (this.article >>> 32));
-        hash = 59 * hash + Objects.hashCode(this.fixedPrice);
-        hash = 59 * hash + (int) (this.orderedQuantity ^ (this.orderedQuantity >>> 32));
-        hash = 59 * hash + Objects.hashCode(this.totalPrice);
+        hash = 59 * hash + (int) (this.article ^ (this.article >>> 32));        
         return hash;
     }
 }

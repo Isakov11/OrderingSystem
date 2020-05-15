@@ -68,11 +68,11 @@ public class Goods {
     }
 
     public final void addInstock(long stack) throws IllegalArgumentException {
-        if (stack > 0){
+        if (stack >= 0){
             this.instock += stack;
         }
         else {
-            throw new IllegalArgumentException("Instock must be positive");
+            throw new IllegalArgumentException("Instock must be positive article " + this.article);
         }
     }
     
@@ -125,11 +125,7 @@ public class Goods {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 97 * hash + (int) (this.article ^ (this.article >>> 32));
-        hash = 97 * hash + Objects.hashCode(this.variety);
-        hash = 97 * hash + Objects.hashCode(this.color);
-        hash = 97 * hash + Objects.hashCode(this.price);
-        hash = 97 * hash + (int) (this.instock ^ (this.instock >>> 32));
+        hash = 97 * hash + (int) (this.article ^ (this.article >>> 32));        
         return hash;
     }
 }

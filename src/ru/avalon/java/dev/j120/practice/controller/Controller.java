@@ -2,8 +2,8 @@
 package ru.avalon.java.dev.j120.practice.controller;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
-import java.awt.FlowLayout;
 import ru.avalon.java.dev.j120.practice.IO.*;
 import ru.avalon.java.dev.j120.practice.datastorage.*;
 import ru.avalon.java.dev.j120.practice.entity.*;
@@ -14,21 +14,26 @@ import javax.swing.*;
 
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import ru.avalon.java.dev.j120.practice.UI.MainFrame;
-
 
 public class Controller {
     PriceList pricelist;
     OrderList orderlist;
 
     public Controller() {
-        ConfigIO.readConfig();
+        
         try {           
             pricelist = new PriceList(GoodsIO.read(Config.get().getPricePath()));
             orderlist = new OrderList(OrderIO.read(Config.get().getOrderPath()));
+
             //---------------------------------------------------------------------
-            /*SwingUtilities.invokeLater(new Runnable(){                
-                                        public void run(){new SwingDemo();}});*/
+            
+            
+            SwingUtilities.invokeLater(() -> {
+                new MainFrame(pricelist, orderlist);
+            });
             //---------------------------------------------------------------------            
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);           
@@ -38,8 +43,9 @@ public class Controller {
     public void main(){        
         System.out.println(pricelist.toString());
         System.out.println(orderlist.toString());
-    }
-
+        
+    }    
+            
     private class SwingDemo {
         public SwingDemo() {
             
@@ -55,72 +61,75 @@ public class Controller {
     }
     
     class GoodsPanel extends JPanel{
-        public GoodsPanel() {
-            int len = pricelist.getPriceList().size();
-            String[][] array = new String[len][5]; 
-            Goods[] goods = pricelist.getPriceList().values().toArray(new Goods[len]);
-            String[] columnHeader = {"Article","Variety","Color","Price","Instock"};
+        public GoodsPanel() {            
+            GoodsTableModel gtm = new GoodsTableModel(pricelist);
             
-            for (int i=0; i< len; i++ ){
-                array[i][0] = String.valueOf(goods[i].getArticle());
-                array[i][1] = String.valueOf(goods[i].getVariety());
-                array[i][2] = goods[i].getColor();
-                array[i][3] = String.valueOf(goods[i].getPrice());
-                array[i][4] = String.valueOf(goods[i].getInstock());
-            }
-            JTable table = new JTable(array, columnHeader){
+            JTable table = new JTable(gtm){
                 @Override
                 public boolean isCellEditable(int row, int column) {
                     return false;
                 }
             };
-            table.setDefaultRenderer(table.getColumnClass(1), new DefaultTableCellRenderer(){
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {   
-		        super.setHorizontalAlignment(SwingConstants.CENTER);
-		        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				return this;   
-			}
-		});
             setLayout(new BorderLayout());
             add(new JScrollPane(table),BorderLayout.NORTH);      
         }
     }
     class OrdersPanel extends JPanel{
-
         public OrdersPanel() {
-            int len = orderlist.getOrderList().size();
-            String[][] array = new String[len][7]; 
-            Order[] orders = orderlist.getOrderList().values().toArray(new Order[len]);
-            String[] columnHeader = {"Number","Date","Contact Person","Discount","Status","Total Price","Discount Price"};
+            OrderTableModel otm = new OrderTableModel(orderlist);
             
-            for (int i=0; i<len; i++ ){
-                array[i][0] = String.valueOf(orders[i].getOrderNumber());
-                array[i][1] = String.valueOf(orders[i].getOrderDate());
-                array[i][2] = String.valueOf(orders[i].getContactPerson().getContactPerson());
-                array[i][3] = String.valueOf(orders[i].getDiscount()+"%");
-                array[i][4] = String.valueOf(orders[i].getOrderStatus());
-                array[i][5] = String.valueOf(orders[i].getTotalPrice().doubleValue());
-                array[i][6] = String.valueOf(orders[i].getDiscountPrice().doubleValue());
-            }
-            JTable table = new JTable(array, columnHeader){
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false;
-                }
-            };            
+            JTable table = new JTable(otm);
+            table.getColumnModel().getColumn(2).setPreferredWidth(100);
+            table.getColumnModel().getColumn(6).setPreferredWidth(100);
+            table.setDefaultRenderer(Object.class, new MyTableRenderer());
             
-            table.setDefaultRenderer(table.getColumnClass(1), new DefaultTableCellRenderer(){
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {   
-		        super.setHorizontalAlignment(SwingConstants.CENTER);
-		        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				return this;   
-			}
-		});
+            RowSorter<TableModel> sorter = new TableRowSorter<>(otm);
+            table.setRowSorter(sorter);
             
             setLayout(new BorderLayout());  
-            add(new JScrollPane(table),BorderLayout.NORTH);      
+            add(new JScrollPane(table),BorderLayout.NORTH);                        
         }        
     }
+    
+    public class MyTableRenderer extends DefaultTableCellRenderer{
+        
+        
+        @Override
+        public Component getTableCellRendererComponent(JTable table,
+                                Object value,
+                                boolean isSelected,
+                                boolean hasFocus,
+                                int row,
+                                int column){
+        setText(value.toString());
+	
+        if ((table.getValueAt(row, 4)).equals(String.valueOf(OrderStatusEnum.CANCELED)))
+         {
+            setBackground(Color.GRAY);
+            setForeground(Color.WHITE);
+         }         
+        else
+        {
+            if (isSelected)
+            {
+                setBackground(Color.GREEN);
+                setForeground(Color.BLACK);
+            }	
+            else
+            {
+                setBackground(Color.WHITE);
+                setForeground(Color.BLACK);
+            }
+        }        
+        if (column == 0 || column == 3 || column == 5|| column == 6)
+            setHorizontalAlignment(SwingConstants.RIGHT);
+        else 
+            setHorizontalAlignment(SwingConstants.LEFT);
+        /*super.setHorizontalAlignment(SwingConstants.CENTER);        
+        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);	*/
+         return this;									   
+      }
+   }
 }
     
     
