@@ -1,6 +1,7 @@
 
 package ru.avalon.java.dev.j120.practice.entity;
 
+import java.io.IOException;
 import java.util.Properties;
 import ru.avalon.java.dev.j120.practice.IO.ConfigIO;
 
@@ -12,7 +13,7 @@ public class Config {
         this.prop = prop;
     }
 
-    public static Config get() {
+    public static Config get() throws IOException {
         if (instance == null) {
             Properties temp = ConfigIO.readConfig();
             if (temp.isEmpty()){

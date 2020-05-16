@@ -18,7 +18,7 @@ public class MainFrame extends javax.swing.JFrame {
     private OrderList orderlist;
     private TableModel gtm = null;
     private TableModel otm = null;
-    
+    GoodsCardPanel gtp;
     
     /**
      * Creates new form MainFrame
@@ -29,6 +29,7 @@ public class MainFrame extends javax.swing.JFrame {
         
         gtm = new GoodsTableModel(pricelist);
         otm = new OrderTableModel(orderlist);        
+        
         initComponents();
         setVisible(true);
     }
@@ -42,15 +43,15 @@ public class MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanel1 = new javax.swing.JPanel();
+        mainTabbedPane = new javax.swing.JTabbedPane();
+        GoodsPanel = new javax.swing.JPanel();
         jToolBar1 = new javax.swing.JToolBar();
-        jButton1 = new javax.swing.JButton();
+        openNewGoodsCardButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jPanel2 = new javax.swing.JPanel();
+        OrderPanel = new javax.swing.JPanel();
         jToolBar2 = new javax.swing.JToolBar();
-        jButton2 = new javax.swing.JButton();
+        openNewOrderCardButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable2 = new javax.swing.JTable();
 
@@ -59,94 +60,95 @@ public class MainFrame extends javax.swing.JFrame {
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
 
-        jButton1.setText("Add new goods");
-        jButton1.setFocusable(false);
-        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        openNewGoodsCardButton.setText("Добавить товар");
+        openNewGoodsCardButton.setFocusable(false);
+        openNewGoodsCardButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        openNewGoodsCardButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        openNewGoodsCardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                openNewGoodsCardButtonActionPerformed(evt);
             }
         });
-        jToolBar1.add(jButton1);
+        jToolBar1.add(openNewGoodsCardButton);
 
         jTable1.setModel(gtm);
         jScrollPane1.setViewportView(jTable1);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout GoodsPanelLayout = new javax.swing.GroupLayout(GoodsPanel);
+        GoodsPanel.setLayout(GoodsPanelLayout);
+        GoodsPanelLayout.setHorizontalGroup(
+            GoodsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 737, Short.MAX_VALUE)
             .addComponent(jScrollPane1)
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        GoodsPanelLayout.setVerticalGroup(
+            GoodsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(GoodsPanelLayout.createSequentialGroup()
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("tab1", jPanel1);
+        mainTabbedPane.addTab("Остатки", GoodsPanel);
 
         jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
 
-        jButton2.setText("Add new order");
-        jButton2.setFocusable(false);
-        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        openNewOrderCardButton.setText("Добавить заказ");
+        openNewOrderCardButton.setFocusable(false);
+        openNewOrderCardButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        openNewOrderCardButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        openNewOrderCardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                openNewOrderCardButtonActionPerformed(evt);
             }
         });
-        jToolBar2.add(jButton2);
+        jToolBar2.add(openNewOrderCardButton);
 
         jTable2.setModel(otm);
         jScrollPane2.setViewportView(jTable2);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout OrderPanelLayout = new javax.swing.GroupLayout(OrderPanel);
+        OrderPanel.setLayout(OrderPanelLayout);
+        OrderPanelLayout.setHorizontalGroup(
+            OrderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jToolBar2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 737, Short.MAX_VALUE)
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        OrderPanelLayout.setVerticalGroup(
+            OrderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(OrderPanelLayout.createSequentialGroup()
                 .addComponent(jToolBar2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("tab2", jPanel2);
+        mainTabbedPane.addTab("Заказы", OrderPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addComponent(mainTabbedPane)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addComponent(mainTabbedPane)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void openNewOrderCardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openNewOrderCardButtonActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_openNewOrderCardButtonActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-         new GoodsCardFrame( pricelist, orderlist);
-         //jTabbedPane1.addTab("new", new GoodsCardFrame());
-         
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void openNewGoodsCardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openNewGoodsCardButtonActionPerformed
+         //new GoodsCardFrame( pricelist, orderlist);
+         gtp = new GoodsCardPanel(pricelist);
+         mainTabbedPane.addTab("new Good", gtp);
+         mainTabbedPane.setSelectedIndex(mainTabbedPane.getTabCount() -1);
+    }//GEN-LAST:event_openNewGoodsCardButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -184,16 +186,16 @@ public class MainFrame extends javax.swing.JFrame {
     }*/
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel GoodsPanel;
+    private javax.swing.JPanel OrderPanel;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
+    private javax.swing.JTabbedPane mainTabbedPane;
+    private javax.swing.JButton openNewGoodsCardButton;
+    private javax.swing.JButton openNewOrderCardButton;
     // End of variables declaration//GEN-END:variables
 }

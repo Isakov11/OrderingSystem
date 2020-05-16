@@ -41,7 +41,7 @@ public class GoodsIO {
             }
         }
         else{
-            return new HashMap<Long, Goods>();
+            return new HashMap<>();
         }
         return goodsMap;
     }

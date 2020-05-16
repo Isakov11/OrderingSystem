@@ -8,45 +8,48 @@ import ru.avalon.java.dev.j120.practice.IO.*;
 import ru.avalon.java.dev.j120.practice.datastorage.*;
 import ru.avalon.java.dev.j120.practice.entity.*;
 import java.io.IOException;
-import java.util.logging.*;
+import java.math.BigDecimal;
+
 
 import javax.swing.*;
 
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 import ru.avalon.java.dev.j120.practice.UI.MainFrame;
+import ru.avalon.java.dev.j120.practice.exceptions.IllegalStatusException;
 
 public class Controller {
     PriceList pricelist;
     OrderList orderlist;
-
+    JFrame mainf;
     public Controller() {
-        
-        try {           
-            pricelist = new PriceList(GoodsIO.read(Config.get().getPricePath()));
-            orderlist = new OrderList(OrderIO.read(Config.get().getOrderPath()));
-
-            //---------------------------------------------------------------------
-            
-            
-            SwingUtilities.invokeLater(() -> {
-                new MainFrame(pricelist, orderlist);
-            });
-            //---------------------------------------------------------------------            
-        } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);           
-        }      
     }    
     
     public void main(){        
-        System.out.println(pricelist.toString());
-        System.out.println(orderlist.toString());
-        
-    }    
+        try {
+            pricelist = new PriceList(GoodsIO.read(Config.get().getPricePath()));
+            orderlist = new OrderList(OrderIO.read(Config.get().getOrderPath()));
+            System.out.println(pricelist.toString());
+            System.out.println(orderlist.toString());
             
-    private class SwingDemo {
+            //---------------------------------------------------------------------
+            SwingUtilities.invokeLater(() -> {
+              JFrame mainf =  new MainFrame(pricelist, orderlist);
+            });
+            //--------------------------------------------------------------------- 
+            
+            
+        } catch (IOException | ClassNotFoundException | IllegalArgumentException ex) {            
+            JFrame frame =  new JFrame(ex.getClass().getSimpleName());
+            frame.add(new JLabel(ex.getMessage()));            
+            frame.setSize(300, 150);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setVisible(true);
+        }  
+    }
+    
+    /*private class SwingDemo {
         public SwingDemo() {
             
             JFrame frame =  new JFrame("Simple");
@@ -127,9 +130,9 @@ public class Controller {
             setHorizontalAlignment(SwingConstants.LEFT);
         /*super.setHorizontalAlignment(SwingConstants.CENTER);        
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);	*/
-         return this;									   
+ /*        return this;									   
       }
-   }
+   }*/
 }
     
     

@@ -18,11 +18,10 @@ public class OrderIO {
             {                
                 return new HashMap<>((HashMap<Long, Order>)objStream.readObject());
             } 
-            catch (FileNotFoundException ex) {
-                Logger.getLogger(OrderIO.class.getName()).log(Level.SEVERE, null, ex);
+            catch (FileNotFoundException ex) {                
             }
         }
-        return new HashMap<Long, Order>();    
+        return new HashMap<>();    
     }
     
     public static void write(String filePath, HashMap<Long, Order> orderList) throws IOException{
@@ -31,8 +30,7 @@ public class OrderIO {
         {
             objStream.writeObject(orderList);
         } 
-        catch (FileNotFoundException ex) {
-            Logger.getLogger(OrderIO.class.getName()).log(Level.SEVERE, null, ex);
+        catch (FileNotFoundException ex) {            
         }
     }
 }

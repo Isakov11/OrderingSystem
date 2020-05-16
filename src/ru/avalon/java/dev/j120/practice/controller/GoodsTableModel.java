@@ -1,22 +1,32 @@
 package ru.avalon.java.dev.j120.practice.controller;
 
+
 import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
 import ru.avalon.java.dev.j120.practice.datastorage.PriceList;
 import ru.avalon.java.dev.j120.practice.entity.Goods;
+import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
-public class GoodsTableModel extends AbstractTableModel {
+public class GoodsTableModel extends AbstractTableModel implements MyEventListener {
+    PriceList pricelist;
     private ArrayList<Goods> arrayPriceList;
-    private String[] columnHeader = {"Article","Variety","Color","Price","Instock"};
-    private Class[] columnClasses = new Class[]{
+    private final String[] columnHeader = {"Article","Variety","Color","Price","Instock"};
+    private final Class[] columnClasses = new Class[]{
         Long.class, String.class, String.class, Double.class, Long.class};
     
     public GoodsTableModel(PriceList pricelist) {
+        pricelist.addListener(this);
+        this.pricelist = pricelist;
         this.arrayPriceList = new ArrayList<>(pricelist.getPriceList().values());
+        arrayPriceList.sort((Goods o1, Goods o2) -> o1.getArticle()>o2.getArticle()? 1: -1);
     }
     
-    public void update(PriceList pricelist){
+    @Override
+    public void update(String eventType) {
         this.arrayPriceList = new ArrayList<>(pricelist.getPriceList().values());
+        arrayPriceList.sort((Goods o1, Goods o2) -> o1.getArticle()>o2.getArticle()? 1: -1);
+        
+        this.fireTableDataChanged();
     }
     
     @Override
@@ -36,7 +46,7 @@ public class GoodsTableModel extends AbstractTableModel {
 
     @Override
     public String getColumnName(int column) {
-        return columnHeader[column]; //To change body of generated methods, choose Tools | Templates.
+        return columnHeader[column]; 
     }
 
     @Override

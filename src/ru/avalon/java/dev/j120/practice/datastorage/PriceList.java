@@ -1,13 +1,20 @@
 package ru.avalon.java.dev.j120.practice.datastorage;
 
+import java.awt.Event;
+import java.awt.event.ActionEvent;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EventListener;
 import java.util.HashMap;
 import ru.avalon.java.dev.j120.practice.entity.Goods;
+import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 public class PriceList {
     private Long currentFreeArticle;
     private HashMap<Long, Goods> priceList;
-
+    private ArrayList<MyEventListener> listeners = new ArrayList<>(); 
+            
     public PriceList() {
         currentFreeArticle = new Long(1);
         priceList = new HashMap<>();
@@ -33,8 +40,10 @@ public class PriceList {
         if(priceList.putIfAbsent(currentFreeArticle, new Goods (currentFreeArticle, variety, price, instock)) != null){
             currentFreeArticle = this.getFreeArticle();
             priceList.put(currentFreeArticle, new Goods (currentFreeArticle, variety, price, instock));        
-        }        
-        return currentFreeArticle++;
+        }
+        currentFreeArticle++;
+        fireDataChanged("upd");
+        return currentFreeArticle-1;
     }
     /**Добавляет новый элемент в priceList
      * @param variety
@@ -49,9 +58,9 @@ public class PriceList {
             currentFreeArticle = this.getFreeArticle();
             priceList.put(currentFreeArticle, new Goods (currentFreeArticle, variety,color, price, instock));            
         }
-        
-        //currentFreeArticle++;
-        return currentFreeArticle++;
+        currentFreeArticle++;
+        fireDataChanged("upd");
+        return currentFreeArticle-1;
     }
     
     /** Вставляет в priceList товар уже имеющий артикул    
@@ -83,15 +92,34 @@ public class PriceList {
         priceList.replace(article, goods);
     }
     
+    public void addListener(MyEventListener listener){
+        listeners.add(listener);
+    } 
+    
+    public void removeListener(MyEventListener listener){
+        listeners.remove(listener);
+    }
+    
+    public MyEventListener[] getListeners(){
+        return listeners.toArray(new MyEventListener[listeners.size()]);
+    }
+    
+    protected void fireDataChanged(String message){        
+        System.out.println(toString());
+        listeners.forEach((listener) -> {
+            listener.update("update");
+        });
+    }
+    
     /**Возвращает наименьший неиспользованный артикул*/
-    private long getFreeArticle(){        
+    public long getFreeArticle(){        
         if (priceList.isEmpty()) {
             return 1;
         }
         
         Long[] keyArray = new Long[priceList.keySet().size()];
         keyArray = priceList.keySet().toArray(keyArray);
-        
+        Arrays.sort(keyArray);
         for (int i=0; i < (keyArray.length - 1); i++){
             //Если разница между соседними значениями > 1, то между ними содержится свободный артикул
             if ( (keyArray[i+1] - keyArray[i]) > 1){                
@@ -105,8 +133,9 @@ public class PriceList {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("PriceList size:" + priceList.size());
-        sb.append("PriceList:\ncurrentFreeArticle: ");
+        sb.append("PriceList\nSize: ");
+        sb.append(priceList.size());
+        sb.append("\nCurrent free article: ");
         sb.append(currentFreeArticle);
         sb.append("\nMap:\n");
         priceList.forEach((k,v) -> {sb.append("Article: ");

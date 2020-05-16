@@ -7,6 +7,7 @@ import ru.avalon.java.dev.j120.practice.entity.Order;
 import ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum;
 
 import java.util.HashMap;
+import ru.avalon.java.dev.j120.practice.exceptions.IllegalStatusException;
 
 public class OrderList {
     private Long currentFreeNumber;
@@ -60,7 +61,7 @@ public class OrderList {
         return new Order(orderList.get(number));
     }
     
-    public void cancelOrder(long number) throws IllegalArgumentException{
+    public void cancelOrder(long number) throws IllegalStatusException{
         if (orderList.get(number).getOrderStatus() == OrderStatusEnum.PREPARING){
             orderList.get(number).setOrderStatus(OrderStatusEnum.CANCELED);
         }
@@ -87,7 +88,7 @@ public class OrderList {
         }
     }
         
-    private long getFreeNumber(){        
+    public long getFreeNumber(){        
         if (orderList.isEmpty()) {
             return 1;
         }

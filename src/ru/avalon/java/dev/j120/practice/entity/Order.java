@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
+import ru.avalon.java.dev.j120.practice.exceptions.IllegalStatusException;
 
 public class Order implements Serializable {    
     private final long orderNumber;
@@ -77,25 +78,25 @@ public class Order implements Serializable {
         return totalPrice.multiply(new BigDecimal(1 - this.discount*0.01));
     }
     
-    public void setContactPerson(Person contactPerson) throws IllegalArgumentException {
+    public void setContactPerson(Person contactPerson) throws IllegalStatusException {
         if (this.orderStatus == OrderStatusEnum.PREPARING){
             this.contactPerson = contactPerson;
         }
         else {
-            throw new IllegalArgumentException("Order status is " + this.orderStatus);
+            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
         }
     }
 
-    public void setDiscount(int discount) throws IllegalArgumentException {
+    public void setDiscount(int discount) throws IllegalStatusException {
         if (this.orderStatus == OrderStatusEnum.PREPARING){
             setDiscntWtCheck(discount);
         }
         else {
-            throw new IllegalArgumentException("Order status is " + this.orderStatus);
+            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
         }
     }
     
-    private void setDiscntWtCheck(int discount) throws IllegalArgumentException {
+    private void setDiscntWtCheck(int discount) {
         if ( (discount > 0) && (discount <= Config.get().getMaxDiscount()) ){
             this.discount = discount;
         }       
@@ -104,16 +105,16 @@ public class Order implements Serializable {
         }
     } 
     
-    public void setOrderStatus(OrderStatusEnum orderStatus) throws IllegalArgumentException {
+    public void setOrderStatus(OrderStatusEnum orderStatus) throws IllegalStatusException {
         if (this.orderStatus == OrderStatusEnum.PREPARING){
             this.orderStatus = orderStatus;
         }
         else {
-            throw new IllegalArgumentException("Order status is " + this.orderStatus);
+            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
         }
     }
 
-    public void add(OrderedItem orderedItem)throws IllegalArgumentException{
+    public void add(OrderedItem orderedItem) throws IllegalStatusException{
         if (this.orderStatus == OrderStatusEnum.PREPARING){
             OrderedItem tempGood = this.orderList.putIfAbsent(orderedItem.getArticle(), orderedItem);
             if (tempGood != null){
@@ -124,11 +125,11 @@ public class Order implements Serializable {
             calcTotalPrice();
         }
         else {
-            throw new IllegalArgumentException("Order status is " + this.orderStatus);
+            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
         }
     }
     
-    public void reduce(long article,long quantity)throws IllegalArgumentException{
+    public void reduce(long article,long quantity) throws IllegalStatusException{
         if (this.orderStatus == OrderStatusEnum.PREPARING){
             if (this.orderList.containsKey(article)){
                 this.orderList.get(article).reduceQuantity(quantity);
@@ -136,14 +137,17 @@ public class Order implements Serializable {
             }            
         }
         else {
-            throw new IllegalArgumentException("Order status is " + this.orderStatus);
+            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
         }
     }
     
-    public void remove(long article){
+    public void remove(long article) throws IllegalStatusException{
         if (this.orderStatus == OrderStatusEnum.PREPARING){
             this.orderList.remove(article);
             calcTotalPrice();
+        }
+        else {
+            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
         }
     }
     

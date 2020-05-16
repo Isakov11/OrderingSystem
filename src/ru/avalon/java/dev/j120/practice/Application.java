@@ -78,7 +78,7 @@ public class Application {
             GoodsIO.write(Config.get().getOrderPath(), pl.getPriceList());
             OrderIO.write(Config.get().getOrderPath(), orderList.getOrderList());
         } catch (IOException ex) {
-            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+            
         }*/
 
         
