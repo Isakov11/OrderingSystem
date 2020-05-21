@@ -1,29 +1,30 @@
-package ru.avalon.java.dev.j120.practice.controller;
+package ru.avalon.java.dev.j120.practice.UI.tablemodels;
 
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
-import ru.avalon.java.dev.j120.practice.datastorage.PriceList;
+import ru.avalon.java.dev.j120.practice.controller.Mediator;
 import ru.avalon.java.dev.j120.practice.entity.Goods;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 public class GoodsTableModel extends AbstractTableModel implements MyEventListener {
-    PriceList pricelist;
+    private Mediator mediator;    
     private ArrayList<Goods> arrayPriceList;
     private final String[] columnHeader = {"Article","Variety","Color","Price","Instock"};
     private final Class[] columnClasses = new Class[]{
-        Long.class, String.class, String.class, Double.class, Long.class};
+        Long.class, String.class, String.class, BigDecimal.class, Long.class};
     
-    public GoodsTableModel(PriceList pricelist) {
-        pricelist.addListener(this);
-        this.pricelist = pricelist;
-        this.arrayPriceList = new ArrayList<>(pricelist.getPriceList().values());
+    public GoodsTableModel(Mediator mediator) {
+        mediator.getPriceList().addListener(this);
+        this.mediator = mediator;
+        this.arrayPriceList = new ArrayList<>(mediator.getPriceList().getPriceList().values());
         arrayPriceList.sort((Goods o1, Goods o2) -> o1.getArticle()>o2.getArticle()? 1: -1);
     }
     
     @Override
     public void update(String eventType) {
-        this.arrayPriceList = new ArrayList<>(pricelist.getPriceList().values());
+        this.arrayPriceList = new ArrayList<>(mediator.getPriceList().getPriceList().values());
         arrayPriceList.sort((Goods o1, Goods o2) -> o1.getArticle()>o2.getArticle()? 1: -1);
         
         this.fireTableDataChanged();
@@ -59,6 +60,7 @@ public class GoodsTableModel extends AbstractTableModel implements MyEventListen
             case 3: return goods.getPrice();
             case 4: return goods.getInstock();
             default: return null; 
-        } 
+        }
     }
+    
 }

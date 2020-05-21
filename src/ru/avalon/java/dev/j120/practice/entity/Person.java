@@ -46,9 +46,7 @@ public class Person implements Serializable{
 
     @Override
     public String toString() {
-        return "{Contact person: " + contactPerson + 
-                ", Delivery address: " + deliveryAddress + 
-                ", Phone number: " + phoneNumber + "}";
+        return contactPerson;
     }
 
     @Override

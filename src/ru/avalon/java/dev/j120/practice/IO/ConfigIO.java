@@ -8,7 +8,7 @@ public class ConfigIO {
     
     private ConfigIO(){}
     
-    public static Properties readConfig() throws IOException{                
+    public static Properties readConfig(){                
         Properties prop = new Properties();
         try (FileReader fr = new FileReader(CONFIGPATH);
              BufferedReader br = new BufferedReader(fr))
@@ -16,7 +16,7 @@ public class ConfigIO {
             prop.load(br);            
         } 
         catch (IOException ex) {
-            throw new IOException("Can not find config file " + CONFIGPATH);
+            
         }
         return prop;
     }

@@ -16,10 +16,10 @@ public class Order implements Serializable {
     //HashMap<артикул, товар> orderList;
     private HashMap<Long, OrderedItem> orderList;
 
-    public Order(long orderNumber, LocalDate orderDate, Person contactPerson, int discount, OrderStatusEnum orderStatus) {
+    public Order(long orderNumber, LocalDate orderDate, /*Person contactPerson,*/ int discount, OrderStatusEnum orderStatus) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
-        this.contactPerson = contactPerson;
+        //this.contactPerson = contactPerson;
         setDiscntWtCheck(discount);
         this.orderStatus = orderStatus;
         this.orderList = new HashMap<>();
@@ -96,7 +96,7 @@ public class Order implements Serializable {
         }
     }
     
-    private void setDiscntWtCheck(int discount) {
+    private void setDiscntWtCheck(int discount)  {
         if ( (discount > 0) && (discount <= Config.get().getMaxDiscount()) ){
             this.discount = discount;
         }       
@@ -116,11 +116,11 @@ public class Order implements Serializable {
 
     public void add(OrderedItem orderedItem) throws IllegalStatusException{
         if (this.orderStatus == OrderStatusEnum.PREPARING){
-            OrderedItem tempGood = this.orderList.putIfAbsent(orderedItem.getArticle(), orderedItem);
+            OrderedItem tempGood = this.orderList.putIfAbsent(orderedItem.getItem().getArticle(), orderedItem);
             if (tempGood != null){
                 //Если товар уже присутствует в списке, то прибавить и заменить
                 tempGood.addQuantity(orderedItem.getOrderedQuantity());
-                this.orderList.replace(orderedItem.getArticle(), tempGood);
+                this.orderList.replace(orderedItem.getItem().getArticle(), tempGood);
             }
             calcTotalPrice();
         }
@@ -167,7 +167,11 @@ public class Order implements Serializable {
         sb.append("\nOrder Date: ");
         sb.append(orderDate);
         sb.append("\nContact Person: ");
-        sb.append(contactPerson);
+        sb.append(contactPerson.getContactPerson());
+        sb.append("\nDelivery Address: ");
+        sb.append(contactPerson.getDeliveryAddress());
+        sb.append("\nPhone Number: ");
+        sb.append(contactPerson.getPhoneNumber());
         sb.append("\nDiscount: ");
         sb.append(discount);
         sb.append("%");

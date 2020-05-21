@@ -1,11 +1,8 @@
 package ru.avalon.java.dev.j120.practice.datastorage;
 
-import java.awt.Event;
-import java.awt.event.ActionEvent;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EventListener;
 import java.util.HashMap;
 import ru.avalon.java.dev.j120.practice.entity.Goods;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
@@ -27,42 +24,28 @@ public class PriceList {
 
     public Long getCurrentFreeArticle() {
         return currentFreeArticle;
-    }
+    }    
     
-    /**Добавляет новый элемент в priceList
-     * @param variety
-     * @param price
-     * @param instock
-     * @throws IllegalArgumentException 
-     */
-    public long addNew(String variety, BigDecimal price, long instock) throws IllegalArgumentException {
-        //Если не удалось вставить товар по текущему артикулу, то найти наименьший свободный артикул и вставить
-        if(priceList.putIfAbsent(currentFreeArticle, new Goods (currentFreeArticle, variety, price, instock)) != null){
-            currentFreeArticle = this.getFreeArticle();
-            priceList.put(currentFreeArticle, new Goods (currentFreeArticle, variety, price, instock));        
-        }
-        currentFreeArticle++;
-        fireDataChanged("upd");
-        return currentFreeArticle-1;
-    }
     /**Добавляет новый элемент в priceList
      * @param variety
      * @param color
      * @param price
      * @param instock
+     * @return 
      * @throws IllegalArgumentException 
      */    
-    public long addNew(String variety, String color, BigDecimal price, long instock) throws IllegalArgumentException {
-        //Если не удалось вставить товар по текущему артикулу, то найти наименьший свободный артикул и вставить
-        if(priceList.putIfAbsent(currentFreeArticle, new Goods (currentFreeArticle, variety,color, price, instock)) != null){
-            currentFreeArticle = this.getFreeArticle();
-            priceList.put(currentFreeArticle, new Goods (currentFreeArticle, variety,color, price, instock));            
-        }
-        currentFreeArticle++;
-        fireDataChanged("upd");
-        return currentFreeArticle-1;
-    }
     
+    public long addNew(String variety, String color, BigDecimal price, long instock) {
+        //Если не удалось вставить товар по текущему артикулу, то найти наименьший свободный артикул и вставить
+        if(priceList.putIfAbsent(currentFreeArticle, new Goods(currentFreeArticle,variety,color,price,instock)) != null){
+            currentFreeArticle = this.getFreeArticle();
+            priceList.put(currentFreeArticle, new Goods(currentFreeArticle,variety,color,price,instock));            
+        }
+        long usedArticle = currentFreeArticle;
+        currentFreeArticle = this.getFreeArticle();
+        fireDataChanged("update");       
+        return usedArticle;
+    }
     /** Вставляет в priceList товар уже имеющий артикул    
      * @param goods
      * @throws IllegalArgumentException 
@@ -70,7 +53,9 @@ public class PriceList {
     public void addExist(Goods goods) throws IllegalArgumentException{        
         if(priceList.putIfAbsent(goods.getArticle(), goods) != null){
             throw new IllegalArgumentException("Article " + goods.getArticle() + " already in the list." );
-        }        
+        }
+        currentFreeArticle = getFreeArticle();
+        fireDataChanged("update");
     }
     
     public HashMap<Long, Goods> getPriceList() {
@@ -78,7 +63,7 @@ public class PriceList {
     }
     
     public Goods getGoods(long article) throws IllegalArgumentException{
-        if (priceList.containsKey(article)){
+        if (priceList.containsKey(article)){            
             return new Goods(priceList.get(article));
         }
         throw new IllegalArgumentException("Article " + article +" not exist");
@@ -86,10 +71,13 @@ public class PriceList {
     
     public void removeGoods(long article) {
         priceList.remove(article);
+        currentFreeArticle = getFreeArticle();
+        fireDataChanged("update");
     }
     
-    public void replaceGoods(long article, Goods goods) {
-        priceList.replace(article, goods);
+    public void replaceGoods(Goods goods) {
+        priceList.replace(goods.getArticle(), goods);
+        fireDataChanged("update");
     }
     
     public void addListener(MyEventListener listener){
@@ -104,14 +92,14 @@ public class PriceList {
         return listeners.toArray(new MyEventListener[listeners.size()]);
     }
     
-    protected void fireDataChanged(String message){        
-        System.out.println(toString());
+    protected void fireDataChanged(String message){
         listeners.forEach((listener) -> {
-            listener.update("update");
+            listener.update(message);
         });
     }
     
-    /**Возвращает наименьший неиспользованный артикул*/
+    /**Возвращает наименьший неиспользованный артикул
+     * @return long*/
     public long getFreeArticle(){        
         if (priceList.isEmpty()) {
             return 1;

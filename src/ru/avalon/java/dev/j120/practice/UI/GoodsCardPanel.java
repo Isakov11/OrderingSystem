@@ -6,19 +6,47 @@
 package ru.avalon.java.dev.j120.practice.UI;
 
 import java.math.BigDecimal;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import ru.avalon.java.dev.j120.practice.datastorage.PriceList;
+import ru.avalon.java.dev.j120.practice.controller.Mediator;
+import ru.avalon.java.dev.j120.practice.entity.Goods;
+import ru.avalon.java.dev.j120.practice.utils.StateEnum;
 
 
 public class GoodsCardPanel extends javax.swing.JPanel {
-    PriceList pricelist;
-    public GoodsCardPanel(PriceList pricelist) {
-        this.pricelist = pricelist;
-        
+    private final StateEnum state;
+    private final Mediator mediator;    
+    private final JPanel opParent;    //Панель, из которй открыта текущая вкладка
+    private final long newArticle;
+    
+    //patterns:
+    //1-digit, int and float, only digits
+    private final Pattern[] patterns = 
+    {Pattern.compile("[\\d.]"), Pattern.compile("\\d+(?:[.]\\d+){0,1}"), Pattern.compile("\\d+"),};
+  
+    public GoodsCardPanel(Mediator mediator, JPanel opParent) {        
         initComponents();
-        articleLabel.setText(String.valueOf(pricelist.getFreeArticle()));
+        this.mediator = mediator;
+        this.opParent = opParent;
+        newArticle = mediator.getPriceList().getFreeArticle();
+        articleLabel.setText(String.valueOf(newArticle));
+        state = StateEnum.NEW;
     }
-
+    
+    public GoodsCardPanel(Mediator mediator, JPanel opParent, Goods good) {         
+        initComponents();        
+        this.mediator = mediator;
+        this.opParent = opParent;
+        newArticle = good.getArticle();
+        articleLabel.setText(String.valueOf( newArticle ));
+        varietyTextField.setText(good.getVariety() );
+        colorTextField.setText( good.getColor() );
+        priceTextField.setText(good.getPrice().toString());
+        instockTextField.setText(String.valueOf( good.getInstock()) );
+        state = StateEnum.EXIST;
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -41,7 +69,7 @@ public class GoodsCardPanel extends javax.swing.JPanel {
         submitButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
         stateLabel = new javax.swing.JLabel();
-        priceTextField = new javax.swing.JFormattedTextField();
+        priceTextField = new javax.swing.JTextField();
 
         jLabel1.setText("Артикул");
 
@@ -64,6 +92,12 @@ public class GoodsCardPanel extends javax.swing.JPanel {
         colorTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 colorTextFieldActionPerformed(evt);
+            }
+        });
+
+        instockTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                instockTextFieldKeyTyped(evt);
             }
         });
 
@@ -109,10 +143,9 @@ public class GoodsCardPanel extends javax.swing.JPanel {
                 .addContainerGap())
         );
 
-        priceTextField.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#,##0.##"))));
-        priceTextField.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                priceTextFieldFocusLost(evt);
+        priceTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                priceTextFieldKeyTyped(evt);
             }
         });
 
@@ -182,24 +215,61 @@ public class GoodsCardPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_colorTextFieldActionPerformed
 
     private void submitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitButtonActionPerformed
-        pricelist.addNew(
-                varietyTextField.getText(),
-                colorTextField.getText(),                
-                new BigDecimal(priceTextField.getText()), 
-                Long.valueOf(instockTextField.getText() ));
-        stateLabel.setText("Новый товар добавлен");
+        
+        Matcher matcher;        
+        if (varietyTextField.getText().isEmpty()){            
+            varietyTextField.requestFocusInWindow();
+            stateLabel.setText("Введите наименование товара");
+            return;
+        }        
+        matcher = patterns[1].matcher(priceTextField.getText().trim());
+        if (priceTextField.getText().isEmpty() || !matcher.find()){            
+            stateLabel.setText("Введите цену товара");
+            priceTextField.requestFocusInWindow();
+            return;
+        }
+        matcher = patterns[2].matcher(priceTextField.getText().trim());
+        if (instockTextField.getText().isEmpty() || !matcher.find()){            
+            stateLabel.setText("Введите количество товара");
+            instockTextField.requestFocusInWindow();
+            return;
+        }
+        
+        mediator.updateGood(state, new Goods(
+                                    newArticle,
+                                    varietyTextField.getText(),
+                                    colorTextField.getText(),                
+                                    new BigDecimal(priceTextField.getText()), 
+                                    Long.valueOf(instockTextField.getText() )
+                                            )
+                            );        
+        stateLabel.setText("Изменения сохранены");
         submitButton.setEnabled(false);
     }//GEN-LAST:event_submitButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        JTabbedPane maintab = (JTabbedPane) this.getParent();
-        maintab.setSelectedIndex(0);
+        JTabbedPane maintab = (JTabbedPane) this.getParent();        
+        maintab.setSelectedComponent(opParent);
         maintab.remove(this);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
-    private void priceTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_priceTextFieldFocusLost
+    private void priceTextFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_priceTextFieldKeyTyped
+        char[] c = {evt.getKeyChar()};
+        String str = new String(c);        
+        Matcher matcher = patterns[0].matcher(str);
+        if (!matcher.find()){  
+            evt.consume();
+        }
+    }//GEN-LAST:event_priceTextFieldKeyTyped
 
-    }//GEN-LAST:event_priceTextFieldFocusLost
+    private void instockTextFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_instockTextFieldKeyTyped
+        char[] c = {evt.getKeyChar()};
+        String str = new String(c);        
+        Matcher matcher = patterns[2].matcher(str);
+        if (!matcher.find()){  
+            evt.consume();
+        }
+    }//GEN-LAST:event_instockTextFieldKeyTyped
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -213,7 +283,7 @@ public class GoodsCardPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JFormattedTextField priceTextField;
+    private javax.swing.JTextField priceTextField;
     private javax.swing.JLabel stateLabel;
     private javax.swing.JButton submitButton;
     private javax.swing.JTextField varietyTextField;

@@ -5,20 +5,20 @@ import java.math.BigDecimal;
 
 
 public class OrderedItem implements Serializable{
-    private final long article;
+    private final Goods Item;
     private final BigDecimal fixedPrice;
     private long orderedQuantity;
     private BigDecimal totalPrice;
 
-    public OrderedItem(long article, BigDecimal fixedPrice, long orderedQuantity) {
-        this.article = article;
+    public OrderedItem(Goods Item, BigDecimal fixedPrice, long orderedQuantity) {
+        this.Item = Item;
         this.fixedPrice = fixedPrice;
         this.orderedQuantity = orderedQuantity;
         totalPrice = fixedPrice.multiply(new BigDecimal(orderedQuantity));
     }
     
-    public long getArticle() {
-        return article;
+    public Goods getItem() {
+        return Item;
     }
     public BigDecimal getFixedPrice() {
         return fixedPrice;
@@ -56,7 +56,11 @@ public class OrderedItem implements Serializable{
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("article: ");
-        sb.append(article);       
+        sb.append(Item.getArticle());
+        sb.append("Variety: ");
+        sb.append(Item.getVariety());
+        sb.append("Color: ");
+        sb.append(Item.getColor());
         sb.append(", fixedPrice: ");
         sb.append(fixedPrice);
         sb.append(", orderedQuantity: ");
@@ -75,13 +79,13 @@ public class OrderedItem implements Serializable{
             return false; 
         }
         OrderedItem orderedItem = (OrderedItem) obj;
-        return this.article == orderedItem.article;
+        return this.Item == orderedItem.Item;
     }
 
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 59 * hash + (int) (this.article ^ (this.article >>> 32));        
+        hash = 59 * hash + (int) (this.Item.getArticle() ^ (this.Item.getArticle() >>> 32));        
         return hash;
     }
 }

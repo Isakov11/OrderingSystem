@@ -10,9 +10,9 @@ import java.util.regex.Pattern;
 
 public class GoodsIO {
     
-    private GoodsIO(){}
+    public GoodsIO(){}
     
-    public static HashMap<Long, Goods> read(String filePath) throws IOException{        
+    public HashMap<Long, Goods> read(String filePath) throws IOException{        
                 
         File file = new File(filePath);
         HashMap<Long, Goods> goodsMap = new HashMap<>();
@@ -46,7 +46,7 @@ public class GoodsIO {
         return goodsMap;
     }
     
-    private static Goods CreateGoods(String string, Pattern[] pattern) {   
+    private Goods CreateGoods(String string, Pattern[] pattern) {   
         long article;
         String variety;
         String color;
@@ -75,7 +75,7 @@ public class GoodsIO {
         if (!SubStringArray[2].isEmpty()){
             color = SubStringArray[2].trim();
         }
-        else {color="n/a";}
+        else {color="";}
         
         if (!SubStringArray[3].isEmpty()){            
             matcher = pricePattern.matcher(SubStringArray[3].trim());
@@ -98,7 +98,7 @@ public class GoodsIO {
         return new Goods(article, variety, color, price, instock);
     }
     
-    public static void write(String filePath, HashMap<Long, Goods> map) throws IOException{
+    public void write(String filePath, HashMap<Long, Goods> map) throws IOException{
         
         StringBuilder sb = new StringBuilder();
 

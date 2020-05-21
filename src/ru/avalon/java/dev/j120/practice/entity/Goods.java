@@ -1,9 +1,8 @@
 package ru.avalon.java.dev.j120.practice.entity;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
-public class Goods {
+public class Goods{
     private long article;
     private String variety;
     private String color;

@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import ru.avalon.java.dev.j120.practice.IO.GoodsIO;
 import ru.avalon.java.dev.j120.practice.IO.OrderIO;
-import ru.avalon.java.dev.j120.practice.controller.Controller;
+import ru.avalon.java.dev.j120.practice.controller.Mediator;
 import ru.avalon.java.dev.j120.practice.datastorage.PriceList;
 import ru.avalon.java.dev.j120.practice.datastorage.OrderList;
 import ru.avalon.java.dev.j120.practice.entity.*;
@@ -82,8 +82,8 @@ public class Application {
         }*/
 
         
-        Controller controller  = new Controller();
-        controller.main();
+        Mediator mediator  = new Mediator();
+        mediator.main();
     }
            
 }

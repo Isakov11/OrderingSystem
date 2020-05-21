@@ -4,34 +4,20 @@
  * and open the template in the editor.
  */
 package ru.avalon.java.dev.j120.practice.UI;
+import ru.avalon.java.dev.j120.practice.controller.Mediator;
+import ru.avalon.java.dev.j120.practice.utils.StateEnum;
 
-
-import javax.swing.table.TableModel;
-import ru.avalon.java.dev.j120.practice.controller.GoodsTableModel;
-import ru.avalon.java.dev.j120.practice.controller.OrderTableModel;
-import ru.avalon.java.dev.j120.practice.datastorage.OrderList;
-import ru.avalon.java.dev.j120.practice.datastorage.PriceList;
-
-
-public class MainFrame extends javax.swing.JFrame {
-    private PriceList pricelist;
-    private OrderList orderlist;
-    private TableModel gtm = null;
-    private TableModel otm = null;
-    GoodsCardPanel gtp;
+public class MainFrame extends javax.swing.JFrame {    
     
     /**
      * Creates new form MainFrame
+     * @param mediator
      */
-    public MainFrame(PriceList pricelist, OrderList orderlist) {        
-        this.pricelist = pricelist;
-        this.orderlist = orderlist;
-        
-        gtm = new GoodsTableModel(pricelist);
-        otm = new OrderTableModel(orderlist);        
-        
+    public MainFrame(Mediator mediator) {        
         initComponents();
-        setVisible(true);
+        mainTabbedPane.addTab("Номенклатура",new GoodsPanel(mediator,StateEnum.NEW));
+        mainTabbedPane.addTab("Заказы",new OrdersPanel(mediator));
+        setVisible(true);        
     }
 
     /**
@@ -44,111 +30,24 @@ public class MainFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         mainTabbedPane = new javax.swing.JTabbedPane();
-        GoodsPanel = new javax.swing.JPanel();
-        jToolBar1 = new javax.swing.JToolBar();
-        openNewGoodsCardButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        OrderPanel = new javax.swing.JPanel();
-        jToolBar2 = new javax.swing.JToolBar();
-        openNewOrderCardButton = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jToolBar1.setFloatable(false);
-        jToolBar1.setRollover(true);
-
-        openNewGoodsCardButton.setText("Добавить товар");
-        openNewGoodsCardButton.setFocusable(false);
-        openNewGoodsCardButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        openNewGoodsCardButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        openNewGoodsCardButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openNewGoodsCardButtonActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(openNewGoodsCardButton);
-
-        jTable1.setModel(gtm);
-        jScrollPane1.setViewportView(jTable1);
-
-        javax.swing.GroupLayout GoodsPanelLayout = new javax.swing.GroupLayout(GoodsPanel);
-        GoodsPanel.setLayout(GoodsPanelLayout);
-        GoodsPanelLayout.setHorizontalGroup(
-            GoodsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 737, Short.MAX_VALUE)
-            .addComponent(jScrollPane1)
-        );
-        GoodsPanelLayout.setVerticalGroup(
-            GoodsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(GoodsPanelLayout.createSequentialGroup()
-                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE))
-        );
-
-        mainTabbedPane.addTab("Остатки", GoodsPanel);
-
-        jToolBar2.setFloatable(false);
-        jToolBar2.setRollover(true);
-
-        openNewOrderCardButton.setText("Добавить заказ");
-        openNewOrderCardButton.setFocusable(false);
-        openNewOrderCardButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        openNewOrderCardButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        openNewOrderCardButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openNewOrderCardButtonActionPerformed(evt);
-            }
-        });
-        jToolBar2.add(openNewOrderCardButton);
-
-        jTable2.setModel(otm);
-        jScrollPane2.setViewportView(jTable2);
-
-        javax.swing.GroupLayout OrderPanelLayout = new javax.swing.GroupLayout(OrderPanel);
-        OrderPanel.setLayout(OrderPanelLayout);
-        OrderPanelLayout.setHorizontalGroup(
-            OrderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 737, Short.MAX_VALUE)
-        );
-        OrderPanelLayout.setVerticalGroup(
-            OrderPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(OrderPanelLayout.createSequentialGroup()
-                .addComponent(jToolBar2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE))
-        );
-
-        mainTabbedPane.addTab("Заказы", OrderPanel);
+        mainTabbedPane.setPreferredSize(new java.awt.Dimension(946, 700));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mainTabbedPane)
+            .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 846, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mainTabbedPane)
+            .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void openNewOrderCardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openNewOrderCardButtonActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_openNewOrderCardButtonActionPerformed
-
-    private void openNewGoodsCardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openNewGoodsCardButtonActionPerformed
-         //new GoodsCardFrame( pricelist, orderlist);
-         gtp = new GoodsCardPanel(pricelist);
-         mainTabbedPane.addTab("new Good", gtp);
-         mainTabbedPane.setSelectedIndex(mainTabbedPane.getTabCount() -1);
-    }//GEN-LAST:event_openNewGoodsCardButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -186,16 +85,6 @@ public class MainFrame extends javax.swing.JFrame {
     }*/
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel GoodsPanel;
-    private javax.swing.JPanel OrderPanel;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
-    private javax.swing.JToolBar jToolBar1;
-    private javax.swing.JToolBar jToolBar2;
     private javax.swing.JTabbedPane mainTabbedPane;
-    private javax.swing.JButton openNewGoodsCardButton;
-    private javax.swing.JButton openNewOrderCardButton;
     // End of variables declaration//GEN-END:variables
 }
