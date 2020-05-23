@@ -40,23 +40,23 @@ public class OrdersPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         jToolBar1 = new javax.swing.JToolBar();
-        jButton1 = new javax.swing.JButton();
+        addOrderButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         ordersTable = new javax.swing.JTable();
 
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
 
-        jButton1.setText("jButton1");
-        jButton1.setFocusable(false);
-        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        addOrderButton.setText("Создать заказ");
+        addOrderButton.setFocusable(false);
+        addOrderButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        addOrderButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        addOrderButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                addOrderButtonActionPerformed(evt);
             }
         });
-        jToolBar1.add(jButton1);
+        jToolBar1.add(addOrderButton);
 
         ordersTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -92,13 +92,13 @@ public class OrdersPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void addOrderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addOrderButtonActionPerformed
         orderCard = new OrderCardPanel(mediator, this);
         
         maintab = (JTabbedPane) this.getParent();
         maintab.addTab("Новый заказ", orderCard);
         maintab.setSelectedIndex(maintab.getTabCount() -1);
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_addOrderButtonActionPerformed
 
     private void ordersTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ordersTableMouseClicked
         if (evt.getButton() == 1 && evt.getClickCount() == 2){
@@ -124,7 +124,7 @@ public class OrdersPanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton addOrderButton;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JTable ordersTable;

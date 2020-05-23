@@ -5,19 +5,19 @@ import java.math.BigDecimal;
 
 
 public class OrderedItem implements Serializable{
-    private final Goods Item;
+    private final Good Item;
     private final BigDecimal fixedPrice;
     private long orderedQuantity;
     private BigDecimal totalPrice;
 
-    public OrderedItem(Goods Item, BigDecimal fixedPrice, long orderedQuantity) {
+    public OrderedItem(Good Item, BigDecimal fixedPrice, long orderedQuantity) {
         this.Item = Item;
         this.fixedPrice = fixedPrice;
         this.orderedQuantity = orderedQuantity;
         totalPrice = fixedPrice.multiply(new BigDecimal(orderedQuantity));
     }
     
-    public Goods getItem() {
+    public Good getItem() {
         return Item;
     }
     public BigDecimal getFixedPrice() {

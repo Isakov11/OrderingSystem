@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import ru.avalon.java.dev.j120.practice.controller.Mediator;
-import ru.avalon.java.dev.j120.practice.entity.Goods;
+import ru.avalon.java.dev.j120.practice.entity.Good;
 import ru.avalon.java.dev.j120.practice.utils.StateEnum;
 
 
@@ -25,7 +25,11 @@ public class GoodsCardPanel extends javax.swing.JPanel {
     //1-digit, int and float, only digits
     private final Pattern[] patterns = 
     {Pattern.compile("[\\d.]"), Pattern.compile("\\d+(?:[.]\\d+){0,1}"), Pattern.compile("\\d+"),};
-  
+    /**
+     * Открытие формы для нового товара
+     * @param mediator
+     * @param opParent
+     */
     public GoodsCardPanel(Mediator mediator, JPanel opParent) {        
         initComponents();
         this.mediator = mediator;
@@ -34,8 +38,13 @@ public class GoodsCardPanel extends javax.swing.JPanel {
         articleLabel.setText(String.valueOf(newArticle));
         state = StateEnum.NEW;
     }
-    
-    public GoodsCardPanel(Mediator mediator, JPanel opParent, Goods good) {         
+    /**
+     * Открытие формы для уществующего товара
+     * @param mediator
+     * @param opParent
+     * @param good
+     */
+    public GoodsCardPanel(Mediator mediator, JPanel opParent, Good good) {         
         initComponents();        
         this.mediator = mediator;
         this.opParent = opParent;
@@ -235,7 +244,7 @@ public class GoodsCardPanel extends javax.swing.JPanel {
             return;
         }
         
-        mediator.updateGood(state, new Goods(
+        mediator.updateGood(state, new Good(
                                     newArticle,
                                     varietyTextField.getText(),
                                     colorTextField.getText(),                
@@ -252,7 +261,11 @@ public class GoodsCardPanel extends javax.swing.JPanel {
         maintab.setSelectedComponent(opParent);
         maintab.remove(this);
     }//GEN-LAST:event_cancelButtonActionPerformed
-
+ 
+    /**
+     * проверка введенных символов в instockTextField
+     * Если напечатанный символ не цифра или ".", то он отбрасывается
+     */
     private void priceTextFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_priceTextFieldKeyTyped
         char[] c = {evt.getKeyChar()};
         String str = new String(c);        
@@ -261,7 +274,11 @@ public class GoodsCardPanel extends javax.swing.JPanel {
             evt.consume();
         }
     }//GEN-LAST:event_priceTextFieldKeyTyped
-
+    
+    /**
+     * проверка введенных символов в instockTextField
+     * Если напечатанный символ не цифра, то он отбрасывается
+     */
     private void instockTextFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_instockTextFieldKeyTyped
         char[] c = {evt.getKeyChar()};
         String str = new String(c);        
@@ -270,7 +287,6 @@ public class GoodsCardPanel extends javax.swing.JPanel {
             evt.consume();
         }
     }//GEN-LAST:event_instockTextFieldKeyTyped
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel articleLabel;

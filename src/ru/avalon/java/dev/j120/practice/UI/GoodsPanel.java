@@ -6,11 +6,15 @@
 package ru.avalon.java.dev.j120.practice.UI;
 
 import java.math.BigDecimal;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.table.TableModel;
 import ru.avalon.java.dev.j120.practice.UI.tablemodels.GoodsTableModel;
 import ru.avalon.java.dev.j120.practice.controller.Mediator;
-import ru.avalon.java.dev.j120.practice.entity.Goods;
+import ru.avalon.java.dev.j120.practice.entity.Good;
+import ru.avalon.java.dev.j120.practice.entity.Order;
+import ru.avalon.java.dev.j120.practice.entity.OrderedItem;
+import ru.avalon.java.dev.j120.practice.exceptions.IllegalStatusException;
 import ru.avalon.java.dev.j120.practice.utils.StateEnum;
 
 /**
@@ -22,22 +26,48 @@ public class GoodsPanel extends javax.swing.JPanel {
     private GoodsCardPanel goodsCard;
     private final Mediator mediator;
     private TableModel gtm;
+    private JPanel opParent;
+    private StateEnum state;
+    private Order order;
     /**
      * Creates new form GoodsPanel
      * @param mediator
      * @param state
      */
+    
     public GoodsPanel(Mediator mediator, StateEnum state) {
         initComponents();
-        this.mediator = mediator;
+        this.mediator = mediator;        
         gtm = new GoodsTableModel(mediator);
         goodsTable.setModel(gtm);
+        this.state = state;
+        if (state.equals(StateEnum.NEW)){
+            addToOrderButton.setVisible(false);
+            closeButton.setVisible(false);            
+        }
+        
         if (state.equals(StateEnum.EXIST)){
-            openNewGoodsCardButton.setVisible(false);
-            
+            openNewGoodsCardButton.setVisible(false);            
         }
     }
-
+    
+    public GoodsPanel(Mediator mediator, JPanel opParent, Order order, StateEnum state) {
+        initComponents();
+        this.mediator = mediator;
+        this.order = order;
+        this.opParent = opParent;
+        gtm = new GoodsTableModel(mediator);
+        goodsTable.setModel(gtm);
+        this.state = state;
+        if (state.equals(StateEnum.NEW)){
+            addToOrderButton.setVisible(false);
+            closeButton.setVisible(false);            
+        }
+        
+        if (state.equals(StateEnum.EXIST)){
+            openNewGoodsCardButton.setVisible(false);            
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -78,6 +108,11 @@ public class GoodsPanel extends javax.swing.JPanel {
         closeButton.setFocusable(false);
         closeButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         closeButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        closeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeButtonActionPerformed(evt);
+            }
+        });
         jToolBar1.add(closeButton);
 
         goodsTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -115,7 +150,7 @@ public class GoodsPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void openNewGoodsCardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openNewGoodsCardButtonActionPerformed
-        maintab = (JTabbedPane) this.getParent();
+        JTabbedPane maintab = (JTabbedPane) this.getParent();
         goodsCard = new GoodsCardPanel(mediator, this);
         maintab.addTab("Новая номенклатурная единица", goodsCard);
         maintab.setSelectedIndex(maintab.getTabCount() -1);
@@ -123,22 +158,45 @@ public class GoodsPanel extends javax.swing.JPanel {
 
     private void goodsTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goodsTableMouseClicked
         if (evt.getButton() == 1 && evt.getClickCount() == 2){
-            maintab = (JTabbedPane) this.getParent();
-            //Получение данных о товаре из таблицы
-            Long article = (Long) gtm.getValueAt(goodsTable.getSelectedRow(), 0);
-            String variety =(String) gtm.getValueAt(goodsTable.getSelectedRow(), 1);
-            String color =(String) gtm.getValueAt(goodsTable.getSelectedRow(), 2);
-            BigDecimal price = (BigDecimal) gtm.getValueAt(goodsTable.getSelectedRow(), 3);
-            Long instock = (Long) gtm.getValueAt(goodsTable.getSelectedRow(), 4);
+        maintab = (JTabbedPane) this.getParent();
+        //Получение данных о товаре из таблицы
+        //-----------------------------------------------------------------------------
+        Long article = (Long) gtm.getValueAt(goodsTable.getSelectedRow(), 0);        
+        String variety =(String) gtm.getValueAt(goodsTable.getSelectedRow(), 1);
+        String color =(String) gtm.getValueAt(goodsTable.getSelectedRow(), 2);
+        BigDecimal price = (BigDecimal) gtm.getValueAt(goodsTable.getSelectedRow(), 3);
+        Long instock = (Long) gtm.getValueAt(goodsTable.getSelectedRow(), 4);            
+        //-----------------------------------------------------------------------------
+        
+        Good good = new Good (article,variety,color,price,instock);
+        
+            if (state.equals(StateEnum.NEW)){
+                openGoodCardPanel(good);
+            }
             
-            //Инициализация панели товара
-            goodsCard = new GoodsCardPanel(mediator, this, new Goods (article,variety,color,price,instock));
-            
-            maintab.addTab("Номенклатурная единица "+ article, goodsCard);
-            maintab.setSelectedIndex(maintab.getTabCount() -1);
+            if (state.equals(StateEnum.EXIST)){
+            try {
+                order.add(new OrderedItem(good,good.getPrice(),1));                
+            } catch (IllegalStatusException ex) {
+                
+            }
+            }
         }
     }//GEN-LAST:event_goodsTableMouseClicked
-
+    
+    private void openGoodCardPanel(Good good){        
+        //Инициализация панели товара        
+        goodsCard = new GoodsCardPanel(mediator, this, good);
+        maintab.addTab("Номенклатурная единица "+ good.getArticle(), goodsCard);
+        
+        maintab.setSelectedIndex(maintab.getTabCount() -1);
+    }
+    
+    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
+        maintab = (JTabbedPane) this.getParent();        
+        maintab.setSelectedComponent(opParent);
+        maintab.remove(this);
+    }//GEN-LAST:event_closeButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addToOrderButton;

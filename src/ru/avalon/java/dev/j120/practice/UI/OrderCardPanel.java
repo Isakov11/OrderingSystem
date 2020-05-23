@@ -12,21 +12,33 @@ import javax.swing.JTabbedPane;
 import ru.avalon.java.dev.j120.practice.UI.tablemodels.OrderItemTableModel;
 import ru.avalon.java.dev.j120.practice.controller.Mediator;
 import ru.avalon.java.dev.j120.practice.entity.Order;
+import ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum;
+import ru.avalon.java.dev.j120.practice.entity.OrderedItem;
+import ru.avalon.java.dev.j120.practice.entity.Person;
+import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 import ru.avalon.java.dev.j120.practice.utils.StateEnum;
 
-public class OrderCardPanel extends javax.swing.JPanel {
+public class OrderCardPanel extends javax.swing.JPanel implements MyEventListener {
     private final Mediator mediator;
     private JTabbedPane maintab;
     private JPanel opParent;     //Панель, из которй открыта текущая вкладка
+    private Order order;
     
     public OrderCardPanel(Mediator mediator,JPanel opParent) {
         initComponents();
         this.mediator = mediator;
+        Person person = new Person("Ash Apple", "Mapple st., 5", "+7(961)126-54-98");
+        order = new Order(mediator.getOrderList().getCurrentFreeNumber(),
+                        LocalDate.now(),person, 0, OrderStatusEnum.PREPARING,new HashMap<Long, OrderedItem>());
+        OrderItemTableModel oitm = new OrderItemTableModel(order);
+        order.addListener(oitm);
+        order.addListener(this);
+        orderListTable.setModel(oitm); 
+        
         orderNumberLabel.setText(mediator.getOrderList().getCurrentFreeNumber().toString());
         orderDateLabel.setText(LocalDate.now().toString());
         orderStatusComboBox.setSelectedIndex(0);
-        discountSpinner.setValue(0);
-        orderListTable.setModel(new OrderItemTableModel(mediator, new HashMap<>()));
+        discountSpinner.setValue(0);          
     }
     
     public OrderCardPanel(Mediator mediator,JPanel opParent, Order order) {
@@ -34,16 +46,30 @@ public class OrderCardPanel extends javax.swing.JPanel {
         this.mediator = mediator;
         orderNumberLabel.setText( String.valueOf( order.getOrderNumber()) );
         orderDateLabel.setText(order.getOrderDate().toString());
-         switch(order.getOrderStatus()) { 
-            case PREPARING: orderStatusComboBox.setSelectedIndex(0);break;
-            case SHIPPED: orderStatusComboBox.setSelectedIndex(1);break;
-            case CANCELED: orderStatusComboBox.setSelectedIndex(2);break;
-         }
+        switch(order.getOrderStatus()) { 
+            case PREPARING: 
+                orderStatusComboBox.setSelectedIndex(0);break;
+            case SHIPPED: 
+                orderStatusComboBox.setSelectedIndex(1); 
+                discountSpinner.enableInputMethods(false);
+                personButton.enableInputMethods(false);
+                addOrderItemButton.enableInputMethods(false);
+                break;
+            case CANCELED: 
+                orderStatusComboBox.setSelectedIndex(2);
+                discountSpinner.enableInputMethods(false);
+                personButton.enableInputMethods(false);
+                addOrderItemButton.enableInputMethods(false);
+                break;
+        }
         personLabel.setText(order.getContactPerson().toString());       
         discountSpinner.setValue(order.getDiscount());
         priceLabel.setText(String.valueOf( order.getTotalPrice().floatValue() ));
         discountPriceLabel.setText(String.valueOf( order.getDiscountPrice().floatValue() ));
-        orderListTable.setModel(new OrderItemTableModel(mediator, order.getOrderList()));
+        this.order = order;
+        OrderItemTableModel oitm = new OrderItemTableModel(order);
+        order.addListener(oitm);
+        orderListTable.setModel(oitm);
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -65,7 +91,7 @@ public class OrderCardPanel extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         personLabel = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        PersonButton = new javax.swing.JButton();
+        personButton = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         discountSpinner = new javax.swing.JSpinner();
         jLabel5 = new javax.swing.JLabel();
@@ -74,7 +100,7 @@ public class OrderCardPanel extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         orderListTable = new javax.swing.JTable();
         jToolBar1 = new javax.swing.JToolBar();
-        addOrderItem = new javax.swing.JButton();
+        addOrderItemButton = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         submitButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
@@ -85,7 +111,7 @@ public class OrderCardPanel extends javax.swing.JPanel {
 
         jLabel6.setText("Сумма заказа");
 
-        discountPriceLabel.setText("jLabel10");
+        discountPriceLabel.setText("0");
 
         jLabel7.setText("Сумма заказа с учетом скидки");
 
@@ -105,14 +131,14 @@ public class OrderCardPanel extends javax.swing.JPanel {
 
         jLabel3.setText("Статус заказа");
 
-        PersonButton.setText("...");
-        PersonButton.setPreferredSize(new java.awt.Dimension(45, 20));
+        personButton.setText("...");
+        personButton.setPreferredSize(new java.awt.Dimension(45, 20));
 
         jLabel4.setText("Клиент");
 
         jLabel5.setText("Скидка, %");
 
-        priceLabel.setText("Price");
+        priceLabel.setText("0");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -149,7 +175,7 @@ public class OrderCardPanel extends javax.swing.JPanel {
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(personLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(PersonButton, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(personButton, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(208, 208, 208))))
         );
         jPanel1Layout.setVerticalGroup(
@@ -170,7 +196,7 @@ public class OrderCardPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(PersonButton, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(personButton, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(personLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -207,16 +233,16 @@ public class OrderCardPanel extends javax.swing.JPanel {
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
 
-        addOrderItem.setText("Добавить в заказ");
-        addOrderItem.setFocusable(false);
-        addOrderItem.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        addOrderItem.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        addOrderItem.addActionListener(new java.awt.event.ActionListener() {
+        addOrderItemButton.setText("Добавить позицию в заказ");
+        addOrderItemButton.setFocusable(false);
+        addOrderItemButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        addOrderItemButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        addOrderItemButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addOrderItemActionPerformed(evt);
+                addOrderItemButtonActionPerformed(evt);
             }
         });
-        jToolBar1.add(addOrderItem);
+        jToolBar1.add(addOrderItemButton);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -305,15 +331,15 @@ public class OrderCardPanel extends javax.swing.JPanel {
         maintab.remove(this);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
-    private void addOrderItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addOrderItemActionPerformed
+    private void addOrderItemButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addOrderItemButtonActionPerformed
         maintab = (JTabbedPane) this.getParent();
-        maintab.addTab("Добавить в заказ",new GoodsPanel(mediator, StateEnum.EXIST));
-    }//GEN-LAST:event_addOrderItemActionPerformed
+        maintab.addTab("Добавить в заказ",new GoodsPanel(mediator, this, order, StateEnum.EXIST));
+        maintab.setSelectedIndex(maintab.getTabCount() -1);
+    }//GEN-LAST:event_addOrderItemButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton PersonButton;
-    private javax.swing.JButton addOrderItem;
+    private javax.swing.JButton addOrderItemButton;
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel discountPriceLabel;
     private javax.swing.JSpinner discountSpinner;
@@ -333,8 +359,15 @@ public class OrderCardPanel extends javax.swing.JPanel {
     private javax.swing.JTable orderListTable;
     private javax.swing.JLabel orderNumberLabel;
     private javax.swing.JComboBox<String> orderStatusComboBox;
+    private javax.swing.JButton personButton;
     private javax.swing.JLabel personLabel;
     private javax.swing.JLabel priceLabel;
     private javax.swing.JButton submitButton;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void update(String eventType) {
+        priceLabel.setText(String.valueOf( order.getTotalPrice().floatValue() ));
+        discountPriceLabel.setText(String.valueOf( order.getDiscountPrice().floatValue() ));
+    }
 }

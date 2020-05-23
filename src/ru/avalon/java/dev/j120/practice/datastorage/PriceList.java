@@ -4,12 +4,12 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import ru.avalon.java.dev.j120.practice.entity.Goods;
+import ru.avalon.java.dev.j120.practice.entity.Good;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 public class PriceList {
     private Long currentFreeArticle;
-    private HashMap<Long, Goods> priceList;
+    private HashMap<Long, Good> priceList;
     private ArrayList<MyEventListener> listeners = new ArrayList<>(); 
             
     public PriceList() {
@@ -17,7 +17,7 @@ public class PriceList {
         priceList = new HashMap<>();
     }
     
-    public PriceList(HashMap<Long, Goods> priceList) {                
+    public PriceList(HashMap<Long, Good> priceList) {                
         this.priceList = priceList;
         currentFreeArticle = getFreeArticle();
     }
@@ -37,9 +37,9 @@ public class PriceList {
     
     public long addNew(String variety, String color, BigDecimal price, long instock) {
         //Если не удалось вставить товар по текущему артикулу, то найти наименьший свободный артикул и вставить
-        if(priceList.putIfAbsent(currentFreeArticle, new Goods(currentFreeArticle,variety,color,price,instock)) != null){
+        if(priceList.putIfAbsent(currentFreeArticle, new Good(currentFreeArticle,variety,color,price,instock)) != null){
             currentFreeArticle = this.getFreeArticle();
-            priceList.put(currentFreeArticle, new Goods(currentFreeArticle,variety,color,price,instock));            
+            priceList.put(currentFreeArticle, new Good(currentFreeArticle,variety,color,price,instock));            
         }
         long usedArticle = currentFreeArticle;
         currentFreeArticle = this.getFreeArticle();
@@ -47,36 +47,36 @@ public class PriceList {
         return usedArticle;
     }
     /** Вставляет в priceList товар уже имеющий артикул    
-     * @param goods
+     * @param good
      * @throws IllegalArgumentException 
      */
-    public void addExist(Goods goods) throws IllegalArgumentException{        
-        if(priceList.putIfAbsent(goods.getArticle(), goods) != null){
-            throw new IllegalArgumentException("Article " + goods.getArticle() + " already in the list." );
+    public void addExist(Good good) throws IllegalArgumentException{        
+        if(priceList.putIfAbsent(good.getArticle(), good) != null){
+            throw new IllegalArgumentException("Article " + good.getArticle() + " already in the list." );
         }
         currentFreeArticle = getFreeArticle();
         fireDataChanged("update");
     }
     
-    public HashMap<Long, Goods> getPriceList() {
+    public HashMap<Long, Good> getPriceList() {
         return new HashMap<> (priceList);
     }
     
-    public Goods getGoods(long article) throws IllegalArgumentException{
+    public Good getGood(long article) throws IllegalArgumentException{
         if (priceList.containsKey(article)){            
-            return new Goods(priceList.get(article));
+            return new Good(priceList.get(article));
         }
         throw new IllegalArgumentException("Article " + article +" not exist");
     }
     
-    public void removeGoods(long article) {
+    public void removeGood(long article) {
         priceList.remove(article);
         currentFreeArticle = getFreeArticle();
         fireDataChanged("update");
     }
     
-    public void replaceGoods(Goods goods) {
-        priceList.replace(goods.getArticle(), goods);
+    public void replaceGood(Good good) {
+        priceList.replace(good.getArticle(), good);
         fireDataChanged("update");
     }
     

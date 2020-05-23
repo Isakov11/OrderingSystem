@@ -16,20 +16,29 @@ import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 
 public class OrderItemTableModel extends AbstractTableModel implements MyEventListener {
-    
-    /*private final long article;
-    private final BigDecimal fixedPrice;
-    private long orderedQuantity;
-    private BigDecimal totalPrice;*/
-    private final Mediator mediator;        
+        
+    private final Order order;        
     private ArrayList<OrderedItem> arrayOrderedItem;
     private final String[] columnHeader = {"Article","Variety","Color","Price","Ordered Quantity","Total Price"};
     private final Class[] columnClasses = new Class[]{
         Long.class, String.class, String.class, BigDecimal.class, Long.class, BigDecimal.class};
 
-    public OrderItemTableModel(Mediator mediator, HashMap<Long, OrderedItem> orderedItemsList) {
-        this.mediator = mediator;
-        this.arrayOrderedItem = new ArrayList<> (orderedItemsList.values());
+    public OrderItemTableModel(Order order) {
+        this.order = order;
+        this.arrayOrderedItem = new ArrayList<> (order.getOrderList().values());
+    }
+
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        switch(columnIndex) { 
+            case 0: return false; 
+            case 1: return false;
+            case 2: return false;            
+            case 3: return false; 
+            case 4: return true;
+            case 5: return false; 
+            default: return false; 
+        }
     }
 
     @Override
@@ -63,16 +72,15 @@ public class OrderItemTableModel extends AbstractTableModel implements MyEventLi
             case 4: return OrderedItem.getOrderedQuantity();
             case 5: return OrderedItem.getTotalPrice(); 
             default: return null; 
-        }
-        
+        }        
     }
 
     @Override
     public void update(String eventType) {
-        /*this.arrayOrderedItem = new ArrayList<>(mediator.getOrderList().getOrder().getOrderList().values());
-        arrayOrderedItem.sort((OrderedItem o1, OrderedItem o2) -> o1.getArticle()>o2.getArticle()? 1: -1);
-        
-        this.fireTableDataChanged();*/
+        this.arrayOrderedItem = new ArrayList<>(order.getOrderList().values());
+        arrayOrderedItem.sort((OrderedItem o1, OrderedItem o2) -> o1.getItem().getArticle()>o2.getItem().getArticle()? 1: -1);
+        System.out.println("hello");
+        this.fireTableDataChanged();
     }
     
 }

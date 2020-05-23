@@ -98,7 +98,7 @@
                               <Group type="102" attributes="0">
                                   <Component id="personLabel" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="PersonButton" min="-2" pref="26" max="-2" attributes="0"/>
+                                  <Component id="personButton" min="-2" pref="26" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace min="-2" pref="208" max="-2" attributes="0"/>
@@ -128,7 +128,7 @@
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jLabel4" alignment="0" min="-2" pref="22" max="-2" attributes="0"/>
-                      <Component id="PersonButton" alignment="0" min="-2" pref="23" max="-2" attributes="0"/>
+                      <Component id="personButton" alignment="0" min="-2" pref="23" max="-2" attributes="0"/>
                       <Component id="personLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
@@ -162,7 +162,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="discountPriceLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="jLabel10"/>
+            <Property name="text" type="java.lang.String" value="0"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel7">
@@ -224,7 +224,7 @@
             <Property name="text" type="java.lang.String" value="&#x421;&#x442;&#x430;&#x442;&#x443;&#x441; &#x437;&#x430;&#x43a;&#x430;&#x437;&#x430;"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JButton" name="PersonButton">
+        <Component class="javax.swing.JButton" name="personButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="..."/>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
@@ -246,7 +246,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="priceLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Price"/>
+            <Property name="text" type="java.lang.String" value="0"/>
           </Properties>
         </Component>
       </SubComponents>
@@ -296,6 +296,33 @@
                     <Column editable="true" title="Title 4" type="java.lang.Object"/>
                   </Table>
                 </Property>
+                <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+                  <TableColumnModel selectionModel="0">
+                    <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                      <Title/>
+                      <Editor/>
+                      <Renderer/>
+                    </Column>
+                    <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                      <Title/>
+                      <Editor/>
+                      <Renderer/>
+                    </Column>
+                    <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                      <Title/>
+                      <Editor/>
+                      <Renderer/>
+                    </Column>
+                    <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                      <Title/>
+                      <Editor/>
+                      <Renderer/>
+                    </Column>
+                  </TableColumnModel>
+                </Property>
+                <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
+                  <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
+                </Property>
               </Properties>
             </Component>
           </SubComponents>
@@ -308,15 +335,15 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
           <SubComponents>
-            <Component class="javax.swing.JButton" name="addOrderItem">
+            <Component class="javax.swing.JButton" name="addOrderItemButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="&#x414;&#x43e;&#x431;&#x430;&#x432;&#x438;&#x442;&#x44c; &#x432; &#x437;&#x430;&#x43a;&#x430;&#x437;"/>
+                <Property name="text" type="java.lang.String" value="&#x414;&#x43e;&#x431;&#x430;&#x432;&#x438;&#x442;&#x44c; &#x43f;&#x43e;&#x437;&#x438;&#x446;&#x438;&#x44e; &#x432; &#x437;&#x430;&#x43a;&#x430;&#x437;"/>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="horizontalTextPosition" type="int" value="0"/>
                 <Property name="verticalTextPosition" type="int" value="3"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addOrderItemActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addOrderItemButtonActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>

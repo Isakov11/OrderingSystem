@@ -56,9 +56,9 @@ public class Mediator {
         return orderlist;
     }
     
-    public final void updateGood(StateEnum state, Goods good){
+    public final void updateGood(StateEnum state, Good good){
         if (state.equals(StateEnum.NEW)){pricelist.addExist(good);}
-        if (state.equals(StateEnum.EXIST)){pricelist.replaceGoods(good);}
+        if (state.equals(StateEnum.EXIST)){pricelist.replaceGood(good);}
         /*try {
             goodsIO.write(Config.get().getPricePath(), pricelist.getPriceList());
         } catch (IOException ex) {
@@ -68,6 +68,10 @@ public class Mediator {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setVisible(true);
         }*/
+    }
+    
+    public final void updateOrder(StateEnum state, Order order){
+        if (state.equals(StateEnum.NEW)){orderlist.addNew(order);}
     }
 }
     

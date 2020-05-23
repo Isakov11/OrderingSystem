@@ -3,8 +3,10 @@ package ru.avalon.java.dev.j120.practice.entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import ru.avalon.java.dev.j120.practice.exceptions.IllegalStatusException;
+import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 public class Order implements Serializable {    
     private final long orderNumber;
@@ -12,9 +14,9 @@ public class Order implements Serializable {
     private Person contactPerson;    
     private int discount;
     private OrderStatusEnum orderStatus;
-    private BigDecimal totalPrice;
-    //HashMap<артикул, товар> orderList;
-    private HashMap<Long, OrderedItem> orderList;
+    private BigDecimal totalPrice;    
+    private HashMap<Long, OrderedItem> orderList; //HashMap <артикул, товар> 
+    private ArrayList<MyEventListener> listeners = new ArrayList<>(); 
 
     public Order(long orderNumber, LocalDate orderDate, /*Person contactPerson,*/ int discount, OrderStatusEnum orderStatus) {
         this.orderNumber = orderNumber;
@@ -123,6 +125,7 @@ public class Order implements Serializable {
                 this.orderList.replace(orderedItem.getItem().getArticle(), tempGood);
             }
             calcTotalPrice();
+            fireDataChanged("update");
         }
         else {
             throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
@@ -134,6 +137,7 @@ public class Order implements Serializable {
             if (this.orderList.containsKey(article)){
                 this.orderList.get(article).reduceQuantity(quantity);
                 calcTotalPrice();
+                fireDataChanged("update");
             }            
         }
         else {
@@ -145,6 +149,7 @@ public class Order implements Serializable {
         if (this.orderStatus == OrderStatusEnum.PREPARING){
             this.orderList.remove(article);
             calcTotalPrice();
+            fireDataChanged("update");
         }
         else {
             throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
@@ -157,6 +162,24 @@ public class Order implements Serializable {
            temp = temp.add(value.getTotalPrice());
         }
         this.totalPrice = temp;
+    }
+    
+    public void addListener(MyEventListener listener){
+        listeners.add(listener);
+    } 
+    
+    public void removeListener(MyEventListener listener){
+        listeners.remove(listener);
+    }
+    
+    public MyEventListener[] getListeners(){
+        return listeners.toArray(new MyEventListener[listeners.size()]);
+    }
+    
+    protected void fireDataChanged(String message){
+        listeners.forEach((listener) -> {
+            listener.update(message);
+        });
     }
 
     @Override

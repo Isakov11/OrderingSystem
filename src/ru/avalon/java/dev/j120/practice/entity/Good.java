@@ -2,14 +2,14 @@ package ru.avalon.java.dev.j120.practice.entity;
 
 import java.math.BigDecimal;
 
-public class Goods{
+public class Good{
     private long article;
     private String variety;
     private String color;
     private BigDecimal price;
     private long instock;
 
-    public Goods(long article, String variety, String color, BigDecimal price, long instock) {
+    public Good(long article, String variety, String color, BigDecimal price, long instock) {
         this.article = article;
         this.variety = variety;
         this.color = color;
@@ -17,16 +17,16 @@ public class Goods{
         addInstock(instock);
     }
 
-    public Goods(long article, String variety, BigDecimal price, long instock) {        
+    public Good(long article, String variety, BigDecimal price, long instock) {        
         this(article, variety, "n/a", price, instock);
     }
      
-    public Goods(Goods goods){
-        this.article = goods.article;
-        this.variety = goods.variety;
-        this.color = goods.color;
-        setPrice(goods.price);
-        addInstock(goods.instock);
+    public Good(Good good){
+        this.article = good.article;
+        this.variety = good.variety;
+        this.color = good.color;
+        setPrice(good.price);
+        addInstock(good.instock);
     }
     
     public long getArticle() {
@@ -114,10 +114,10 @@ public class Goods{
         if (obj == this) { 
             return true; 
         }
-        if (!(obj instanceof Goods)) { 
+        if (!(obj instanceof Good)) { 
             return false; 
         }
-        Goods good = (Goods) obj;
+        Good good = (Good) obj;
         return this.article == good.article;        
     }
 
