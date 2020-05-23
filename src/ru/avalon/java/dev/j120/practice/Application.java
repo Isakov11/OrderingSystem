@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import ru.avalon.java.dev.j120.practice.IO.GoodsIO;
 import ru.avalon.java.dev.j120.practice.IO.OrderIO;
-import ru.avalon.java.dev.j120.practice.controller.Controller;
+import ru.avalon.java.dev.j120.practice.controller.Mediator;
 import ru.avalon.java.dev.j120.practice.datastorage.PriceList;
 import ru.avalon.java.dev.j120.practice.datastorage.OrderList;
 import ru.avalon.java.dev.j120.practice.entity.*;
@@ -78,12 +78,12 @@ public class Application {
             GoodsIO.write(Config.get().getOrderPath(), pl.getPriceList());
             OrderIO.write(Config.get().getOrderPath(), orderList.getOrderList());
         } catch (IOException ex) {
-            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+            
         }*/
 
         
-        Controller controller  = new Controller();
-        controller.main();
+        Mediator mediator  = new Mediator();
+        mediator.main();
     }
            
 }

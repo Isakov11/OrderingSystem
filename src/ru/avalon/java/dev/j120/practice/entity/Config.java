@@ -13,12 +13,12 @@ public class Config {
     }
 
     public static Config get() {
-        if (instance == null) {
+        if (instance == null) {            
             Properties temp = ConfigIO.readConfig();
             if (temp.isEmpty()){
                 instance = new Config(new Properties());
             }
-            instance = new Config(temp);
+            instance = new Config(temp);             
         }
         return instance;
     }   

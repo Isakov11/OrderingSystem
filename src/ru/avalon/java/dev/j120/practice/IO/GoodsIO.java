@@ -1,6 +1,6 @@
 package ru.avalon.java.dev.j120.practice.IO;
 
-import ru.avalon.java.dev.j120.practice.entity.Goods;
+import ru.avalon.java.dev.j120.practice.entity.Good;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -9,100 +9,100 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GoodsIO {
-    
-    private GoodsIO(){}
-    
-    public static HashMap<Long, Goods> read(String filePath) throws IOException{        
-                
-        File file = new File(filePath);
-        HashMap<Long, Goods> goodsMap = new HashMap<>();
-        Goods goods;
-        //Паттерны для регулярных выражений:
+    //Паттерны для регулярных выражений:
         //1-й поиск целого числа,
         //2-й поиск натурального числа
-        Pattern[] pattern = {Pattern.compile("\\d+"), Pattern.compile("\\d+[.,]{1}\\d+")};
-        String[] subs;
+    private final Pattern digitPattern = Pattern.compile("\\d+");
+    private final Pattern pricePattern = Pattern.compile("\\d+[.,]{1}\\d+");
+    
+    public GoodsIO(){}
+    
+    public HashMap<Long, Good> read(String filePath) throws IOException{        
+                
+        File file = new File(filePath);
+        HashMap<Long, Good> goodsMap = new HashMap<>();
+        Good good;
+        
+        
         if (file.isFile()){
             try (FileReader fr = new FileReader(filePath);
                  BufferedReader br = new BufferedReader(fr))
             {
                 String line;
                 while ((line = br.readLine()) != null){                
-                    goods = CreateGoods(line, pattern);
-                    if (goods != null){
-                        goodsMap.putIfAbsent(goods.getArticle(), goods);
+                    good = createGood(line);
+                    if (good != null){
+                        goodsMap.putIfAbsent(good.getArticle(), good);
                     }
                     else {
-                        throw new IllegalArgumentException("Error in line: " + line);
+                        throw new IOException("Error in line: " + line);
                     }    
                 }
             } catch (IOException ex) {
-                throw new IOException("IO exception");
+                throw new IOException(ex);
             }
         }
         else{
-            return new HashMap<Long, Goods>();
+            return new HashMap<>();
         }
         return goodsMap;
     }
     
-    private static Goods CreateGoods(String string, Pattern[] pattern) {   
+    private Good createGood(String string) {   
         long article;
         String variety;
         String color;
         BigDecimal price;
         long instock;        
         
-        String[] SubStringArray = string.split(";");
-        Pattern digitPattern = pattern[0];
-        Pattern pricePattern = pattern[1];
+        String[] subStringArray = string.split(";");
         Matcher matcher;
-        
-        if (!SubStringArray[0].isEmpty()){
-           matcher = digitPattern.matcher(SubStringArray[0].trim());
-            if (matcher.find()){
-                article = Long.parseLong(matcher.group());
+        if (subStringArray.length == 5){
+            if (!subStringArray[0].isEmpty()){
+               matcher = digitPattern.matcher(subStringArray[0].trim());
+                if (matcher.find()){
+                    article = Long.parseLong(matcher.group());
+                }
+                else {return null;}
+            } 
+            else {return null;}
+
+            if (!subStringArray[1].isEmpty()){
+                variety = subStringArray[1].trim();
             }
             else {return null;}
-        } 
-        else {return null;}
-        
-        if (!SubStringArray[1].isEmpty()){
-            variety = SubStringArray[1].trim();
-        }
-        else {return null;}
-        
-        if (!SubStringArray[2].isEmpty()){
-            color = SubStringArray[2].trim();
-        }
-        else {color="n/a";}
-        
-        if (!SubStringArray[3].isEmpty()){            
-            matcher = pricePattern.matcher(SubStringArray[3].trim());
-            if (matcher.find()){
-                price = BigDecimal.valueOf(Double.valueOf ( matcher.group() ));
+
+            if (!subStringArray[2].isEmpty()){
+                color = subStringArray[2].trim();
+            }
+            else {color="";}
+
+            if (!subStringArray[3].isEmpty()){            
+                matcher = pricePattern.matcher(subStringArray[3].trim());
+                if (matcher.find()){
+                    price = BigDecimal.valueOf(Double.valueOf ( matcher.group() ));
+                }
+                else {return null;}
             }
             else {return null;}
-        }
-        else {return null;}
-        
-        if (!SubStringArray[4].isEmpty()){
-            matcher = digitPattern.matcher(SubStringArray[4].trim());
-            if (matcher.find()){
-                instock = Long.parseLong(matcher.group());
+
+            if (!subStringArray[4].isEmpty()){
+                matcher = digitPattern.matcher(subStringArray[4].trim());
+                if (matcher.find()){
+                    instock = Long.parseLong(matcher.group());
+                }
+                else {return null;}
             }
-            else {return null;}
+            else {return null;}        
+            return new Good(article, variety, color, price, instock);
         }
         else {return null;}
-        
-        return new Goods(article, variety, color, price, instock);
     }
     
-    public static void write(String filePath, HashMap<Long, Goods> map) throws IOException{
-        
+    public void write(String filePath, HashMap<Long, Good> map) throws IOException{        
         StringBuilder sb = new StringBuilder();
 
-        map.forEach((k,v) -> {  sb.append(v.getArticle());
+        map.forEach((k,v) -> {  sb.append(k);
                                 sb.append(";");
                                 sb.append(v.getVariety());
                                 sb.append(";");

@@ -3,7 +3,10 @@ package ru.avalon.java.dev.j120.practice.entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import ru.avalon.java.dev.j120.practice.exceptions.IllegalStatusException;
+import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 public class Order implements Serializable {    
     private final long orderNumber;
@@ -11,14 +14,14 @@ public class Order implements Serializable {
     private Person contactPerson;    
     private int discount;
     private OrderStatusEnum orderStatus;
-    private BigDecimal totalPrice;
-    //HashMap<артикул, товар> orderList;
-    private HashMap<Long, OrderedItem> orderList;
+    private BigDecimal totalPrice;    
+    private HashMap<Long, OrderedItem> orderList; //HashMap <артикул, товар> 
+    private ArrayList<MyEventListener> listeners = new ArrayList<>(); 
 
-    public Order(long orderNumber, LocalDate orderDate, Person contactPerson, int discount, OrderStatusEnum orderStatus) {
+    public Order(long orderNumber, LocalDate orderDate, /*Person contactPerson,*/ int discount, OrderStatusEnum orderStatus) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
-        this.contactPerson = contactPerson;
+        //this.contactPerson = contactPerson;
         setDiscntWtCheck(discount);
         this.orderStatus = orderStatus;
         this.orderList = new HashMap<>();
@@ -77,25 +80,25 @@ public class Order implements Serializable {
         return totalPrice.multiply(new BigDecimal(1 - this.discount*0.01));
     }
     
-    public void setContactPerson(Person contactPerson) throws IllegalArgumentException {
+    public void setContactPerson(Person contactPerson) throws IllegalStatusException {
         if (this.orderStatus == OrderStatusEnum.PREPARING){
             this.contactPerson = contactPerson;
         }
         else {
-            throw new IllegalArgumentException("Order status is " + this.orderStatus);
+            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
         }
     }
 
-    public void setDiscount(int discount) throws IllegalArgumentException {
+    public void setDiscount(int discount) throws IllegalStatusException {
         if (this.orderStatus == OrderStatusEnum.PREPARING){
             setDiscntWtCheck(discount);
         }
         else {
-            throw new IllegalArgumentException("Order status is " + this.orderStatus);
+            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
         }
     }
     
-    private void setDiscntWtCheck(int discount) throws IllegalArgumentException {
+    private void setDiscntWtCheck(int discount)  {
         if ( (discount > 0) && (discount <= Config.get().getMaxDiscount()) ){
             this.discount = discount;
         }       
@@ -104,46 +107,52 @@ public class Order implements Serializable {
         }
     } 
     
-    public void setOrderStatus(OrderStatusEnum orderStatus) throws IllegalArgumentException {
+    public void setOrderStatus(OrderStatusEnum orderStatus) throws IllegalStatusException {
         if (this.orderStatus == OrderStatusEnum.PREPARING){
             this.orderStatus = orderStatus;
         }
         else {
-            throw new IllegalArgumentException("Order status is " + this.orderStatus);
+            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
         }
     }
 
-    public void add(OrderedItem orderedItem)throws IllegalArgumentException{
+    public void add(OrderedItem orderedItem) throws IllegalStatusException{
         if (this.orderStatus == OrderStatusEnum.PREPARING){
-            OrderedItem tempGood = this.orderList.putIfAbsent(orderedItem.getArticle(), orderedItem);
+            OrderedItem tempGood = this.orderList.putIfAbsent(orderedItem.getItem().getArticle(), orderedItem);
             if (tempGood != null){
                 //Если товар уже присутствует в списке, то прибавить и заменить
                 tempGood.addQuantity(orderedItem.getOrderedQuantity());
-                this.orderList.replace(orderedItem.getArticle(), tempGood);
+                this.orderList.replace(orderedItem.getItem().getArticle(), tempGood);
             }
             calcTotalPrice();
+            fireDataChanged("update");
         }
         else {
-            throw new IllegalArgumentException("Order status is " + this.orderStatus);
+            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
         }
     }
     
-    public void reduce(long article,long quantity)throws IllegalArgumentException{
+    public void reduce(long article,long quantity) throws IllegalStatusException{
         if (this.orderStatus == OrderStatusEnum.PREPARING){
             if (this.orderList.containsKey(article)){
                 this.orderList.get(article).reduceQuantity(quantity);
                 calcTotalPrice();
+                fireDataChanged("update");
             }            
         }
         else {
-            throw new IllegalArgumentException("Order status is " + this.orderStatus);
+            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
         }
     }
     
-    public void remove(long article){
+    public void remove(long article) throws IllegalStatusException{
         if (this.orderStatus == OrderStatusEnum.PREPARING){
             this.orderList.remove(article);
             calcTotalPrice();
+            fireDataChanged("update");
+        }
+        else {
+            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
         }
     }
     
@@ -154,6 +163,24 @@ public class Order implements Serializable {
         }
         this.totalPrice = temp;
     }
+    
+    public void addListener(MyEventListener listener){
+        listeners.add(listener);
+    } 
+    
+    public void removeListener(MyEventListener listener){
+        listeners.remove(listener);
+    }
+    
+    public MyEventListener[] getListeners(){
+        return listeners.toArray(new MyEventListener[listeners.size()]);
+    }
+    
+    protected void fireDataChanged(String message){
+        listeners.forEach((listener) -> {
+            listener.update(message);
+        });
+    }
 
     @Override
     public String toString() {
@@ -163,7 +190,11 @@ public class Order implements Serializable {
         sb.append("\nOrder Date: ");
         sb.append(orderDate);
         sb.append("\nContact Person: ");
-        sb.append(contactPerson);
+        sb.append(contactPerson.getContactPerson());
+        sb.append("\nDelivery Address: ");
+        sb.append(contactPerson.getDeliveryAddress());
+        sb.append("\nPhone Number: ");
+        sb.append(contactPerson.getPhoneNumber());
         sb.append("\nDiscount: ");
         sb.append(discount);
         sb.append("%");

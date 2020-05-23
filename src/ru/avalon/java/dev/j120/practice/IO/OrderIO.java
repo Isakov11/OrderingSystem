@@ -3,13 +3,12 @@ package ru.avalon.java.dev.j120.practice.IO;
 import ru.avalon.java.dev.j120.practice.entity.Order;
 import java.io.*;
 import java.util.HashMap;
-import java.util.logging.*;
 
 public class OrderIO {
 
-    private OrderIO() {}
+    public OrderIO() {}
     
-    public static HashMap<Long, Order> read(String filePath) throws IOException, ClassNotFoundException{
+    public HashMap<Long, Order> read(String filePath) throws IOException, ClassNotFoundException{
         
         File file = new File(filePath);
         if (file.isFile()){
@@ -19,20 +18,22 @@ public class OrderIO {
                 return new HashMap<>((HashMap<Long, Order>)objStream.readObject());
             } 
             catch (FileNotFoundException ex) {
-                Logger.getLogger(OrderIO.class.getName()).log(Level.SEVERE, null, ex);
             }
+            catch (InvalidClassException ex) {
+              return new HashMap<>();
+            }
+        
         }
-        return new HashMap<Long, Order>();    
+        return new HashMap<>();    
     }
     
-    public static void write(String filePath, HashMap<Long, Order> orderList) throws IOException{
+    public void write(String filePath, HashMap<Long, Order> orderList) throws IOException{
         try( ObjectOutputStream objStream = 
                 new ObjectOutputStream(new FileOutputStream(filePath )) )
         {
             objStream.writeObject(orderList);
         } 
-        catch (FileNotFoundException ex) {
-            Logger.getLogger(OrderIO.class.getName()).log(Level.SEVERE, null, ex);
+        catch (FileNotFoundException ex) {            
         }
     }
 }
