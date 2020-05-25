@@ -15,9 +15,11 @@ public class Person implements Serializable{
     }
 
     public Person(Person person) {
-        this.contactPerson = person.contactPerson;
-        this.deliveryAddress = person.deliveryAddress;
-        this.phoneNumber = person.phoneNumber;
+        if (person !=null){
+            this.contactPerson = person.contactPerson;
+            this.deliveryAddress = person.deliveryAddress;
+            this.phoneNumber = person.phoneNumber;
+        }
     }
     
     public String getContactPerson() {

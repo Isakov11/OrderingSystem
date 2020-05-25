@@ -110,14 +110,14 @@ public class GoodsCardPanel extends javax.swing.JPanel {
             }
         });
 
-        submitButton.setText("Submit");
+        submitButton.setText("Сохранить");
         submitButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 submitButtonActionPerformed(evt);
             }
         });
 
-        cancelButton.setText("Close");
+        cancelButton.setText("Закрыть");
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelButtonActionPerformed(evt);

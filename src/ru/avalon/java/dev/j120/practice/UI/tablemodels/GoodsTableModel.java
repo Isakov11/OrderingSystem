@@ -9,31 +9,32 @@ import ru.avalon.java.dev.j120.practice.entity.Good;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 public class GoodsTableModel extends AbstractTableModel implements MyEventListener {
-    private Mediator mediator;    
+    private final Mediator mediator;    
     private ArrayList<Good> arrayPriceList;
     private final String[] columnHeader = {"Article","Variety","Color","Price","Instock"};
     private final Class[] columnClasses = new Class[]{
         Long.class, String.class, String.class, BigDecimal.class, Long.class};
     
     public GoodsTableModel(Mediator mediator) {
-        mediator.getPriceList().addListener(this);
+        mediator.getPriceList().addListener((MyEventListener) this);
+        mediator.addListener((MyEventListener) this);
         this.mediator = mediator;
         
         this.arrayPriceList = new ArrayList<>(mediator.getPriceList().getPriceList().values());
         arrayPriceList.sort((Good o1, Good o2) -> o1.getArticle()>o2.getArticle()? 1: -1);
     }
-    
+
     @Override
     /**
      * Обновление данных модели и таблицы по событию от источника
      */
     public void update(String eventType) {
-        
-        this.arrayPriceList = new ArrayList<>(mediator.getPriceList().getPriceList().values());
-        //Сортировка по возрастанию артикула
-        arrayPriceList.sort((Good o1, Good o2) -> o1.getArticle()>o2.getArticle()? 1: -1);
-        
-        this.fireTableDataChanged();
+        if (eventType.equals("update")|| eventType.equals("OrderSHIPPED")){
+            this.arrayPriceList = new ArrayList<>(mediator.getPriceList().getPriceList().values());
+            //Сортировка по возрастанию артикула
+            arrayPriceList.sort((Good o1, Good o2) -> o1.getArticle()>o2.getArticle()? 1: -1);        
+            this.fireTableDataChanged();
+        }
     }
     
     @Override

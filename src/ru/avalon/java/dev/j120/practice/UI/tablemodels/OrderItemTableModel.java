@@ -7,9 +7,7 @@ package ru.avalon.java.dev.j120.practice.UI.tablemodels;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import javax.swing.table.AbstractTableModel;
-import ru.avalon.java.dev.j120.practice.controller.Mediator;
 import ru.avalon.java.dev.j120.practice.entity.Order;
 import ru.avalon.java.dev.j120.practice.entity.OrderedItem;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
@@ -30,15 +28,22 @@ public class OrderItemTableModel extends AbstractTableModel implements MyEventLi
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        switch(columnIndex) { 
-            case 0: return false; 
-            case 1: return false;
-            case 2: return false;            
-            case 3: return false; 
-            case 4: return true;
-            case 5: return false; 
+        switch(columnIndex) {             
+            case 4: return true;            
             default: return false; 
         }
+    }
+
+    @Override
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        
+            OrderedItem orderedItem = arrayOrderedItem.get(rowIndex);
+            switch(columnIndex) {                
+                case 4:
+                    orderedItem.setOrderedQuantity((long) aValue);
+                    order.replace(orderedItem);
+            }
+        
     }
 
     @Override
@@ -63,23 +68,22 @@ public class OrderItemTableModel extends AbstractTableModel implements MyEventLi
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        OrderedItem OrderedItem = arrayOrderedItem.get(rowIndex);
+        OrderedItem orderedItem = arrayOrderedItem.get(rowIndex);
         switch(columnIndex) { 
-            case 0: return OrderedItem.getItem().getArticle(); 
-            case 1: return OrderedItem.getItem().getVariety();
-            case 2: return OrderedItem.getItem().getColor();            
-            case 3: return OrderedItem.getFixedPrice(); 
-            case 4: return OrderedItem.getOrderedQuantity();
-            case 5: return OrderedItem.getTotalPrice(); 
+            case 0: return orderedItem.getItem().getArticle(); 
+            case 1: return orderedItem.getItem().getVariety();
+            case 2: return orderedItem.getItem().getColor();            
+            case 3: return orderedItem.getFixedPrice(); 
+            case 4: return orderedItem.getOrderedQuantity();
+            case 5: return orderedItem.getTotalPrice(); 
             default: return null; 
         }        
-    }
+    }    
 
     @Override
     public void update(String eventType) {
         this.arrayOrderedItem = new ArrayList<>(order.getOrderList().values());
-        arrayOrderedItem.sort((OrderedItem o1, OrderedItem o2) -> o1.getItem().getArticle()>o2.getItem().getArticle()? 1: -1);
-        System.out.println("hello");
+        arrayOrderedItem.sort((OrderedItem o1, OrderedItem o2) -> o1.getItem().getArticle()>o2.getItem().getArticle()? 1: -1);        
         this.fireTableDataChanged();
     }
     

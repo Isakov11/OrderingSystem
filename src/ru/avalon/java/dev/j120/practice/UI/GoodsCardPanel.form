@@ -166,7 +166,7 @@
       <SubComponents>
         <Component class="javax.swing.JButton" name="submitButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Submit"/>
+            <Property name="text" type="java.lang.String" value="&#x421;&#x43e;&#x445;&#x440;&#x430;&#x43d;&#x438;&#x442;&#x44c;"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="submitButtonActionPerformed"/>
@@ -174,7 +174,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="cancelButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Close"/>
+            <Property name="text" type="java.lang.String" value="&#x417;&#x430;&#x43a;&#x440;&#x44b;&#x442;&#x44c;"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cancelButtonActionPerformed"/>

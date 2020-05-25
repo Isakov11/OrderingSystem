@@ -1,8 +1,9 @@
 package ru.avalon.java.dev.j120.practice.entity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class Good{
+public class Good implements Serializable{
     private long article;
     private String variety;
     private String color;
@@ -82,9 +83,9 @@ public class Good{
                 return stack;
             }
             else{
-                this.instock = 0;
+                //this.instock = 0;
                 return (this.instock - stack);
-                //throw new IllegalArgumentException("Only " + this.instock + " item(s) left");
+                //throw new IllegalStatusException("Only " + this.instock + " item(s) left");
             }        
         }
         else{ 

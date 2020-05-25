@@ -7,6 +7,7 @@ import java.util.HashMap;
 import ru.avalon.java.dev.j120.practice.entity.Good;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
+
 public class PriceList {
     private Long currentFreeArticle;
     private HashMap<Long, Good> priceList;
@@ -80,19 +81,23 @@ public class PriceList {
         fireDataChanged("update");
     }
     
-    public void addListener(MyEventListener listener){
-        listeners.add(listener);
+       public void addListener(MyEventListener listener){
+        if (!listeners.contains(listener)){
+            listeners.add(listener);
+        }
     } 
     
     public void removeListener(MyEventListener listener){
-        listeners.remove(listener);
+        if (listeners.contains(listener)){
+            listeners.remove(listener);
+        }
     }
     
     public MyEventListener[] getListeners(){
         return listeners.toArray(new MyEventListener[listeners.size()]);
     }
     
-    protected void fireDataChanged(String message){
+    public void fireDataChanged(String message){                
         listeners.forEach((listener) -> {
             listener.update(message);
         });
@@ -100,7 +105,7 @@ public class PriceList {
     
     /**Возвращает наименьший неиспользованный артикул
      * @return long*/
-    public long getFreeArticle(){        
+    public final long getFreeArticle(){        
         if (priceList.isEmpty()) {
             return 1;
         }

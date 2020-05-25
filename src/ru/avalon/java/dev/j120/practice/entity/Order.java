@@ -5,8 +5,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import ru.avalon.java.dev.j120.practice.exceptions.IllegalStatusException;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
+
 
 public class Order implements Serializable {    
     private final long orderNumber;
@@ -16,23 +16,23 @@ public class Order implements Serializable {
     private OrderStatusEnum orderStatus;
     private BigDecimal totalPrice;    
     private HashMap<Long, OrderedItem> orderList; //HashMap <артикул, товар> 
-    private ArrayList<MyEventListener> listeners = new ArrayList<>(); 
+    private transient ArrayList<MyEventListener> listeners = new ArrayList<>();
 
-    public Order(long orderNumber, LocalDate orderDate, /*Person contactPerson,*/ int discount, OrderStatusEnum orderStatus) {
+    public Order(long orderNumber, LocalDate orderDate, Person contactPerson, int discount, OrderStatusEnum orderStatus) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
-        //this.contactPerson = contactPerson;
-        setDiscntWtCheck(discount);
+        this.contactPerson = contactPerson;
+        setDiscount(discount);
         this.orderStatus = orderStatus;
         this.orderList = new HashMap<>();
-        totalPrice = new BigDecimal(0);
+        totalPrice = new BigDecimal(0);        
     }
 
     public Order(long orderNumber, LocalDate orderDate, Person contactPerson, int discount, OrderStatusEnum orderStatus, HashMap<Long, OrderedItem> orderList) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
         this.contactPerson = contactPerson;
-        setDiscntWtCheck(discount);
+        setDiscount(discount);
         this.orderStatus = orderStatus;
         this.orderList = orderList;
         calcTotalPrice();
@@ -42,7 +42,7 @@ public class Order implements Serializable {
         this.orderNumber = order.orderNumber;
         this.orderDate = order.orderDate;
         this.contactPerson = order.contactPerson;
-        setDiscntWtCheck(order.discount);
+        setDiscount(order.discount);
         this.orderStatus = order.orderStatus;
         this.orderList = order.orderList;
         calcTotalPrice();
@@ -80,80 +80,53 @@ public class Order implements Serializable {
         return totalPrice.multiply(new BigDecimal(1 - this.discount*0.01));
     }
     
-    public void setContactPerson(Person contactPerson) throws IllegalStatusException {
-        if (this.orderStatus == OrderStatusEnum.PREPARING){
-            this.contactPerson = contactPerson;
-        }
-        else {
-            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
-        }
+    public void setContactPerson(Person contactPerson)  {
+        this.contactPerson = contactPerson;
+        fireDataChanged("personUpdate");
     }
 
-    public void setDiscount(int discount) throws IllegalStatusException {
-        if (this.orderStatus == OrderStatusEnum.PREPARING){
-            setDiscntWtCheck(discount);
-        }
-        else {
-            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
-        }
-    }
-    
-    private void setDiscntWtCheck(int discount)  {
+    public final void setDiscount(int discount) {
         if ( (discount > 0) && (discount <= Config.get().getMaxDiscount()) ){
             this.discount = discount;
         }       
         if ( discount > Config.get().getMaxDiscount() ){
             this.discount = Config.get().getMaxDiscount();
         }
-    } 
+    }
     
-    public void setOrderStatus(OrderStatusEnum orderStatus) throws IllegalStatusException {
-        if (this.orderStatus == OrderStatusEnum.PREPARING){
-            this.orderStatus = orderStatus;
-        }
-        else {
-            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
-        }
+    public void setOrderStatus(OrderStatusEnum orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
-    public void add(OrderedItem orderedItem) throws IllegalStatusException{
-        if (this.orderStatus == OrderStatusEnum.PREPARING){
-            OrderedItem tempGood = this.orderList.putIfAbsent(orderedItem.getItem().getArticle(), orderedItem);
-            if (tempGood != null){
-                //Если товар уже присутствует в списке, то прибавить и заменить
-                tempGood.addQuantity(orderedItem.getOrderedQuantity());
-                this.orderList.replace(orderedItem.getItem().getArticle(), tempGood);
-            }
-            calcTotalPrice();
-            fireDataChanged("update");
+    public void add(OrderedItem orderedItem) {
+        OrderedItem tempItem = this.orderList.putIfAbsent(orderedItem.getItem().getArticle(), orderedItem);
+        if (tempItem != null){
+            //Если товар уже присутствует в списке, то добавить
+            tempItem.addQuantity(orderedItem.getOrderedQuantity());
+            this.orderList.replace(orderedItem.getItem().getArticle(), tempItem);
         }
-        else {
-            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
-        }
+        calcTotalPrice();
+        fireDataChanged("update");
     }
     
-    public void reduce(long article,long quantity) throws IllegalStatusException{
-        if (this.orderStatus == OrderStatusEnum.PREPARING){
-            if (this.orderList.containsKey(article)){
-                this.orderList.get(article).reduceQuantity(quantity);
-                calcTotalPrice();
-                fireDataChanged("update");
-            }            
-        }
-        else {
-            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
-        }
+    public void replace(OrderedItem orderedItem) {
+        this.orderList.replace(orderedItem.getItem().getArticle(), orderedItem);            
+        calcTotalPrice();
+        fireDataChanged("update");
     }
     
-    public void remove(long article) throws IllegalStatusException{
-        if (this.orderStatus == OrderStatusEnum.PREPARING){
-            this.orderList.remove(article);
+    public void reduce(long article,long quantity) {
+        if (this.orderList.containsKey(article)){
+            this.orderList.get(article).reduceQuantity(quantity);
             calcTotalPrice();
             fireDataChanged("update");
-        }
-        else {
-            throw new IllegalStatusException("Order: " + this.orderNumber + " status is " + this.orderStatus);
-        }
+        }            
+    }
+    
+    public void removeItem(long article){
+        this.orderList.remove(article);
+        calcTotalPrice();
+        fireDataChanged("update");
     }
     
     private void calcTotalPrice(){       
@@ -163,25 +136,29 @@ public class Order implements Serializable {
         }
         this.totalPrice = temp;
     }
-    
-    public void addListener(MyEventListener listener){
-        listeners.add(listener);
+
+        public void addListener(MyEventListener listener){
+        if (!listeners.contains(listener)){
+            listeners.add(listener);
+        }
     } 
     
     public void removeListener(MyEventListener listener){
-        listeners.remove(listener);
+        if (listeners.contains(listener)){
+            listeners.remove(listener);
+        }
     }
     
     public MyEventListener[] getListeners(){
         return listeners.toArray(new MyEventListener[listeners.size()]);
     }
     
-    protected void fireDataChanged(String message){
+    public void fireDataChanged(String message){                
         listeners.forEach((listener) -> {
             listener.update(message);
         });
     }
-
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

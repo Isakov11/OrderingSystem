@@ -31,6 +31,13 @@ public class OrderedItem implements Serializable{
     public BigDecimal getTotalPrice() {
         return totalPrice;
     }
+
+    public void setOrderedQuantity(long orderedQuantity) {
+        if (orderedQuantity >= 0){
+            this.orderedQuantity = orderedQuantity;
+            totalPrice = fixedPrice.multiply(new BigDecimal(this.orderedQuantity));
+        }        
+    }
     
     public void addQuantity(long quantity) {        
         if (quantity >= 0){

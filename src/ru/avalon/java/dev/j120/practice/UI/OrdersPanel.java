@@ -13,6 +13,7 @@ import ru.avalon.java.dev.j120.practice.controller.Mediator;
 import ru.avalon.java.dev.j120.practice.entity.Order;
 import ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum;
 import ru.avalon.java.dev.j120.practice.entity.Person;
+import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 public class OrdersPanel extends javax.swing.JPanel {
     private final Mediator mediator;
@@ -26,6 +27,7 @@ public class OrdersPanel extends javax.swing.JPanel {
     public OrdersPanel(Mediator mediator) {
         initComponents();
         this.mediator = mediator;
+        
         otm = new OrderTableModel(mediator);
         ordersTable.setModel(otm);
     }
@@ -93,8 +95,7 @@ public class OrdersPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void addOrderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addOrderButtonActionPerformed
-        orderCard = new OrderCardPanel(mediator, this);
-        
+        orderCard = new OrderCardPanel(mediator, this);         
         maintab = (JTabbedPane) this.getParent();
         maintab.addTab("Новый заказ", orderCard);
         maintab.setSelectedIndex(maintab.getTabCount() -1);

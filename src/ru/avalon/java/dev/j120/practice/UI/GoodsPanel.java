@@ -14,59 +14,62 @@ import ru.avalon.java.dev.j120.practice.controller.Mediator;
 import ru.avalon.java.dev.j120.practice.entity.Good;
 import ru.avalon.java.dev.j120.practice.entity.Order;
 import ru.avalon.java.dev.j120.practice.entity.OrderedItem;
-import ru.avalon.java.dev.j120.practice.exceptions.IllegalStatusException;
+import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 import ru.avalon.java.dev.j120.practice.utils.StateEnum;
 
 /**
  *
  * @author Hino
  */
-public class GoodsPanel extends javax.swing.JPanel {
-    private JTabbedPane maintab;
-    private GoodsCardPanel goodsCard;
+public class GoodsPanel extends javax.swing.JPanel {    
     private final Mediator mediator;
     private TableModel gtm;
     private JPanel opParent;
-    private StateEnum state;
+    private final StateEnum state; //NEW == панель номенклятуры; EXIST == панель добавления товара в заказ
     private Order order;
+    
     /**
-     * Creates new form GoodsPanel
+     * Открывает панель номенклатуры
      * @param mediator
      * @param state
      */
-    
     public GoodsPanel(Mediator mediator, StateEnum state) {
+        if (!state.equals(StateEnum.NEW)){
+            //TODO ERROR
+        }
         initComponents();
-        this.mediator = mediator;        
+        this.mediator = mediator;
+        
         gtm = new GoodsTableModel(mediator);
         goodsTable.setModel(gtm);
         this.state = state;
-        if (state.equals(StateEnum.NEW)){
-            addToOrderButton.setVisible(false);
-            closeButton.setVisible(false);            
-        }
-        
-        if (state.equals(StateEnum.EXIST)){
-            openNewGoodsCardButton.setVisible(false);            
-        }
+        ItemAddedLabel.setVisible(false);
+        addToOrderButton.setVisible(false);
+        closeButton.setVisible(false);
     }
     
+    /**
+     * Открывает панель добавления товара
+     * @param mediator
+     * @param opParent
+     * @param order
+     * @param state
+     */
     public GoodsPanel(Mediator mediator, JPanel opParent, Order order, StateEnum state) {
+        if (!state.equals(StateEnum.EXIST)){
+            //TODO ERROR      
+        }
         initComponents();
         this.mediator = mediator;
+        
+        this.opParent = opParent;
         this.order = order;
         this.opParent = opParent;
         gtm = new GoodsTableModel(mediator);
         goodsTable.setModel(gtm);
         this.state = state;
-        if (state.equals(StateEnum.NEW)){
-            addToOrderButton.setVisible(false);
-            closeButton.setVisible(false);            
-        }
-        
-        if (state.equals(StateEnum.EXIST)){
-            openNewGoodsCardButton.setVisible(false);            
-        }
+        ItemAddedLabel.setVisible(false);
+        openNewGoodsCardButton.setVisible(false);
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -80,7 +83,10 @@ public class GoodsPanel extends javax.swing.JPanel {
         jToolBar1 = new javax.swing.JToolBar();
         openNewGoodsCardButton = new javax.swing.JButton();
         addToOrderButton = new javax.swing.JButton();
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(10, 0), new java.awt.Dimension(10, 0), new java.awt.Dimension(10, 32767));
         closeButton = new javax.swing.JButton();
+        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(10, 0), new java.awt.Dimension(10, 0), new java.awt.Dimension(10, 32767));
+        ItemAddedLabel = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         goodsTable = new javax.swing.JTable();
 
@@ -102,7 +108,13 @@ public class GoodsPanel extends javax.swing.JPanel {
         addToOrderButton.setFocusable(false);
         addToOrderButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         addToOrderButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        addToOrderButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addToOrderButtonActionPerformed(evt);
+            }
+        });
         jToolBar1.add(addToOrderButton);
+        jToolBar1.add(filler2);
 
         closeButton.setText("Закрыть");
         closeButton.setFocusable(false);
@@ -114,6 +126,10 @@ public class GoodsPanel extends javax.swing.JPanel {
             }
         });
         jToolBar1.add(closeButton);
+        jToolBar1.add(filler3);
+
+        ItemAddedLabel.setText("Позиция добавлена");
+        jToolBar1.add(ItemAddedLabel);
 
         goodsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -151,14 +167,26 @@ public class GoodsPanel extends javax.swing.JPanel {
 
     private void openNewGoodsCardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openNewGoodsCardButtonActionPerformed
         JTabbedPane maintab = (JTabbedPane) this.getParent();
-        goodsCard = new GoodsCardPanel(mediator, this);
+        GoodsCardPanel goodsCard = new GoodsCardPanel(mediator, this);
         maintab.addTab("Новая номенклатурная единица", goodsCard);
         maintab.setSelectedIndex(maintab.getTabCount() -1);
     }//GEN-LAST:event_openNewGoodsCardButtonActionPerformed
 
     private void goodsTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goodsTableMouseClicked
         if (evt.getButton() == 1 && evt.getClickCount() == 2){
-        maintab = (JTabbedPane) this.getParent();
+            
+            Good good = getRowGood();
+
+            if (state.equals(StateEnum.NEW)){
+                openGoodCardPanel(good);
+            }
+            if (state.equals(StateEnum.EXIST)){
+                addOrderedItem(good);
+            }
+        }
+    }//GEN-LAST:event_goodsTableMouseClicked
+    
+    private Good getRowGood(){ 
         //Получение данных о товаре из таблицы
         //-----------------------------------------------------------------------------
         Long article = (Long) gtm.getValueAt(goodsTable.getSelectedRow(), 0);        
@@ -166,44 +194,50 @@ public class GoodsPanel extends javax.swing.JPanel {
         String color =(String) gtm.getValueAt(goodsTable.getSelectedRow(), 2);
         BigDecimal price = (BigDecimal) gtm.getValueAt(goodsTable.getSelectedRow(), 3);
         Long instock = (Long) gtm.getValueAt(goodsTable.getSelectedRow(), 4);            
-        //-----------------------------------------------------------------------------
-        
-        Good good = new Good (article,variety,color,price,instock);
-        
-            if (state.equals(StateEnum.NEW)){
-                openGoodCardPanel(good);
-            }
-            
-            if (state.equals(StateEnum.EXIST)){
-            try {
-                order.add(new OrderedItem(good,good.getPrice(),1));                
-            } catch (IllegalStatusException ex) {
-                
-            }
-            }
-        }
-    }//GEN-LAST:event_goodsTableMouseClicked
+        //-----------------------------------------------------------------------------        
+        return new Good (article,variety,color,price,instock);
+    }      
+    
+    private void addOrderedItem(Good good){ 
+        order.add(new OrderedItem(good,good.getPrice(),1));
+        ItemAddedLabel.setVisible(true); 
+        ItemAddedLabel.setText("Артикул №" + good.getArticle() +" добавлен к заказу");
+    }
     
     private void openGoodCardPanel(Good good){        
         //Инициализация панели товара        
-        goodsCard = new GoodsCardPanel(mediator, this, good);
-        maintab.addTab("Номенклатурная единица "+ good.getArticle(), goodsCard);
-        
+        JTabbedPane maintab = (JTabbedPane) this.getParent();
+        GoodsCardPanel goodsCard = new GoodsCardPanel(mediator, this, good);
+        maintab.addTab("Номенклатурная единица "+ good.getArticle(), goodsCard);        
         maintab.setSelectedIndex(maintab.getTabCount() -1);
     }
     
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
-        maintab = (JTabbedPane) this.getParent();        
-        maintab.setSelectedComponent(opParent);
+        JTabbedPane maintab = (JTabbedPane) this.getParent();        
+        maintab.setSelectedComponent(opParent);        
+        MyEventListener listener = (MyEventListener) opParent;
+        listener.update("unlock");
         maintab.remove(this);
+        mediator.removeListener((MyEventListener) gtm);
     }//GEN-LAST:event_closeButtonActionPerformed
 
+    private void addToOrderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addToOrderButtonActionPerformed
+        if (state.equals(StateEnum.EXIST)){
+            addOrderedItem(getRowGood());
+        }
+    }//GEN-LAST:event_addToOrderButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel ItemAddedLabel;
     private javax.swing.JButton addToOrderButton;
     private javax.swing.JButton closeButton;
+    private javax.swing.Box.Filler filler2;
+    private javax.swing.Box.Filler filler3;
     private javax.swing.JTable goodsTable;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JButton openNewGoodsCardButton;
     // End of variables declaration//GEN-END:variables
+
+    
 }

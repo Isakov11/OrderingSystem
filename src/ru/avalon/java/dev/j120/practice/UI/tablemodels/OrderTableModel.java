@@ -10,15 +10,14 @@ import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 
 public class OrderTableModel extends AbstractTableModel  implements MyEventListener{
-    private Mediator mediator;
+    private final Mediator mediator;
     private ArrayList<Order> arrayOrderList;
-    private String[] columnHeader = {"Number","Date","Contact Person","Discount","Status","Total Price","Discount Price"};
-    private Class[] columnClasses = new Class[]{
-//        Long.class, LocalDate.class, String.class, Long.class, String.class, Double.class, Double.class};
+    private final String[] columnHeader = {"Number","Date","Contact Person","Discount","Status","Total Price","Discount Price"};
+    private final Class[] columnClasses = new Class[]{
         Long.class, LocalDate.class, Person.class, Long.class, String.class, Double.class, Double.class};
 
     public OrderTableModel(Mediator mediator) {
-        mediator.getOrderList().addListener(this);
+        mediator.getOrderList().addListener((MyEventListener) this);
         this.mediator = mediator;
         this.arrayOrderList = new ArrayList<>(mediator.getOrderList().getOrderList().values());
         arrayOrderList.sort((Order o1, Order o2) -> o1.getOrderNumber()>o2.getOrderNumber()? 1: -1);
