@@ -1,6 +1,7 @@
 
 package ru.avalon.java.dev.j120.practice.datastorage;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import ru.avalon.java.dev.j120.practice.entity.Order;
 import ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum;
@@ -8,7 +9,6 @@ import ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum;
 import java.util.HashMap;
 import ru.avalon.java.dev.j120.practice.exceptions.IllegalStatusException;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
-
 
 public class OrderList {
     //private Long currentFreeNumber;
@@ -37,7 +37,7 @@ public class OrderList {
      * @param order 
      * @throws IllegalArgumentException 
      */
-    public void addNew(Order order) throws IllegalArgumentException {
+    /*public void addNew(Order order) throws IllegalArgumentException {
         //Если не удалось вставить заказ по текущему номеру, то найти наименьший свободный номер и вставить        
         long currentFreeNumber = this.getFreeNumber();
         if(orderList.putIfAbsent(currentFreeNumber, 
@@ -48,8 +48,7 @@ public class OrderList {
                         order.getDiscount(),order.getOrderStatus(),order.getOrderList()));        
         }
         fireDataChanged("update");      
-    }    
-
+    }  */  
     
     /** Вставляет в orderList существующий заказ
      * @param order
@@ -67,35 +66,60 @@ public class OrderList {
         return new Order(orderList.get(number));
     }
     
-    public void cancelOrder(long number) throws IllegalStatusException{
-        if (orderList.get(number).getOrderStatus() == OrderStatusEnum.PREPARING){
-            orderList.get(number).setOrderStatus(OrderStatusEnum.CANCELED);
-            fireDataChanged("update");      
-        }
-        else{
-            throw new IllegalStatusException("Order status is " + orderList.get(number).getOrderStatus());
+    public void cancelOrder(Order order) throws IllegalStatusException{
+         Long OrderNumber = order.getOrderNumber();
+        if (orderList.containsKey(OrderNumber)){
+            if (orderList.get(OrderNumber).getOrderStatus() == OrderStatusEnum.PREPARING){
+                orderList.get(OrderNumber).setOrderStatus(OrderStatusEnum.CANCELED);
+                fireDataChanged("update");      
+            }
+            else{
+                throw new IllegalStatusException("Order status is " + orderList.get(OrderNumber).getOrderStatus());
+            }
         }
     }
     
-    public void removeOrder(long number) throws IllegalStatusException {
-        if (orderList.get(number).getOrderStatus() == OrderStatusEnum.PREPARING){
-            orderList.remove(number);
-            fireDataChanged("update");      
+    public void removeOrder(long orderNumber) throws IllegalStatusException, IllegalArgumentException {
+        
+        if (orderList.containsKey(orderNumber)){
+            if (orderList.get(orderNumber).getOrderStatus() == OrderStatusEnum.PREPARING){
+                orderList.remove(orderNumber);
+                fireDataChanged("update");      
+            }
+            else{
+                throw new IllegalStatusException("Order status is " + orderList.get(orderNumber).getOrderStatus());
+            }
         }
         else{
-            throw new IllegalStatusException("Order status is " + orderList.get(number).getOrderStatus());
+            throw new IllegalArgumentException("Order " + orderNumber + " not found");
         }
     }
         
-    public void replaceOrder(Order order) throws IllegalStatusException {
-        if (orderList.get(order.getOrderNumber()).getOrderStatus() == OrderStatusEnum.PREPARING){
-            orderList.replace(order.getOrderNumber(), order);
-            fireDataChanged("update");      
+    public void replaceOrder(Order order) throws IllegalStatusException, IllegalArgumentException {
+        Long OrderNumber = order.getOrderNumber();
+        if (orderList.containsKey(OrderNumber)){
+            if (orderList.get(order.getOrderNumber()).getOrderStatus() == OrderStatusEnum.PREPARING){
+                orderList.replace(order.getOrderNumber(), order);
+                fireDataChanged("update");      
+            }
+            else{
+                throw new IllegalStatusException("Order status is " + orderList.get(order.getOrderNumber()).getOrderStatus());
+            }
         }
         else{
-            throw new IllegalStatusException("Order status is " + orderList.get(order.getOrderNumber()).getOrderStatus());
+            throw new IllegalArgumentException("Order " + OrderNumber + " not found");
         }
     }
+    
+    public BigDecimal getTotalOrderListPrice(){
+        BigDecimal subTotal = new BigDecimal(0);
+        
+        for (Order order:orderList.values()){
+            subTotal = subTotal.add(order.getDiscountPrice());
+        }
+        return subTotal;
+    }
+    
     /**Возвращает наименьший неиспользованный номер заказа
     * @return long*/
     public final long getFreeNumber(){        

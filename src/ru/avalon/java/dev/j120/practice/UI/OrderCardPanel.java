@@ -8,10 +8,12 @@ package ru.avalon.java.dev.j120.practice.UI;
 import java.time.LocalDate;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SpinnerNumberModel;
 import ru.avalon.java.dev.j120.practice.UI.tablemodels.OrderItemTableModel;
 import ru.avalon.java.dev.j120.practice.controller.Mediator;
 import ru.avalon.java.dev.j120.practice.entity.Order;
 import ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum;
+import ru.avalon.java.dev.j120.practice.entity.Config;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 import ru.avalon.java.dev.j120.practice.utils.StateEnum;
 
@@ -41,8 +43,8 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
         orderNumberLabel.setText(String.valueOf( order.getOrderNumber() ));
         orderDateLabel.setText(order.getOrderDate().toString());
         orderStatusComboBox.setSelectedIndex(0);
-        orderStatusComboBox.setEnabled(false);
-        discountSpinner.setValue(order.getDiscount());
+        orderStatusComboBox.setEnabled(false);        
+        discountSpinner.setModel( new SpinnerNumberModel(order.getDiscount(), 0, Config.get().getMaxDiscount(), 1));
         state = StateEnum.NEW;
         mediator.addListener((MyEventListener) this);
     }
@@ -61,7 +63,7 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
         orderNumberLabel.setText( String.valueOf( order.getOrderNumber()) );
         orderDateLabel.setText(order.getOrderDate().toString());
         personLabel.setText(order.getContactPerson().toString());       
-        discountSpinner.setValue(order.getDiscount());
+                discountSpinner.setModel( new SpinnerNumberModel(order.getDiscount(), 0, Config.get().getMaxDiscount(), 1));
         priceLabel.setText(String.valueOf( order.getTotalPrice().floatValue() ));
         discountPriceLabel.setText(String.valueOf( order.getDiscountPrice().floatValue() ));
         
@@ -173,6 +175,12 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
         });
 
         jLabel4.setText("Клиент");
+
+        discountSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                discountSpinnerStateChanged(evt);
+            }
+        });
 
         jLabel5.setText("Скидка, %");
 
@@ -347,7 +355,7 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addComponent(stateLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(submitButton)
                     .addComponent(cancelButton))
@@ -440,6 +448,11 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
                 break;
         }
     }//GEN-LAST:event_orderStatusComboBoxItemStateChanged
+
+    private void discountSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_discountSpinnerStateChanged
+        order.setDiscount((int) discountSpinner.getModel().getValue());
+        discountPriceLabel.setText(String.valueOf( order.getDiscountPrice().floatValue() ));        
+    }//GEN-LAST:event_discountSpinnerStateChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addOrderItemButton;

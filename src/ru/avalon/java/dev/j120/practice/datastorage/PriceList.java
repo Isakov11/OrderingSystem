@@ -36,7 +36,7 @@ public class PriceList {
      * @throws IllegalArgumentException 
      */    
     
-    public long addNew(String variety, String color, BigDecimal price, long instock) {
+    /*public long addNew(String variety, String color, BigDecimal price, long instock) {
         //Если не удалось вставить товар по текущему артикулу, то найти наименьший свободный артикул и вставить
         if(priceList.putIfAbsent(currentFreeArticle, new Good(currentFreeArticle,variety,color,price,instock)) != null){
             currentFreeArticle = this.getFreeArticle();
@@ -46,7 +46,8 @@ public class PriceList {
         currentFreeArticle = this.getFreeArticle();
         fireDataChanged("update");       
         return usedArticle;
-    }
+    }*/
+    
     /** Вставляет в priceList товар уже имеющий артикул    
      * @param good
      * @throws IllegalArgumentException 

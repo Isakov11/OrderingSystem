@@ -20,7 +20,6 @@ import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 import ru.avalon.java.dev.j120.practice.utils.StateEnum;
 import static ru.avalon.java.dev.j120.practice.utils.StateEnum.*;
 
-
 public class Mediator {
     private GoodsIO goodsIO;
     private OrderIO orderIO;
@@ -32,16 +31,19 @@ public class Mediator {
         try {
             goodsIO = new GoodsIO();
             orderIO = new OrderIO();
+            String url = Config.get().getURL();            
+            String username = Config.get().getUserName();
+            String password = Config.get().getPassword();
+            SQLIO sqlIO = new SQLIO(url, username, password);
             
-            pricelist = new PriceList(goodsIO.read(Config.get().getPricePath()));
             orderlist = new OrderList(orderIO.read(Config.get().getOrderPath()));
-            
+            //pricelist = new PriceList(goodsIO.read(Config.get().getPricePath()));
+            pricelist = new PriceList(sqlIO.read());
             //---------------------------------------------------------------------
             SwingUtilities.invokeLater(() -> {
               JFrame mainframe = new MainFrame(this);
             });
             //--------------------------------------------------------------------- 
-            
             
         } catch (IOException | ClassNotFoundException | IllegalArgumentException ex) {            
             ErrorFrame.create(ex);
@@ -70,8 +72,6 @@ public class Mediator {
         }
     }
     
-    
-    
     public void addListener(MyEventListener listener){
         if (!listeners.contains(listener)){
             listeners.add(listener);
@@ -92,6 +92,14 @@ public class Mediator {
         listeners.forEach((listener) -> {
             listener.update(message);
         });
+    }
+    
+    public final void removeOrder(long orderNumber){
+        try {
+            orderlist.removeOrder(orderNumber);
+        } catch (IllegalStatusException | IllegalArgumentException ex) {
+             ErrorFrame.create(ex);
+        }
     }
     
     public final void updateOrder(StateEnum state,Order order){
@@ -119,7 +127,7 @@ public class Mediator {
                         } catch (IOException ex) {
                             ErrorFrame.create(ex);
                         }
-                    } catch (IllegalStatusException ex) {
+                    } catch (IllegalStatusException | IllegalArgumentException ex) {
                         ErrorFrame.create(ex);
                     }
                     break;
@@ -155,6 +163,7 @@ public class Mediator {
     
         if (ExistOrder.getOrderStatus().equals(PREPARING)){                        
             //Проверить: достаточно ли товара на складе
+           
             for (OrderedItem Item : order.getOrderList().values()){
                 article = Item.getItem().getArticle();
                 if (pricelist.getGood( article ).getInstock() < Item.getOrderedQuantity()){

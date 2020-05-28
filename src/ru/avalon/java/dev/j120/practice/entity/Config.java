@@ -34,6 +34,18 @@ public class Config {
     public int getMaxDiscount() {
         return Integer.valueOf(prop.getProperty("maxDiscount","0"));
     }
+    
+    public String getURL() {
+        return String.valueOf(prop.getProperty("url"));
+    }
+    
+    public String getUserName() {
+        return String.valueOf(prop.getProperty("username"));
+    }
+    
+    public String getPassword() {
+        return String.valueOf(prop.getProperty("password"));
+    }
 
     public void setPricePath(String pricePath) {
         prop.setProperty("PricePath", pricePath);
@@ -47,7 +59,19 @@ public class Config {
             prop.setProperty("maxDiscount", String.valueOf(maxDiscount));            
         }        
     }
-
+    
+    public void setURL(String url) {
+        prop.setProperty("url", url);
+    }
+    
+    public void setUser(String user) {
+        prop.setProperty("user", user);
+    }
+    
+    public void setPassword(String password) {
+        prop.setProperty("password", password);
+    }
+    
     @Override
     public String toString() {
         return prop.toString() ;
