@@ -5,10 +5,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import ru.avalon.java.dev.j120.practice.utils.Indexable;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 
-public class Order implements Serializable {    
+public class Order implements Serializable, Indexable {    
     private final long orderNumber;
     private final LocalDate orderDate;    
     private Person contactPerson;    
@@ -80,6 +81,14 @@ public class Order implements Serializable {
         return totalPrice.multiply(new BigDecimal(1 - this.discount*0.01));
     }
     
+    @Override
+    public long getIndex() {
+        return getOrderNumber();
+    }
+    
+    //--------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------
+    
     public void setContactPerson(Person contactPerson)  {
         this.contactPerson = contactPerson;
         fireDataChanged("personUpdate");
@@ -136,8 +145,11 @@ public class Order implements Serializable {
         }
         this.totalPrice = temp;
     }
-
-        public void addListener(MyEventListener listener){
+    
+    //--------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------
+    
+    public void addListener(MyEventListener listener){
         if (!listeners.contains(listener)){
             listeners.add(listener);
         }

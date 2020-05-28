@@ -38,6 +38,7 @@ public class Mediator {
             
             orderlist = new OrderList(orderIO.read(Config.get().getOrderPath()));
             //pricelist = new PriceList(goodsIO.read(Config.get().getPricePath()));
+            //pricelist = new PriceList(sqlIO.read());
             pricelist = new PriceList(sqlIO.read());
             //---------------------------------------------------------------------
             SwingUtilities.invokeLater(() -> {
