@@ -50,9 +50,9 @@ public class Mediator {
             
             System.out.println(pricelist);
             //---------------------------------------------------------------------
-            /*SwingUtilities.invokeLater(() -> {
+            SwingUtilities.invokeLater(() -> {
               JFrame mainframe = new MainFrame(this);
-            });*/
+            });
             //--------------------------------------------------------------------- 
             
         } catch (IOException | ClassNotFoundException | IllegalArgumentException | SQLException ex) {
