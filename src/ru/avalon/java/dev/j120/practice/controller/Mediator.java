@@ -6,7 +6,11 @@ import ru.avalon.java.dev.j120.practice.datastorage.*;
 import ru.avalon.java.dev.j120.practice.entity.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import javax.swing.*;
 import javax.swing.SwingUtilities;
 
@@ -19,34 +23,39 @@ import ru.avalon.java.dev.j120.practice.exceptions.IllegalStatusException;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 import ru.avalon.java.dev.j120.practice.utils.StateEnum;
 import static ru.avalon.java.dev.j120.practice.utils.StateEnum.*;
+import ru.avalon.java.dev.j120.practice.entity.Good;
 
 public class Mediator {
     private GoodsIO goodsIO;
-    private OrderIO orderIO;
-    private PriceList pricelist;
-    private OrderList orderlist;    
+    private OrdersIO orderIO;
+    private GoodsMap pricelist;
+    private OrdersMap orderlist;    
     ArrayList<MyEventListener> listeners = new ArrayList<>();
     
     public Mediator() {
         try {
-            goodsIO = new GoodsIO();
-            orderIO = new OrderIO();
+            
+            //goodsIO = new GoodsIO(Config.get().getPricePath());            
+            orderIO = new OrdersIO(Config.get().getOrderPath());
+            
             String url = Config.get().getURL();            
             String username = Config.get().getUserName();
             String password = Config.get().getPassword();
-            SQLIO sqlIO = new SQLIO(url, username, password);
             
-            orderlist = new OrderList(orderIO.read(Config.get().getOrderPath()));
-            //pricelist = new PriceList(goodsIO.read(Config.get().getPricePath()));
-            //pricelist = new PriceList(sqlIO.read());
-            pricelist = new PriceList(sqlIO.read());
+            SQLIO universalIO = new SQLIO(url, username, password);
+            HashMap<Long, Order> ordersMap = universalIO.readOrders();
+            System.out.println(ordersMap.toString());   
+            orderlist = new OrdersMap(orderIO.read());            
+            pricelist = new GoodsMap(universalIO.readGoods());
+            
+            System.out.println(pricelist);
             //---------------------------------------------------------------------
-            SwingUtilities.invokeLater(() -> {
+            /*SwingUtilities.invokeLater(() -> {
               JFrame mainframe = new MainFrame(this);
-            });
+            });*/
             //--------------------------------------------------------------------- 
             
-        } catch (IOException | ClassNotFoundException | IllegalArgumentException ex) {            
+        } catch (IOException | ClassNotFoundException | IllegalArgumentException | SQLException ex) {
             ErrorFrame.create(ex);
         }  
     }    
@@ -55,11 +64,11 @@ public class Mediator {
         
     }
 
-    public PriceList getPriceList() {
+    public GoodsMap getPriceList() {
         return pricelist;
     }
 
-    public OrderList getOrderList() {
+    public OrdersMap getOrderList() {
         return orderlist;
     }
         
@@ -67,34 +76,12 @@ public class Mediator {
         if (state.equals(StateEnum.NEW)){pricelist.addExist(good);}
         if (state.equals(StateEnum.EXIST)){pricelist.replaceGood(good);}
         try {
-            goodsIO.write(Config.get().getPricePath(), pricelist.getPriceList());
+            goodsIO.write(pricelist.getPriceList());
         } catch (IOException ex) {
            ErrorFrame.create(ex);
         }
     }
-    
-    public void addListener(MyEventListener listener){
-        if (!listeners.contains(listener)){
-            listeners.add(listener);
-        }
-    } 
-    
-    public void removeListener(MyEventListener listener){
-        if (listeners.contains(listener)){
-            listeners.remove(listener);
-        }
-    }
-    
-    public MyEventListener[] getListeners(){
-        return listeners.toArray(new MyEventListener[listeners.size()]);
-    }
-    
-    public void fireDataChanged(String message){                
-        listeners.forEach((listener) -> {
-            listener.update(message);
-        });
-    }
-    
+      
     public final void removeOrder(long orderNumber){
         try {
             orderlist.removeOrder(orderNumber);
@@ -107,13 +94,10 @@ public class Mediator {
         if (state.equals(NEW)){
             try {
                 orderlist.addExist(order);
-                try {
-                    orderIO.write(Config.get().getOrderPath(), orderlist.getOrderList());
-                } catch (IOException ex) {
-                    ErrorFrame.create(ex);
-                }
+                orderIO.write(orderlist.getOrderList());
+                
                 fireDataChanged("DataChanged");
-            } catch (IllegalStatusException ex) {
+            } catch (IllegalStatusException | IOException ex) {
                 ErrorFrame.create(ex);
             }
         }
@@ -123,12 +107,9 @@ public class Mediator {
                     try {
                         orderlist.replaceOrder(order);
                         fireDataChanged("DataChanged");
-                        try {
-                            orderIO.write(Config.get().getOrderPath(), orderlist.getOrderList());
-                        } catch (IOException ex) {
-                            ErrorFrame.create(ex);
-                        }
-                    } catch (IllegalStatusException | IllegalArgumentException ex) {
+                        orderIO.write(orderlist.getOrderList());
+                        
+                    } catch (IllegalStatusException | IllegalArgumentException | IOException ex) {
                         ErrorFrame.create(ex);
                     }
                     break;
@@ -141,12 +122,9 @@ public class Mediator {
                     try {
                         orderlist.replaceOrder(order);
                         fireDataChanged("DataChanged");
-                        try {
-                            orderIO.write(Config.get().getOrderPath(), orderlist.getOrderList());                            
-                        } catch (IOException ex) {
-                            ErrorFrame.create(ex);
-                        }
-                    } catch (IllegalStatusException ex) {
+                        orderIO.write(orderlist.getOrderList());                            
+                        
+                    } catch (IllegalStatusException | IOException ex) {
                         ErrorFrame.create(ex);
                     }
                     break;
@@ -175,8 +153,10 @@ public class Mediator {
             if (enoughFlag == true){
                 for (OrderedItem Item : order.getOrderList().values()){
                     article = Item.getItem().getArticle();
+                    
                     //Получить товар
                     Good temp = pricelist.getGood( article );
+                    
                     //и вычесть заказанное количество
                     temp.reduceInstock(Item.getOrderedQuantity());
                     pricelist.replaceGood(temp);
@@ -184,13 +164,10 @@ public class Mediator {
                 }
                 try {       
                     orderlist.replaceOrder(order);
-                    try {
-                        orderIO.write(Config.get().getOrderPath(), orderlist.getOrderList());
-                        goodsIO.write(Config.get().getPricePath(), pricelist.getPriceList());
-                    } catch (IOException ex) {
-                        ErrorFrame.create(ex);
-                    }
-                } catch (IllegalStatusException ex) {
+                    orderIO.write(orderlist.getOrderList());
+                    goodsIO.write(pricelist.getPriceList());
+                    
+                } catch (IllegalStatusException | IOException ex) {
                    ErrorFrame.create(ex);
                 }
             }
@@ -199,6 +176,30 @@ public class Mediator {
             }
         }
     }
+    
+//------------------------------------------------------------------------------    
+    public void addListener(MyEventListener listener){
+        if (!listeners.contains(listener)){
+            listeners.add(listener);
+        }
+    } 
+    
+    public void removeListener(MyEventListener listener){
+        if (listeners.contains(listener)){
+            listeners.remove(listener);
+        }
+    }
+    
+    public MyEventListener[] getListeners(){
+        return listeners.toArray(new MyEventListener[listeners.size()]);
+    }
+    
+    public void fireDataChanged(String message){                
+        listeners.forEach((listener) -> {
+            listener.update(message);
+        });
+    }
+//------------------------------------------------------------------------------
 }
     
     

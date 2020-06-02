@@ -10,17 +10,17 @@ import java.util.HashMap;
 import ru.avalon.java.dev.j120.practice.exceptions.IllegalStatusException;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
-public class OrderList {
+public class OrdersMap {
     //private Long currentFreeNumber;
     private HashMap<Long, Order> orderList;
     private ArrayList<MyEventListener> listeners = new ArrayList<>(); 
     
-    public OrderList() {
+    public OrdersMap() {
         //currentFreeNumber = new Long(1);
         orderList = new HashMap<>();
     }
     
-    public OrderList(HashMap<Long, Order> orderList) {        
+    public OrdersMap(HashMap<Long, Order> orderList) {        
         this.orderList = orderList;
         //currentFreeNumber = getFreeNumber();
     }

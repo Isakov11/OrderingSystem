@@ -6,17 +6,17 @@ import java.time.LocalDate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ru.avalon.java.dev.j120.practice.IO.GoodsIO;
-import ru.avalon.java.dev.j120.practice.IO.OrderIO;
+import ru.avalon.java.dev.j120.practice.IO.OrdersIO;
 import ru.avalon.java.dev.j120.practice.controller.Mediator;
-import ru.avalon.java.dev.j120.practice.datastorage.PriceList;
-import ru.avalon.java.dev.j120.practice.datastorage.OrderList;
+import ru.avalon.java.dev.j120.practice.datastorage.GoodsMap;
+import ru.avalon.java.dev.j120.practice.datastorage.OrdersMap;
 import ru.avalon.java.dev.j120.practice.entity.*;
 
 
 public class Application {    
     
     public static void main(String[] args) {
-        /*PriceList pl = new PriceList();                     
+        /*GoodsMap pl = new GoodsMap();                     
            pl.addNew("AAA",new BigDecimal(1.67),14);
            pl.addNew("BBB",new BigDecimal(5),45);
            pl.addNew("CCC",new BigDecimal(8),1);
@@ -27,7 +27,7 @@ public class Application {
            pl.addNew("F10",new BigDecimal(5),67);
            System.out.println(pl.toString());
            
-           OrderList orderList = new OrderList();
+           OrdersMap orderList = new OrdersMap();
             
             Person person = new Person("Ash Apple", "Mapple st., 5", "+7(961)126-54-98");
             Person Alice  = new Person("Alice Wind", "1-st line st., 10", "+7(961)587-97-13");
@@ -76,7 +76,7 @@ public class Application {
             orderList.addNew(order);
         try {
             GoodsIO.write(Config.get().getOrderPath(), pl.getPriceList());
-            OrderIO.write(Config.get().getOrderPath(), orderList.getOrderList());
+            OrdersIO.write(Config.get().getOrderPath(), orderList.getOrderList());
         } catch (IOException ex) {
             
         }*/

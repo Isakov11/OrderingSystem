@@ -5,13 +5,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import ru.avalon.java.dev.j120.practice.utils.Indexable;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 
-public class Order implements Serializable, Indexable {    
-    private final long orderNumber;
-    private final LocalDate orderDate;    
+public class Order implements Serializable {    
+    private long orderNumber;
+    private  LocalDate orderDate;    
     private Person contactPerson;    
     private int discount;
     private OrderStatusEnum orderStatus;
@@ -40,13 +39,22 @@ public class Order implements Serializable, Indexable {
     }
     
     public Order(Order order) {
-        this.orderNumber = order.orderNumber;
-        this.orderDate = order.orderDate;
-        this.contactPerson = order.contactPerson;
-        setDiscount(order.discount);
-        this.orderStatus = order.orderStatus;
-        this.orderList = order.orderList;
-        calcTotalPrice();
+        if (order != null){
+            if (order.orderNumber != 0){
+                this.orderNumber = order.orderNumber;
+                this.orderDate = order.orderDate;
+                this.contactPerson = order.contactPerson;
+                setDiscount(order.discount);
+                this.orderStatus = order.orderStatus;
+                if (order.orderList != null){
+                    this.orderList = order.orderList;
+                }
+                else{
+                    this.orderList = new HashMap<>();
+                }
+                calcTotalPrice();
+            }
+        }
     }
 
     public long getOrderNumber() {
@@ -79,11 +87,6 @@ public class Order implements Serializable, Indexable {
     
     public BigDecimal getDiscountPrice() {
         return totalPrice.multiply(new BigDecimal(1 - this.discount*0.01));
-    }
-    
-    @Override
-    public long getIndex() {
-        return getOrderNumber();
     }
     
     //--------------------------------------------------------------------------------------
@@ -138,6 +141,7 @@ public class Order implements Serializable, Indexable {
         fireDataChanged("update");
     }
     
+    //TODO PRIVATE
     private void calcTotalPrice(){       
         BigDecimal temp = new BigDecimal(0);
         for (OrderedItem value : this.orderList.values()) {

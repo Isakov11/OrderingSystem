@@ -4,11 +4,14 @@ import ru.avalon.java.dev.j120.practice.entity.Order;
 import java.io.*;
 import java.util.HashMap;
 
-public class OrderIO {
-
-    public OrderIO() {}
+public class OrdersIO {
+    private final String filePath;
     
-    public HashMap<Long, Order> read(String filePath) throws IOException, ClassNotFoundException{
+    public OrdersIO(String filePath){
+        this.filePath = filePath;
+    }
+    
+    public HashMap<Long, Order> read() throws IOException, ClassNotFoundException{
         
         File file = new File(filePath);
         if (file.isFile()){
@@ -27,7 +30,7 @@ public class OrderIO {
         return new HashMap<>();    
     }
     
-    public void write(String filePath, HashMap<Long, Order> orderList) throws IOException{
+    public void write(HashMap<Long, Order> orderList) throws IOException{
         try( ObjectOutputStream objStream = 
                 new ObjectOutputStream(new FileOutputStream(filePath )) )
         {

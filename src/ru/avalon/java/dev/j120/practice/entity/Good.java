@@ -2,9 +2,8 @@ package ru.avalon.java.dev.j120.practice.entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import ru.avalon.java.dev.j120.practice.utils.Indexable;
 
-public class Good implements Serializable, Indexable{
+public class Good implements Serializable{
     private long article;
     private String variety;
     private String color;
@@ -24,11 +23,15 @@ public class Good implements Serializable, Indexable{
     }
      
     public Good(Good good){
-        this.article = good.article;
-        this.variety = good.variety;
-        this.color = good.color;
-        setPrice(good.price);
-        addInstock(good.instock);
+        if (good !=null){
+            if (good.article != 0){
+                this.article = good.article;
+                this.variety = good.variety;
+                this.color = good.color;
+                setPrice(good.price);
+                addInstock(good.instock);
+            }
+        }
     }
     
     public long getArticle() {
@@ -50,12 +53,7 @@ public class Good implements Serializable, Indexable{
     public long getInstock() {
         return instock;
     }
-    
-    @Override
-    public long getIndex() {
-        return getArticle();
-    }
-    
+   
     public void setVariety(String variety) {
         this.variety = variety;
     }
@@ -134,6 +132,4 @@ public class Good implements Serializable, Indexable{
         hash = 97 * hash + (int) (this.article ^ (this.article >>> 32));        
         return hash;
     }
-
-    
 }

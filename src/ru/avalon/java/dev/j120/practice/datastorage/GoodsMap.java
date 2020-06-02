@@ -8,24 +8,23 @@ import ru.avalon.java.dev.j120.practice.entity.Good;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 
-public class PriceList {
-    private Long currentFreeArticle;
+public class GoodsMap {
     private HashMap<Long, Good> priceList;
     private ArrayList<MyEventListener> listeners = new ArrayList<>(); 
             
-    public PriceList() {
-        currentFreeArticle = new Long(1);
+    public GoodsMap() {
         priceList = new HashMap<>();
     }
     
-    public PriceList(HashMap<Long, Good> priceList) {                
-        this.priceList = priceList;
-        currentFreeArticle = getFreeArticle();
+    public GoodsMap(HashMap<Long, Good> priceList) {                
+        
+        if (priceList != null){
+            this.priceList = priceList;
+        }
+        else{
+            this.priceList = new HashMap<>();
+        }
     }
-
-    public Long getCurrentFreeArticle() {
-        return currentFreeArticle;
-    }    
     
     /**Добавляет новый элемент в priceList
      * @param variety
@@ -56,7 +55,6 @@ public class PriceList {
         if(priceList.putIfAbsent(good.getArticle(), good) != null){
             throw new IllegalArgumentException("Article " + good.getArticle() + " already in the list." );
         }
-        currentFreeArticle = getFreeArticle();
         fireDataChanged("update");
     }
     
@@ -64,16 +62,17 @@ public class PriceList {
         return new HashMap<> (priceList);
     }
     
-    public Good getGood(long article) throws IllegalArgumentException{
+    public Good getGood(Long article) throws IllegalArgumentException{
         if (priceList.containsKey(article)){            
             return new Good(priceList.get(article));
         }
-        throw new IllegalArgumentException("Article " + article +" not exist");
+        else{
+            throw new IllegalArgumentException("Article " + article +" not exist");
+        }
     }
     
     public void removeGood(long article) {
         priceList.remove(article);
-        currentFreeArticle = getFreeArticle();
         fireDataChanged("update");
     }
     
@@ -130,7 +129,7 @@ public class PriceList {
         sb.append("PriceList\nSize: ");
         sb.append(priceList.size());
         sb.append("\nCurrent free article: ");
-        sb.append(currentFreeArticle);
+        sb.append(getFreeArticle());
         sb.append("\nMap:\n");
         priceList.forEach((k,v) -> {sb.append("Article: ");
                                     sb.append(k);

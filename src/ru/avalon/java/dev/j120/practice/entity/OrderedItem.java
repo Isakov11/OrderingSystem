@@ -64,15 +64,15 @@ public class OrderedItem implements Serializable{
         StringBuilder sb = new StringBuilder();
         sb.append("article: ");
         sb.append(Item.getArticle());
-        sb.append("Variety: ");
+        sb.append(", Variety: ");
         sb.append(Item.getVariety());
-        sb.append("Color: ");
+        sb.append(", Color: ");
         sb.append(Item.getColor());
         sb.append(", fixedPrice: ");
         sb.append(fixedPrice);
-        sb.append(", orderedQuantity: ");
+        sb.append(", ordered quantity: ");
         sb.append(orderedQuantity);
-        sb.append(", totalPrice: ");
+        sb.append(", total price: ");
         sb.append(totalPrice);
         return sb.toString();
     }
