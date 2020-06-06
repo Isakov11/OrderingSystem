@@ -54,6 +54,10 @@ public class SQLIO {
             }
         } 
         return true;
+        //Вариант запроса
+        /*SELECT table_name
+                 FROM information_schema.tables
+                 WHERE table_schema = 'storeDB' ORDER BY table_name;*/
     }
     
     private void createTables() throws SQLException{

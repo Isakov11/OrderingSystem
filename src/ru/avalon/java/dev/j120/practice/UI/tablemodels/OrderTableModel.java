@@ -11,16 +11,15 @@ import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 public class OrderTableModel extends AbstractTableModel  implements MyEventListener{
     private final Mediator mediator;
-    private ArrayList<Order> arrayOrderList;
-    private final String[] columnHeader = {"Number","Date","Contact Person","Discount","Status","Total Price","Discount Price"};
+    private ArrayList<Order> OrdersArray;
+    private final String[] columnHeader = {"Номер заказа","Дата","Контактное лицо","Скидка, %","Статус","Цена","Цена со скидкой"};
     private final Class[] columnClasses = new Class[]{
         Long.class, LocalDate.class, Person.class, Long.class, String.class, Double.class, Double.class};
 
     public OrderTableModel(Mediator mediator) {
-        mediator.getOrderList().addListener((MyEventListener) this);
         this.mediator = mediator;
-        this.arrayOrderList = new ArrayList<>(mediator.getOrderList().getOrderList().values());
-        arrayOrderList.sort((Order o1, Order o2) -> o1.getOrderNumber()>o2.getOrderNumber()? 1: -1);
+        this.OrdersArray = mediator.getOrdersArray();
+        OrdersArray.sort((Order o1, Order o2) -> o1.getOrderNumber()>o2.getOrderNumber()? 1: -1);
     }
 
     @Override
@@ -30,7 +29,7 @@ public class OrderTableModel extends AbstractTableModel  implements MyEventListe
     
     @Override
     public int getRowCount() {
-        return arrayOrderList.size();
+        return OrdersArray.size();
     }
 
     @Override
@@ -45,7 +44,7 @@ public class OrderTableModel extends AbstractTableModel  implements MyEventListe
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Order order = arrayOrderList.get(rowIndex);
+        Order order = OrdersArray.get(rowIndex);
         switch(columnIndex) { 
             case 0: return order.getOrderNumber(); 
             case 1: return order.getOrderDate();
@@ -60,9 +59,10 @@ public class OrderTableModel extends AbstractTableModel  implements MyEventListe
 
     @Override
     public void update(String eventType) {
-         this.arrayOrderList = new ArrayList<>(mediator.getOrderList().getOrderList().values());
-        arrayOrderList.sort((Order o1, Order o2) -> o1.getOrderNumber()>o2.getOrderNumber()? 1: -1);
-        
-        this.fireTableDataChanged();
+        if (eventType.equals("OrdersMapChanged")){
+            this.OrdersArray = mediator.getOrdersArray();
+            OrdersArray.sort((Order o1, Order o2) -> o1.getOrderNumber()>o2.getOrderNumber()? 1: -1);
+            this.fireTableDataChanged();
+        }
     }
 }

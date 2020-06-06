@@ -10,7 +10,7 @@ import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 public class Order implements Serializable {    
     private long orderNumber;
-    private  LocalDate orderDate;    
+    private LocalDate orderDate;    
     private Person contactPerson;    
     private int discount;
     private OrderStatusEnum orderStatus;
@@ -18,6 +18,15 @@ public class Order implements Serializable {
     private HashMap<Long, OrderedItem> orderList; //HashMap <артикул, товар> 
     private transient ArrayList<MyEventListener> listeners = new ArrayList<>();
 
+    public Order(LocalDate orderDate, Person contactPerson, int discount, OrderStatusEnum orderStatus) {
+        this.orderDate = orderDate;
+        this.contactPerson = contactPerson;
+        setDiscount(discount);
+        this.orderStatus = orderStatus;
+        this.orderList = new HashMap<>();
+        totalPrice = new BigDecimal(0);        
+    }
+    
     public Order(long orderNumber, LocalDate orderDate, Person contactPerson, int discount, OrderStatusEnum orderStatus) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
@@ -27,7 +36,7 @@ public class Order implements Serializable {
         this.orderList = new HashMap<>();
         totalPrice = new BigDecimal(0);        
     }
-
+    
     public Order(long orderNumber, LocalDate orderDate, Person contactPerson, int discount, OrderStatusEnum orderStatus, HashMap<Long, OrderedItem> orderList) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
@@ -40,20 +49,18 @@ public class Order implements Serializable {
     
     public Order(Order order) {
         if (order != null){
-            if (order.orderNumber != 0){
-                this.orderNumber = order.orderNumber;
-                this.orderDate = order.orderDate;
-                this.contactPerson = order.contactPerson;
-                setDiscount(order.discount);
-                this.orderStatus = order.orderStatus;
-                if (order.orderList != null){
-                    this.orderList = order.orderList;
-                }
-                else{
-                    this.orderList = new HashMap<>();
-                }
-                calcTotalPrice();
+            this.orderNumber = order.orderNumber;
+            this.orderDate = order.orderDate;
+            this.contactPerson = order.contactPerson;
+            setDiscount(order.discount);
+            this.orderStatus = order.orderStatus;
+            if (order.orderList != null){
+                this.orderList = order.orderList;
             }
+            else{
+                this.orderList = new HashMap<>();
+            }
+            calcTotalPrice();
         }
     }
 

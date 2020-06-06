@@ -41,6 +41,7 @@ public class GoodsPanel extends javax.swing.JPanel {
         this.mediator = mediator;
         
         gtm = new GoodsTableModel(mediator);
+        mediator.addListener((MyEventListener) gtm);
         goodsTable.setModel(gtm);
         this.state = state;
         ItemAddedLabel.setVisible(false);
@@ -66,6 +67,7 @@ public class GoodsPanel extends javax.swing.JPanel {
         this.order = order;
         this.opParent = opParent;
         gtm = new GoodsTableModel(mediator);
+        mediator.addListener((MyEventListener) gtm);
         goodsTable.setModel(gtm);
         this.state = state;
         ItemAddedLabel.setVisible(false);
@@ -176,7 +178,7 @@ public class GoodsPanel extends javax.swing.JPanel {
         if (evt.getButton() == 1 && evt.getClickCount() == 2){
             
             Good good = getRowGood();
-
+            //NEW == панель номенклатуры; EXIST == панель добавления товара в заказ
             if (state.equals(StateEnum.NEW)){
                 openGoodCardPanel(good);
             }
@@ -188,14 +190,8 @@ public class GoodsPanel extends javax.swing.JPanel {
     
     private Good getRowGood(){ 
         //Получение данных о товаре из таблицы
-        //-----------------------------------------------------------------------------
         Long article = (Long) gtm.getValueAt(goodsTable.getSelectedRow(), 0);        
-        String variety =(String) gtm.getValueAt(goodsTable.getSelectedRow(), 1);
-        String color =(String) gtm.getValueAt(goodsTable.getSelectedRow(), 2);
-        BigDecimal price = (BigDecimal) gtm.getValueAt(goodsTable.getSelectedRow(), 3);
-        Long instock = (Long) gtm.getValueAt(goodsTable.getSelectedRow(), 4);            
-        //-----------------------------------------------------------------------------        
-        return new Good (article,variety,color,price,instock);
+        return mediator.getGood(article);
     }      
     
     private void addOrderedItem(Good good){ 

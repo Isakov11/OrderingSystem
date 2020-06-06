@@ -1,16 +1,13 @@
 package ru.avalon.java.dev.j120.practice.datastorage;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import ru.avalon.java.dev.j120.practice.entity.Good;
-import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 
 public class GoodsMap {
     private HashMap<Long, Good> priceList;
-    private ArrayList<MyEventListener> listeners = new ArrayList<>(); 
+    //private ArrayList<MyEventListener> listeners = new ArrayList<>(); 
             
     public GoodsMap() {
         priceList = new HashMap<>();
@@ -51,11 +48,11 @@ public class GoodsMap {
      * @param good
      * @throws IllegalArgumentException 
      */
-    public void addExist(Good good) throws IllegalArgumentException{        
+    public void add(Good good) throws IllegalArgumentException{        
         if(priceList.putIfAbsent(good.getArticle(), good) != null){
             throw new IllegalArgumentException("Article " + good.getArticle() + " already in the list." );
         }
-        fireDataChanged("update");
+        //fireDataChanged("update");
     }
     
     public HashMap<Long, Good> getPriceList() {
@@ -73,15 +70,15 @@ public class GoodsMap {
     
     public void removeGood(long article) {
         priceList.remove(article);
-        fireDataChanged("update");
+        //fireDataChanged("update");
     }
     
     public void replaceGood(Good good) {
         priceList.replace(good.getArticle(), good);
-        fireDataChanged("update");
+        //fireDataChanged("update");
     }
     
-       public void addListener(MyEventListener listener){
+   /*public void addListener(MyEventListener listener){
         if (!listeners.contains(listener)){
             listeners.add(listener);
         }
@@ -101,7 +98,7 @@ public class GoodsMap {
         listeners.forEach((listener) -> {
             listener.update(message);
         });
-    }
+    }*/
     
     /**Возвращает наименьший неиспользованный артикул
      * @return long*/

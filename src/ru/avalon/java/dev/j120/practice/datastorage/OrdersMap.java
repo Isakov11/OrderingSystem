@@ -37,7 +37,7 @@ public class OrdersMap {
      * @param order 
      * @throws IllegalArgumentException 
      */
-    /*public void addNew(Order order) throws IllegalArgumentException {
+    public void addNew(Order order) throws IllegalArgumentException {
         //Если не удалось вставить заказ по текущему номеру, то найти наименьший свободный номер и вставить        
         long currentFreeNumber = this.getFreeNumber();
         if(orderList.putIfAbsent(currentFreeNumber, 
@@ -47,19 +47,20 @@ public class OrdersMap {
             orderList.put(currentFreeNumber, new Order (currentFreeNumber, order.getOrderDate(),order.getContactPerson(),
                         order.getDiscount(),order.getOrderStatus(),order.getOrderList()));        
         }
-        fireDataChanged("update");      
-    }  */  
+        //fireDataChanged("update");      
+    }  
     
     /** Вставляет в orderList существующий заказ
      * @param order
      * @throws ru.avalon.java.dev.j120.practice.exceptions.IllegalStatusException
      * @throws IllegalArgumentException 
      */
-    public void addExist(Order order) throws IllegalStatusException{        
+    
+    public void add(Order order) throws IllegalStatusException{        
         if(orderList.putIfAbsent(order.getOrderNumber(), order) != null){
             throw new IllegalStatusException("Number " + order.getOrderNumber() + " already in the list." );            
         }
-        fireDataChanged("update"); 
+        //fireDataChanged("update"); 
     }
     
     public Order getOrder(long number) throws IllegalArgumentException{
@@ -71,7 +72,7 @@ public class OrdersMap {
         if (orderList.containsKey(OrderNumber)){
             if (orderList.get(OrderNumber).getOrderStatus() == OrderStatusEnum.PREPARING){
                 orderList.get(OrderNumber).setOrderStatus(OrderStatusEnum.CANCELED);
-                fireDataChanged("update");      
+                //fireDataChanged("update");      
             }
             else{
                 throw new IllegalStatusException("Order status is " + orderList.get(OrderNumber).getOrderStatus());
@@ -80,11 +81,10 @@ public class OrdersMap {
     }
     
     public void removeOrder(long orderNumber) throws IllegalStatusException, IllegalArgumentException {
-        
         if (orderList.containsKey(orderNumber)){
             if (orderList.get(orderNumber).getOrderStatus() == OrderStatusEnum.PREPARING){
                 orderList.remove(orderNumber);
-                fireDataChanged("update");      
+                //fireDataChanged("update");      
             }
             else{
                 throw new IllegalStatusException("Order status is " + orderList.get(orderNumber).getOrderStatus());
@@ -100,7 +100,7 @@ public class OrdersMap {
         if (orderList.containsKey(OrderNumber)){
             if (orderList.get(order.getOrderNumber()).getOrderStatus() == OrderStatusEnum.PREPARING){
                 orderList.replace(order.getOrderNumber(), order);
-                fireDataChanged("update");      
+                //fireDataChanged("update");      
             }
             else{
                 throw new IllegalStatusException("Order status is " + orderList.get(order.getOrderNumber()).getOrderStatus());
@@ -139,7 +139,9 @@ public class OrdersMap {
         //Свободный номер следующий после максимального имеющегося
         return (keyArray[keyArray.length-1]) + 1;
     }
-       public void addListener(MyEventListener listener){
+    
+    
+    /*public void addListener(MyEventListener listener){
         if (!listeners.contains(listener)){
             listeners.add(listener);
         }
@@ -159,7 +161,7 @@ public class OrdersMap {
         listeners.forEach((listener) -> {
             listener.update(message);
         });
-    }
+    }*/
     
     @Override
     public String toString() {

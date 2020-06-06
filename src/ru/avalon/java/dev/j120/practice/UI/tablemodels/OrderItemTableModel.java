@@ -16,14 +16,14 @@ import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 public class OrderItemTableModel extends AbstractTableModel implements MyEventListener {
         
     private final Order order;        
-    private ArrayList<OrderedItem> arrayOrderedItem;
+    private ArrayList<OrderedItem> orderedItemArray;
     private final String[] columnHeader = {"Article","Variety","Color","Price","Ordered Quantity","Total Price"};
     private final Class[] columnClasses = new Class[]{
         Long.class, String.class, String.class, BigDecimal.class, Long.class, BigDecimal.class};
 
     public OrderItemTableModel(Order order) {
         this.order = order;
-        this.arrayOrderedItem = new ArrayList<> (order.getOrderList().values());
+        this.orderedItemArray = new ArrayList<> (order.getOrderList().values());
     }
 
     @Override
@@ -37,7 +37,7 @@ public class OrderItemTableModel extends AbstractTableModel implements MyEventLi
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         
-            OrderedItem orderedItem = arrayOrderedItem.get(rowIndex);
+            OrderedItem orderedItem = orderedItemArray.get(rowIndex);
             switch(columnIndex) {                
                 case 4:
                     orderedItem.setOrderedQuantity((long) aValue);
@@ -58,7 +58,7 @@ public class OrderItemTableModel extends AbstractTableModel implements MyEventLi
         
     @Override
     public int getRowCount() {
-        return arrayOrderedItem.size();
+        return orderedItemArray.size();
     }
 
     @Override
@@ -68,7 +68,7 @@ public class OrderItemTableModel extends AbstractTableModel implements MyEventLi
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        OrderedItem orderedItem = arrayOrderedItem.get(rowIndex);
+        OrderedItem orderedItem = orderedItemArray.get(rowIndex);
         switch(columnIndex) { 
             case 0: return orderedItem.getItem().getArticle(); 
             case 1: return orderedItem.getItem().getVariety();
@@ -82,8 +82,8 @@ public class OrderItemTableModel extends AbstractTableModel implements MyEventLi
 
     @Override
     public void update(String eventType) {
-        this.arrayOrderedItem = new ArrayList<>(order.getOrderList().values());
-        arrayOrderedItem.sort((OrderedItem o1, OrderedItem o2) -> o1.getItem().getArticle()>o2.getItem().getArticle()? 1: -1);        
+        this.orderedItemArray = new ArrayList<>(order.getOrderList().values());
+        orderedItemArray.sort((OrderedItem o1, OrderedItem o2) -> o1.getItem().getArticle()>o2.getItem().getArticle()? 1: -1);        
         this.fireTableDataChanged();
     }
     

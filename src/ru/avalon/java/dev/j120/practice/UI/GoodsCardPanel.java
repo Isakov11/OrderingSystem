@@ -19,7 +19,7 @@ public class GoodsCardPanel extends javax.swing.JPanel {
     private final StateEnum state;
     private final Mediator mediator;    
     private final JPanel opParent;    //Панель, из которй открыта текущая вкладка
-    private final long newArticle;
+    private long newArticle;
     
     //patterns:
     //1-digit, int and float, only digits
@@ -34,8 +34,8 @@ public class GoodsCardPanel extends javax.swing.JPanel {
         initComponents();
         this.mediator = mediator;
         this.opParent = opParent;
-        newArticle = mediator.getPriceList().getFreeArticle();
-        articleLabel.setText(String.valueOf(newArticle));
+        //newArticle = mediator.getPriceList().getFreeArticle();
+        articleLabel.setText("");
         state = StateEnum.NEW;
     }
     /**
@@ -230,7 +230,7 @@ public class GoodsCardPanel extends javax.swing.JPanel {
             varietyTextField.requestFocusInWindow();
             stateLabel.setText("Введите наименование товара");
             return;
-        }        
+        }
         matcher = patterns[1].matcher(priceTextField.getText().trim());
         if (priceTextField.getText().isEmpty() || !matcher.find()){            
             stateLabel.setText("Введите цену товара");

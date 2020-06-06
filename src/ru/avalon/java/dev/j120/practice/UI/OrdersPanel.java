@@ -6,13 +6,9 @@
 package ru.avalon.java.dev.j120.practice.UI;
 
 import ru.avalon.java.dev.j120.practice.UI.tablemodels.OrderTableModel;
-import java.time.LocalDate;
 import javax.swing.JTabbedPane;
 import javax.swing.table.TableModel;
 import ru.avalon.java.dev.j120.practice.controller.Mediator;
-import ru.avalon.java.dev.j120.practice.entity.Order;
-import ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum;
-import ru.avalon.java.dev.j120.practice.entity.Person;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 public class OrdersPanel extends javax.swing.JPanel {
@@ -29,6 +25,7 @@ public class OrdersPanel extends javax.swing.JPanel {
         this.mediator = mediator;
         
         otm = new OrderTableModel(mediator);
+        mediator.addListener((MyEventListener) otm);
         ordersTable.setModel(otm);
     }
 
@@ -121,17 +118,13 @@ public class OrdersPanel extends javax.swing.JPanel {
             
             //Получение данных о заказе из таблицы
             Long orderNumber = (Long) otm.getValueAt(ordersTable.getSelectedRow(), 0);
-            LocalDate orderDate =(LocalDate) otm.getValueAt(ordersTable.getSelectedRow(), 1);
+            /*LocalDate orderDate =(LocalDate) otm.getValueAt(ordersTable.getSelectedRow(), 1);
             Person contactPerson =(Person) otm.getValueAt(ordersTable.getSelectedRow(), 2);
             int discount = (int) otm.getValueAt(ordersTable.getSelectedRow(), 3);
-            OrderStatusEnum orderStatus = (OrderStatusEnum) otm.getValueAt(ordersTable.getSelectedRow(), 4);
+            OrderStatusEnum orderStatus = (OrderStatusEnum) otm.getValueAt(ordersTable.getSelectedRow(), 4);*/
 
             //Инициализация панели заказа
-            orderCard = new OrderCardPanel(mediator,this, new Order (
-                orderNumber, orderDate, contactPerson,
-                discount, orderStatus,
-                mediator.getOrderList().getOrder(orderNumber).getOrderList()
-            ));
+            orderCard = new OrderCardPanel(mediator,this, mediator.getOrder(orderNumber));
             maintab = (JTabbedPane) this.getParent();
             maintab.addTab("Заказ " + orderNumber, orderCard);
             maintab.setSelectedIndex(maintab.getTabCount() -1);

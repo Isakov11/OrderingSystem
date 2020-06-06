@@ -32,11 +32,10 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
         this.mediator = mediator;
         
         this.opParent = opParent;
-        //Person person = new Person("Ash Apple", "Mapple st., 5", "+7(961)126-54-98");
-        order = new Order(mediator.getOrderList().getFreeNumber(),
-                        LocalDate.now(),null, 0, OrderStatusEnum.PREPARING);
+
+        order = new Order(LocalDate.now(),null, 0, OrderStatusEnum.PREPARING);
         oitm = new OrderItemTableModel(order);
-        this.order.addListener(oitm);
+        this.order.addListener((MyEventListener) oitm);
         this.order.addListener((MyEventListener) this);
         orderListTable.setModel(oitm); 
         
@@ -400,13 +399,15 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
             stateLabel.setText("Укажите контактное лицо");            
             personButton.requestFocusInWindow();
         }
-        
     }//GEN-LAST:event_submitButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         JTabbedPane maintab = (JTabbedPane) this.getParent();
         maintab.setSelectedComponent(opParent);
         maintab.remove(this);
+        
+        order.removeListener(oitm);
+        order.removeListener ((MyEventListener) this);
         mediator.removeListener((MyEventListener) this);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
@@ -418,9 +419,8 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
     }//GEN-LAST:event_addOrderItemButtonActionPerformed
 
     private void removeOrderItemButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeOrderItemButtonActionPerformed
-        
-            Long orderNumber = (Long) oitm.getValueAt(orderListTable.getSelectedRow(), 0);       
-            order.removeItem(orderNumber);
+        Long orderNumber = (Long) oitm.getValueAt(orderListTable.getSelectedRow(), 0);       
+        order.removeItem(orderNumber);
     }//GEN-LAST:event_removeOrderItemButtonActionPerformed
 
     private void personButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_personButtonActionPerformed
@@ -504,7 +504,7 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
             submitButton.setEnabled(false);
             stateLabel.setText("Статус заказа изменен на: отгружен");
         }
-        if (eventType.equals("DataChanged")){
+        if (eventType.equals("OrdersMapChanged")){
             submitButton.setEnabled(false);
             stateLabel.setText("Заказ сохранён");
         }
