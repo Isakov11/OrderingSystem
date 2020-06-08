@@ -7,7 +7,6 @@ public class Person implements Serializable{
     
     private final String name;
     private final String surname;
-    //private String contactPerson;
     private final String deliveryAddress;
     private final String phoneNumber;
 

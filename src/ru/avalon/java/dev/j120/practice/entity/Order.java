@@ -6,9 +6,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
+import ru.avalon.java.dev.j120.practice.utils.MyEventSource;
 
 
-public class Order implements Serializable {    
+public class Order implements Serializable, MyEventSource {    
     private long orderNumber;
     private LocalDate orderDate;    
     private Person contactPerson;    
@@ -47,6 +48,23 @@ public class Order implements Serializable {
         calcTotalPrice();
     }
     
+    public Order(long orderNumber, Order order) {
+        if (order != null){
+            this.orderNumber = orderNumber;
+            this.orderDate = order.orderDate;
+            this.contactPerson = order.contactPerson;
+            setDiscount(order.discount);
+            this.orderStatus = order.orderStatus;
+            if (order.orderList != null){
+                this.orderList = order.orderList;
+            }
+            else{
+                this.orderList = new HashMap<>();
+            }
+            calcTotalPrice();
+        }
+    }
+    
     public Order(Order order) {
         if (order != null){
             this.orderNumber = order.orderNumber;
@@ -73,7 +91,10 @@ public class Order implements Serializable {
     }
 
     public Person getContactPerson() {
-        return new Person(contactPerson);
+        if (contactPerson != null){
+            return new Person(contactPerson);
+        }
+        else return null;
     }
 
     public int getDiscount() {
@@ -148,7 +169,6 @@ public class Order implements Serializable {
         fireDataChanged("update");
     }
     
-    //TODO PRIVATE
     private void calcTotalPrice(){       
         BigDecimal temp = new BigDecimal(0);
         for (OrderedItem value : this.orderList.values()) {
@@ -170,6 +190,11 @@ public class Order implements Serializable {
         if (listeners.contains(listener)){
             listeners.remove(listener);
         }
+    }
+    
+    @Override
+    public void removeAllListeners() {
+        listeners.clear();
     }
     
     public MyEventListener[] getListeners(){
@@ -210,6 +235,6 @@ public class Order implements Serializable {
                                     sb.append("\n");});
         return sb.toString();
     }
-    
+
     
 }

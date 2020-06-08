@@ -244,14 +244,26 @@ public class GoodsCardPanel extends javax.swing.JPanel {
             return;
         }
         
-        mediator.updateGood(state, new Good(
+        if (state.equals(StateEnum.NEW)){
+            mediator.addGood(new Good(
+                                    varietyTextField.getText(),
+                                    colorTextField.getText(),                
+                                    new BigDecimal(priceTextField.getText()), 
+                                    Long.valueOf(instockTextField.getText() )
+                                    )
+                            );
+        }
+        
+        if (state.equals(StateEnum.EXIST)){
+            mediator.updateGood(new Good(
                                     newArticle,
                                     varietyTextField.getText(),
                                     colorTextField.getText(),                
                                     new BigDecimal(priceTextField.getText()), 
                                     Long.valueOf(instockTextField.getText() )
-                                            )
-                            );        
+                                    )
+                                );        
+        }
         stateLabel.setText("Изменения сохранены");
         submitButton.setEnabled(false);
     }//GEN-LAST:event_submitButtonActionPerformed

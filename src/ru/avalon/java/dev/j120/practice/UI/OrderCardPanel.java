@@ -14,8 +14,10 @@ import ru.avalon.java.dev.j120.practice.controller.Mediator;
 import ru.avalon.java.dev.j120.practice.entity.Order;
 import ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum;
 import ru.avalon.java.dev.j120.practice.entity.Config;
+import ru.avalon.java.dev.j120.practice.entity.OrderedItem;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 import ru.avalon.java.dev.j120.practice.utils.StateEnum;
+import static ru.avalon.java.dev.j120.practice.utils.StateEnum.*;
 
 public class OrderCardPanel extends javax.swing.JPanel implements MyEventListener {
     private Mediator mediator;    
@@ -23,6 +25,7 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
     private Order order;
     StateEnum state;
     OrderItemTableModel oitm;
+    
     /**Конструктор вкладки нового заказа
      * @param mediator 
      * @param opParent     
@@ -86,7 +89,7 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
                 break;
         }        
         oitm = new OrderItemTableModel(order);
-        this.order.addListener((MyEventListener) oitm);
+        order.addListener((MyEventListener) oitm);
         this.order.addListener((MyEventListener) this);
         orderListTable.setModel(oitm);
         state = StateEnum.EXIST;
@@ -389,11 +392,12 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
 
     private void submitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitButtonActionPerformed
         
-        if (order.getContactPerson().getContactPerson() != null && 
+        if (order.getContactPerson() != null && order.getContactPerson().getContactPerson() != null && 
             order.getContactPerson().getDeliveryAddress() != null && 
             order.getContactPerson().getPhoneNumber() != null){
                 
-                mediator.updateOrder(state, order);
+            if (state == NEW) mediator.addOrder(order);
+            if (state == EXIST) mediator.updateOrder(order);
         }
         else{
             stateLabel.setText("Укажите контактное лицо");            
@@ -406,14 +410,13 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
         maintab.setSelectedComponent(opParent);
         maintab.remove(this);
         
-        order.removeListener(oitm);
-        order.removeListener ((MyEventListener) this);
+        order.removeAllListeners();
         mediator.removeListener((MyEventListener) this);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void addOrderItemButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addOrderItemButtonActionPerformed
         JTabbedPane maintab = (JTabbedPane) this.getParent();
-        maintab.addTab("Добавить в заказ",new GoodsPanel(mediator, this, order, StateEnum.EXIST));
+        maintab.addTab("Добавить в заказ",new GoodsPanel(mediator, this, oitm, order, StateEnum.EXIST));
         maintab.setSelectedIndex(maintab.getTabCount() -1);
         cancelButton.setEnabled(false);
     }//GEN-LAST:event_addOrderItemButtonActionPerformed
@@ -421,6 +424,7 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
     private void removeOrderItemButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeOrderItemButtonActionPerformed
         Long orderNumber = (Long) oitm.getValueAt(orderListTable.getSelectedRow(), 0);       
         order.removeItem(orderNumber);
+        
     }//GEN-LAST:event_removeOrderItemButtonActionPerformed
 
     private void personButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_personButtonActionPerformed
@@ -484,6 +488,10 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
     private javax.swing.JButton submitButton;
     // End of variables declaration//GEN-END:variables
 
+    public void addItem(OrderedItem orderedItem){
+        order.add(orderedItem);
+    }
+    
     @Override
     public void update(String eventType) {
         if (eventType.equals("update")){
@@ -508,6 +516,5 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
             submitButton.setEnabled(false);
             stateLabel.setText("Заказ сохранён");
         }
-        
     }
 }

@@ -36,14 +36,13 @@ public class OrderItemTableModel extends AbstractTableModel implements MyEventLi
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        
-            OrderedItem orderedItem = orderedItemArray.get(rowIndex);
-            switch(columnIndex) {                
-                case 4:
-                    orderedItem.setOrderedQuantity((long) aValue);
-                    order.replace(orderedItem);
-            }
-        
+        OrderedItem orderedItem = orderedItemArray.get(rowIndex);
+        switch(columnIndex) {                
+            case 4:
+                orderedItem.setOrderedQuantity((long) aValue);
+                order.replace(orderedItem);
+                update("orderedItemReplaced");
+        }
     }
 
     @Override
@@ -82,9 +81,11 @@ public class OrderItemTableModel extends AbstractTableModel implements MyEventLi
 
     @Override
     public void update(String eventType) {
-        this.orderedItemArray = new ArrayList<>(order.getOrderList().values());
-        orderedItemArray.sort((OrderedItem o1, OrderedItem o2) -> o1.getItem().getArticle()>o2.getItem().getArticle()? 1: -1);        
-        this.fireTableDataChanged();
+        if (eventType.equals("update")){
+            this.orderedItemArray = new ArrayList<>(order.getOrderList().values());
+            orderedItemArray.sort((OrderedItem o1, OrderedItem o2) -> o1.getItem().getArticle()>o2.getItem().getArticle()? 1: -1);        
+            this.fireTableDataChanged();
+        }
     }
     
 }
