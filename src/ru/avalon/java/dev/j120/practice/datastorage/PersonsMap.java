@@ -7,6 +7,7 @@ import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 
 public class PersonsMap {
+    //HashMap<телефонный номер, Person> 
     private HashMap<String, Person> map;
     private transient ArrayList<MyEventListener> listeners = new ArrayList<>(); 
             
@@ -29,7 +30,7 @@ public class PersonsMap {
      * @throws IllegalArgumentException 
      */
     public void add(Person person) throws IllegalArgumentException{        
-        if(map.putIfAbsent(person.getContactPerson(), person) != null){
+        if(map.putIfAbsent(person.getPhoneNumber(), person) != null){
             throw new IllegalArgumentException("Person " + person.getContactPerson() + " already in the list." );
         }
         fireDataChanged("update");

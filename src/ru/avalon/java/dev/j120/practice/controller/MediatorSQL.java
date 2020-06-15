@@ -1,18 +1,14 @@
 
 package ru.avalon.java.dev.j120.practice.controller;
 
-import ru.avalon.java.dev.j120.practice.IO.*;
-import ru.avalon.java.dev.j120.practice.datastorage.*;
+import dao.GoodsDAO;
+import dao.OrdersDAO;
 import ru.avalon.java.dev.j120.practice.entity.*;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.time.LocalDate;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.LinkedList;
 import javax.swing.*;
 import javax.swing.SwingUtilities;
 
@@ -20,49 +16,45 @@ import ru.avalon.java.dev.j120.practice.UI.ErrorFrame;
 import ru.avalon.java.dev.j120.practice.UI.MainFrame;
 
 import static ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum.*;
-import ru.avalon.java.dev.j120.practice.exceptions.IllegalStatusException;
 
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
-import ru.avalon.java.dev.j120.practice.utils.StateEnum;
-import static ru.avalon.java.dev.j120.practice.utils.StateEnum.*;
 import ru.avalon.java.dev.j120.practice.entity.Good;
 
 public class MediatorSQL implements Mediator{
-    private GoodsIO goodsIO;
-    private OrdersIO orderIO;
-    private GoodsMap goodsMap;
-    private OrdersMap ordersMap;    
+    private GoodsDAO  goodsDAO;
+    private OrdersDAO ordersDAO ;
     ArrayList<MyEventListener> listeners = new ArrayList<>();
     
     public MediatorSQL() {
         try {
             
-            goodsIO = new GoodsIO(Config.get().getPricePath());            
-            orderIO = new OrdersIO(Config.get().getOrderPath());
+            Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
             
             String url = Config.get().getURL();            
             String username = Config.get().getUserName();
             String password = Config.get().getPassword();
             
-            //SQLIO universalIO = new SQLIO(url, username, password);
-            /*HashMap<Long, Order> ordersMap = universalIO.readOrders();
-            System.out.println(ordersMap.toString());   */
             
-            ordersMap = new OrdersMap(orderIO.read());
-            goodsMap = new GoodsMap(goodsIO.read());
-            //pricelist = new GoodsMap(universalIO.readGoods());
+            goodsDAO = new GoodsDAO(url,username,password);
+            ordersDAO = new OrdersDAO(url,username,password);
             
+            System.out.println(goodsDAO.findAll());
+            System.out.println("----------------------");
+            System.out.println(ordersDAO.findAll());
             
-            System.out.println(goodsMap);
             //---------------------------------------------------------------------
             SwingUtilities.invokeLater(() -> {
               JFrame mainframe = new MainFrame(this);
             });
             //--------------------------------------------------------------------- 
             
-        } catch (IOException | ClassNotFoundException | IllegalArgumentException /*| SQLException*/ ex) {
+            
+        } catch (ClassNotFoundException | IllegalArgumentException| 
+                NoSuchMethodException | SecurityException | InstantiationException | 
+                IllegalAccessException | InvocationTargetException ex) {
             ErrorFrame.create(ex);
-        }  
+        }
+        
     }    
     
     public final void main(){        
@@ -71,36 +63,31 @@ public class MediatorSQL implements Mediator{
 
     @Override
     public ArrayList<Good> getGoodsArray(){
-        return new ArrayList<> (goodsMap.getGoodsMap().values());    
+        return goodsDAO.findAll();   
     }
     
     @Override
     public Good getGood(long article){
-        return goodsMap.getGood(article);    
+        return goodsDAO.findId(article);    
     }
     
     @Override
     public ArrayList<Order> getOrdersArray(){
-        return new ArrayList<>(ordersMap.getOrdersMap().values());   
+        return ordersDAO.findAll();   
     }
     
     @Override
     public Order getOrder(long orderNumber){
-        return ordersMap.getOrder(orderNumber);
+        return ordersDAO.findId(orderNumber);
     }
     
     @Override
     public final Good addGood(Good good){
         try {
-            long article = goodsMap.getFreeArticle();
-            goodsMap.add(new Good(article,
-                                good.getVariety(),good.getColor(),
-                                good.getPrice(),good.getInstock()) );
-            
-            goodsIO.write(goodsMap.getGoodsMap());
+            Good newGood = goodsDAO.create(good);
             fireDataChanged("GoodUpdate");
-            return goodsMap.getGood(article);
-        } catch (IllegalArgumentException | IllegalStatusException | IOException ex) {
+            return newGood;
+        } catch (IllegalArgumentException ex) {
             ErrorFrame.create(ex);
         }
         return null;
@@ -108,119 +95,91 @@ public class MediatorSQL implements Mediator{
     
     @Override
     public final void updateGood(Good good){
-        try {
-            goodsMap.replaceGood(good);
-            goodsIO.write(goodsMap.getGoodsMap());
-            fireDataChanged("GoodUpdate");
-        } catch (IOException ex) {
-           ErrorFrame.create(ex);
-        }
+        goodsDAO.update(good);
+        fireDataChanged("GoodUpdate");
     }
       
     @Override
     public final void removeOrder(long orderNumber){
         try {
-            ordersMap.removeOrder(orderNumber);
+            ordersDAO.delete(orderNumber);
             fireDataChanged("OrdersMapChanged");
-        } catch (IllegalStatusException | IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
              ErrorFrame.create(ex);
         }
     }
     
     @Override
     public Order addOrder(Order order) {
-        try {
-            Order temp = new Order(ordersMap.getFreeNumber(), order);
-            ordersMap.add(temp);
-            orderIO.write(ordersMap.getOrdersMap());
-            fireDataChanged("OrdersMapChanged");
-            return temp;
-        } catch (IllegalStatusException | IOException ex) {
-            ErrorFrame.create(ex);
-        }
-        return null;
+        Order temp = ordersDAO.create(order);
+        fireDataChanged("OrdersMapChanged");
+        return temp;
     }
 
     
     @Override
     public final void updateOrder(Order order){
         
-        if (ordersMap.getOrdersMap().containsKey(order.getOrderNumber())){
-            switch (order.getOrderStatus() ){
-                case PREPARING:            
-                    try {
-                        ordersMap.replaceOrder(order);
-                        fireDataChanged("OrdersMapChanged");
-                        orderIO.write(ordersMap.getOrdersMap());
-                        
-                    } catch (IllegalStatusException | IllegalArgumentException | IOException ex) {
-                        ErrorFrame.create(ex);
-                    }
-                    break;
-                    
-                case SHIPPED:                    
-                    checkAndProcess(order);
-                    break;
-                    
-                case CANCELED:
-                    try {
-                        ordersMap.replaceOrder(order);
-                        fireDataChanged("OrdersMapChanged");
-                        orderIO.write(ordersMap.getOrdersMap());                            
-                        
-                    } catch (IllegalStatusException | IOException ex) {
-                        ErrorFrame.create(ex);
-                    }
-                    break;
-            }           
+        switch (order.getOrderStatus() ){
+            case PREPARING:            
+                ordersDAO.update(order);
+                fireDataChanged("OrdersMapChanged");
+                break;
+            case SHIPPED:                    
+                checkAndProcess(order);
+                break;
+            case CANCELED:
+                ordersDAO.update(order);
+                fireDataChanged("OrdersMapChanged");
+                break;
         }
     }
-    
-    /**Проверить достаточно ли на складе товара, и обработать заказ
+ /**Проверить достаточно ли на складе товара, и обработать заказ
      * @param order
      */
     private void checkAndProcess(Order order){
         boolean enoughFlag = true;
         long article;
-        Order ExistOrder = ordersMap.getOrder(order.getOrderNumber());
+        HashMap<Long, Good> goodMap = new HashMap<>();
+        
+        Order ExistOrder = ordersDAO.findId(order.getOrderNumber());
     
         if (ExistOrder.getOrderStatus().equals(PREPARING)){                        
             //Проверить: достаточно ли товара на складе
            
             for (OrderedItem Item : order.getOrderList().values()){
                 article = Item.getItem().getArticle();
-                if (goodsMap.getGood( article ).getInstock() < Item.getOrderedQuantity()){
+                goodMap.put(article,goodsDAO.findId(article));
+                
+                if (goodMap.get(article).getInstock() < Item.getOrderedQuantity()){
                     //Если товара недостаточно, то опустить флаг достаточности товара
                     enoughFlag = false;
+                    break;
                 }
+                goodMap.get(article).reduceInstock(Item.getOrderedQuantity());
             }
+            
             if (enoughFlag == true){
+                /*Good tempGood;
                 for (OrderedItem Item : order.getOrderList().values()){
                     article = Item.getItem().getArticle();
-                    
                     //Получить товар
-                    Good temp = goodsMap.getGood( article );
+                    tempGood = goodMap.get(article);
                     
                     //и вычесть заказанное количество
-                    temp.reduceInstock(Item.getOrderedQuantity());
-                    goodsMap.replaceGood(temp);
-                }
-                try {       
-                    ordersMap.replaceOrder(order);
-                    fireDataChanged("OrderSHIPPED");
-                    orderIO.write(ordersMap.getOrdersMap());
-                    goodsIO.write(goodsMap.getGoodsMap());
-                    
-                } catch (IllegalStatusException | IOException ex) {
-                   ErrorFrame.create(ex);
-                }
+                    tempGood.reduceInstock(Item.getOrderedQuantity());
+                    goodsDAO.update(tempGood);
+                }*/
+                goodsDAO.update (goodMap.values());
+                ordersDAO.update(order);
+                fireDataChanged("OrderSHIPPED");
                 
             }
             else{
                 fireDataChanged("NotEnoughGoods");
             }
         }
-    }
+    }   
     
 //------------------------------------------------------------------------------    
     @Override
@@ -241,6 +200,7 @@ public class MediatorSQL implements Mediator{
     public void removeAllListeners() {
         listeners.clear();
     }
+    
     @Override
     public MyEventListener[] getListeners(){
         return listeners.toArray(new MyEventListener[listeners.size()]);
@@ -254,7 +214,6 @@ public class MediatorSQL implements Mediator{
     }
 //------------------------------------------------------------------------------
 
-    
 }
     
     

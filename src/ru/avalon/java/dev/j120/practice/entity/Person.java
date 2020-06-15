@@ -4,16 +4,23 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Person implements Serializable{
-    
+    private long id;
     private final String name;
     private final String surname;
     private final String deliveryAddress;
     private final String phoneNumber;
 
-    public Person(String name,String surname, String deliveryAddress, String phoneNumber) {
+    public Person(String name, String surname, String deliveryAddress, String phoneNumber) {
         this.name = name;
         this.surname = surname;
-        //this.contactPerson = contactPerson;
+        this.deliveryAddress = deliveryAddress;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public Person(long id, String name,String surname, String deliveryAddress, String phoneNumber) {
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
         this.deliveryAddress = deliveryAddress;
         this.phoneNumber = phoneNumber;
     }
@@ -22,7 +29,7 @@ public class Person implements Serializable{
         if (person != null){
             if (person.name != null && person.surname !=null && 
                     person.deliveryAddress !=null && person.phoneNumber !=null){
-                
+                this.id =  person.id;
                 this.name =  person.name;
                 this.surname =  person.surname;
                 //this.contactPerson = person.contactPerson;
@@ -38,6 +45,10 @@ public class Person implements Serializable{
         }
     }
 
+    public long getId() {
+        return id;
+    }
+       
     public String getName() {
         return name;
     }

@@ -25,4 +25,6 @@ public interface Mediator extends MyEventSource{
     public Order addOrder(Order order);
 
     public void updateOrder(Order order);
+    
+     
 }

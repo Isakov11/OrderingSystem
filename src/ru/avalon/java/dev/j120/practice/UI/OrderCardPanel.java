@@ -75,13 +75,16 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
                 break;
             case SHIPPED: 
                 orderStatusComboBox.setSelectedIndex(1);
+                orderStatusComboBox.setEnabled(false);
                 discountSpinner.setEnabled(false);                
                 personButton.setEnabled(false);
                 addOrderItemButton.setEnabled(false);
                 removeOrderItemButton.setEnabled(false);
+                
                 break;
             case CANCELED: 
                 orderStatusComboBox.setSelectedIndex(2);
+                orderStatusComboBox.setEnabled(false);
                 discountSpinner.setEnabled(false);
                 personButton.setEnabled(false);
                 addOrderItemButton.setEnabled(false);

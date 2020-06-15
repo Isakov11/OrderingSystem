@@ -59,7 +59,7 @@ public class OrderTableModel extends AbstractTableModel  implements MyEventListe
 
     @Override
     public void update(String eventType) {
-        if (eventType.equals("OrdersMapChanged")){
+        if (eventType.equals("OrdersMapChanged")||eventType.equals("OrderSHIPPED")){
             this.OrdersArray = mediator.getOrdersArray();
             OrdersArray.sort((Order o1, Order o2) -> o1.getOrderNumber()>o2.getOrderNumber()? 1: -1);
             this.fireTableDataChanged();
