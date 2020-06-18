@@ -183,12 +183,14 @@ public class GoodsPanel extends javax.swing.JPanel implements MyEventSource {
         if (evt.getButton() == 1 && evt.getClickCount() == 2){
             
             Good good = getRowGood();
-            //NEW == панель номенклатуры; EXIST == панель добавления товара в заказ
-            if (state.equals(StateEnum.NEW)){
-                openGoodCardPanel(good);
-            }
-            if (state.equals(StateEnum.EXIST)){
-                addOrderedItem(good);
+            if (good !=null){
+                //NEW == панель номенклатуры; EXIST == панель добавления товара в заказ
+                if (state.equals(StateEnum.NEW)){
+                    openGoodCardPanel(good);
+                }
+                if (state.equals(StateEnum.EXIST)){
+                    addOrderedItem(good);
+                }
             }
         }
     }//GEN-LAST:event_goodsTableMouseClicked

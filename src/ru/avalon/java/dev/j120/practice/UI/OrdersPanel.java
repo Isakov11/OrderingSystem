@@ -115,9 +115,11 @@ public class OrdersPanel extends javax.swing.JPanel {
 
     private void ordersTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ordersTableMouseClicked
         if (evt.getButton() == 1 && evt.getClickCount() == 2){
-            
+            long start = System.currentTimeMillis();    
+            long end;
             //Получение данных о заказе из таблицы
             Long orderNumber = (Long) otm.getValueAt(ordersTable.getSelectedRow(), 0);
+            
             /*LocalDate orderDate =(LocalDate) otm.getValueAt(ordersTable.getSelectedRow(), 1);
             Person contactPerson =(Person) otm.getValueAt(ordersTable.getSelectedRow(), 2);
             int discount = (int) otm.getValueAt(ordersTable.getSelectedRow(), 3);
@@ -125,9 +127,13 @@ public class OrdersPanel extends javax.swing.JPanel {
 
             //Инициализация панели заказа
             orderCard = new OrderCardPanel(mediator,this, mediator.getOrder(orderNumber));
+            end = System.currentTimeMillis();            
+            System.out.println("ordersTableMouseClicked new OrderCardPanel time "  + (end-start)+" ms");
             maintab = (JTabbedPane) this.getParent();
             maintab.addTab("Заказ " + orderNumber, orderCard);
             maintab.setSelectedIndex(maintab.getTabCount() -1);
+            end = System.currentTimeMillis();
+            System.out.println("ordersTableMouseClicked  all time "  + (end-start)+" ms");
         }
     }//GEN-LAST:event_ordersTableMouseClicked
 
