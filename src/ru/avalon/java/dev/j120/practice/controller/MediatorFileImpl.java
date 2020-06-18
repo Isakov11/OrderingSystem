@@ -27,14 +27,14 @@ import ru.avalon.java.dev.j120.practice.utils.StateEnum;
 import static ru.avalon.java.dev.j120.practice.utils.StateEnum.*;
 import ru.avalon.java.dev.j120.practice.entity.Good;
 
-public class MediatorFile implements Mediator{
+public class MediatorFileImpl implements Mediator{
     private GoodsIO goodsIO;
     private OrdersIO orderIO;
     private GoodsMap goodsMap;
     private OrdersMap ordersMap;    
     ArrayList<MyEventListener> listeners = new ArrayList<>();
     
-    public MediatorFile() {
+    public MediatorFileImpl() {
         try {
             goodsIO = new GoodsIO(Config.get().getPricePath());            
             orderIO = new OrdersIO(Config.get().getOrderPath());
@@ -49,7 +49,7 @@ public class MediatorFile implements Mediator{
             //--------------------------------------------------------------------- 
             
         } catch (IOException | ClassNotFoundException | IllegalArgumentException ex) {
-            ErrorFrame.create(ex);
+            ErrorFrame.create(ex, JFrame.EXIT_ON_CLOSE);
         }  
     }    
     
@@ -89,7 +89,7 @@ public class MediatorFile implements Mediator{
             fireDataChanged("GoodUpdate");
             return goodsMap.getGood(article);
         } catch (IllegalArgumentException | IllegalStatusException | IOException ex) {
-            ErrorFrame.create(ex);
+             ErrorFrame.create(ex, JFrame.EXIT_ON_CLOSE);
         }
         return null;
     }    
@@ -101,7 +101,7 @@ public class MediatorFile implements Mediator{
             goodsIO.write(goodsMap.getGoodsMap());
             fireDataChanged("GoodUpdate");
         } catch (IOException ex) {
-           ErrorFrame.create(ex);
+            ErrorFrame.create(ex, JFrame.EXIT_ON_CLOSE);
         }
     }
       
@@ -111,7 +111,7 @@ public class MediatorFile implements Mediator{
             ordersMap.removeOrder(orderNumber);
             fireDataChanged("OrdersMapChanged");
         } catch (IllegalStatusException | IllegalArgumentException ex) {
-             ErrorFrame.create(ex);
+              ErrorFrame.create(ex, JFrame.EXIT_ON_CLOSE);
         }
     }
     
@@ -124,7 +124,7 @@ public class MediatorFile implements Mediator{
             fireDataChanged("OrdersMapChanged");
             return temp;
         } catch (IllegalStatusException | IOException ex) {
-            ErrorFrame.create(ex);
+             ErrorFrame.create(ex, JFrame.EXIT_ON_CLOSE);
         }
         return null;
     }
@@ -142,7 +142,7 @@ public class MediatorFile implements Mediator{
                         orderIO.write(ordersMap.getOrdersMap());
                         
                     } catch (IllegalStatusException | IllegalArgumentException | IOException ex) {
-                        ErrorFrame.create(ex);
+                         ErrorFrame.create(ex, JFrame.EXIT_ON_CLOSE);
                     }
                     break;
                     
@@ -157,7 +157,7 @@ public class MediatorFile implements Mediator{
                         orderIO.write(ordersMap.getOrdersMap());                            
                         
                     } catch (IllegalStatusException | IOException ex) {
-                        ErrorFrame.create(ex);
+                         ErrorFrame.create(ex, JFrame.EXIT_ON_CLOSE);
                     }
                     break;
             }           
@@ -200,7 +200,7 @@ public class MediatorFile implements Mediator{
                     goodsIO.write(goodsMap.getGoodsMap());
                     
                 } catch (IllegalStatusException | IOException ex) {
-                   ErrorFrame.create(ex);
+                    ErrorFrame.create(ex, JFrame.EXIT_ON_CLOSE);
                 }
                 
             }

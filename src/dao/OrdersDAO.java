@@ -5,6 +5,7 @@
  */
 package dao;
 
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -14,40 +15,36 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import ru.avalon.java.dev.j120.practice.entity.Order;
 import ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum;
 import ru.avalon.java.dev.j120.practice.entity.Person;
 
 public class OrdersDAO {
-    private String url, username, password;
-    private OrderedItemsDAO orderedItemsDAO;
-    private Connection conn;
+    private final OrderedItemsDAO orderedItemsDAO;
+    private final PersonsDAO personsDAO;
+    //private final Connection conn;
+    private ConnectionManager manager;
     
-    public OrdersDAO(String url, String username, String password) {
-        try {
-            this.url = url;
-            this.username = username;
-            this.password = password;
-            orderedItemsDAO = new OrderedItemsDAO();
-            conn = DriverManager.getConnection(url, username, password);
-        } catch (SQLException ex) {
-            Logger.getLogger(OrdersDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    /*public OrdersDAO(String url, String username, String password) throws SQLException {
+        orderedItemsDAO = new OrderedItemsDAO();
+        conn = DriverManager.getConnection(url, username, password);
+    }*/
+
+    public OrdersDAO(ConnectionManager manager) {
+        orderedItemsDAO = new OrderedItemsDAO();
+        personsDAO = new PersonsDAO(manager);
+        this.manager= manager;
     }
 
-    /*public OrdersDAO(Connection conn) {
-        this.conn = conn;
-    }*/
-    
     public Order create(Order order){
         long orderNumber=0;        
-        //try (Connection conn = DriverManager.getConnection(url, username, password)){
         
-            //запись шапки заказа
-            String sqlStatement = "INSERT orders(orderDate, person, discount, orderStatus) VALUES (?,?,?,?)";
-           try (PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement,Statement.RETURN_GENERATED_KEYS)){
+        //запись шапки заказа
+        String sqlStatement = "INSERT orders(orderDate, person, discount, orderStatus) VALUES (?,?,?,?)";
+        Connection conn = manager.getConnection();
+        try (PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement,Statement.RETURN_GENERATED_KEYS)){
+            
+            personsDAO.create(order.getContactPerson());
 
             preparedStatement.setDate(1, Date.valueOf(order.getOrderDate()));
             preparedStatement.setString(2, order.getContactPerson().getPhoneNumber());
@@ -67,14 +64,15 @@ public class OrdersDAO {
         catch(IllegalArgumentException | SecurityException | SQLException ex){
             System.out.println("Error! In OrderDAO.create ");
             System.out.println(ex);
+            manager.closeConnection(conn);
             return null;
         }
+        manager.closeConnection(conn);
         return new Order(orderNumber, order.getOrderDate(), 
                 order.getContactPerson(), order.getDiscount(), order.getOrderStatus(),order.getOrderList());
     }
     
     public ArrayList<Order> findAll(){
-        //try (Connection conn = DriverManager.getConnection(url, username, password)){
         
         ArrayList<Order> ordersArray = new ArrayList<>();
 
@@ -89,7 +87,7 @@ public class OrdersDAO {
                                 "persons.phoneNumber as phoneNumber " +
                                 "FROM orders " +
                                 "INNER JOIN persons ON orders.person = persons.phoneNumber";
-
+        Connection conn = manager.getConnection();
         try (PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement)) {
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -115,12 +113,12 @@ public class OrdersDAO {
             System.out.println(ex);
             return new ArrayList<>();
         }
+        manager.closeConnection(conn);
         return ordersArray;
         
     }
     
     public Order findId(long orderNumber){
-        //try (Connection conn = DriverManager.getConnection(url, username, password)){
         
         Order order = null;
         String sqlStatement =   "SELECT " +
@@ -135,12 +133,12 @@ public class OrdersDAO {
                                 "FROM orders " +
                                 "INNER JOIN persons ON orders.person = persons.phoneNumber " +
                                 "WHERE orderNumber = ?";
-
+        Connection conn = manager.getConnection();
         try (PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement)){
             preparedStatement.setLong(1, orderNumber);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            while(resultSet.next()){
+            if(resultSet.next()){
                 LocalDate orderDate = resultSet.getDate("orderDate").toLocalDate();
 
                 Person contactPerson = new Person(resultSet.getString("name"), 
@@ -153,21 +151,22 @@ public class OrdersDAO {
                 order = new Order(orderNumber,orderDate,contactPerson,discount,orderStatus);
                 orderedItemsDAO.findAll(order, conn);
             }
+            manager.closeConnection(conn);
             return order;
                 
         } catch (SQLException ex) {
             System.out.println("Error! In OrderDAO.findId ");
             System.out.println(ex);
+            manager.closeConnection(conn);
             return null;
         }
     }
     
     public int update(Order order){
-        //try (Connection conn = DriverManager.getConnection(url, username, password)){
         
         String sqlStatement = "UPDATE orders SET " +
                 "orderDate = ?, person = ?, discount = ? , orderStatus = ? WHERE orderNumber= ?";
-
+        Connection conn = manager.getConnection();
         try (PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement)){
 
             preparedStatement.setDate(1, Date.valueOf(order.getOrderDate()));
@@ -179,28 +178,32 @@ public class OrdersDAO {
 
             int row = preparedStatement.executeUpdate();
             orderedItemsDAO.update(order, conn);
+            manager.closeConnection(conn);
             return row;
 
         } catch (SQLException ex) {
             System.out.println("Error! In OrderDAO.update ");
             System.out.println(ex);
+            manager.closeConnection(conn);
             return 0;
         }        
     }
     
     public int delete(long orderNumber){
-        //try (Connection conn = DriverManager.getConnection(url, username, password)){
          
         String sqlStatement ="DELETE FROM orders WHERE orderNumber= ?";
+        Connection conn = manager.getConnection();
         try(PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement)){
 
             preparedStatement.setLong(1, orderNumber);
 
             int row = preparedStatement.executeUpdate();
             orderedItemsDAO.delete(orderNumber, conn);
+            manager.closeConnection(conn);
             return row;
 
         } catch (SQLException ex) {
+            manager.closeConnection(conn);
             return 0;
         }
     }

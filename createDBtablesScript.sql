@@ -15,25 +15,14 @@ CREATE TABLE `goods` (
   UNIQUE KEY `article_UNIQUE` (`article`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
-CREATE TABLE `addreses` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `city` varchar(50) NOT NULL,
-  `street` varchar(50) NOT NULL,
-  `building` varchar(50) NOT NULL,
-  `flat` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-
 CREATE TABLE `persons` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `surname` varchar(100) NOT NULL,
-  `address` int NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `surname` varchar(50) NOT NULL,
+  `address` varchar(100) NOT NULL,
   `phoneNumber` varchar(20) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `address_idx` (`address`),
-  CONSTRAINT `address` FOREIGN KEY (`address`) REFERENCES `addreses` (`id`)
+  UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 CREATE TABLE `orders` (

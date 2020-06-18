@@ -15,35 +15,21 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import ru.avalon.java.dev.j120.practice.entity.Good;
 
 public class GoodsDAO {
-    private String url, username, password;
-    private Connection conn;
-
-    public GoodsDAO(String url, String username, String password) {
-        try {
-            this.url = url;
-            this.username = username;
-            this.password = password;
-            conn = DriverManager.getConnection(url, username, password);
-            
-        } catch (SQLException ex) {
-            
-        }
+    //private final Connection conn;
+    ConnectionManager manager;
+    public GoodsDAO(String url, String username, String password) throws SQLException {
+       Connection conn = DriverManager.getConnection(url, username, password);
     }
-
-    /*public GoodsDAO(Connection connection) {
-        this.conn = connection;
-    }*/
+    public GoodsDAO(ConnectionManager manager) {
+        this.manager= manager;
+    }   
     
     public Good create(Good good){
         long article=0;
-       
-        //try (Connection conn = DriverManager.getConnection(url, username, password)){
-        
+        Connection conn = manager.getConnection();
         String sqlStatement = "INSERT goods(variety, color, price, instock) VALUES (?,?,?,?)";
         try (PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement,Statement.RETURN_GENERATED_KEYS)){
 
@@ -58,19 +44,20 @@ public class GoodsDAO {
             if (rs.next()) {
                 article = rs.getLong(1);
             }
+            manager.closeConnection(conn);
+            return new Good(article, good.getVariety(), good.getColor(), good.getPrice(), good.getInstock());
         }
         catch(IllegalArgumentException | SecurityException | SQLException ex){
             System.out.println("Error! ");
             System.out.println(ex);
             return null;
         }
-        return new Good(article, good.getVariety(), good.getColor(), good.getPrice(), good.getInstock());
     }
     
     public ArrayList<Good> findAll(){
-        //try (Connection conn = DriverManager.getConnection(url, username, password)){
         
         ArrayList<Good> goodsArray = new ArrayList<>();
+        Connection conn = manager.getConnection();
         try (Statement statement = conn.createStatement()) {
             ResultSet resultSet = statement.executeQuery("SELECT * FROM goods");
             while(resultSet.next()){
@@ -84,43 +71,43 @@ public class GoodsDAO {
                 Good good = new Good(article,variety,color,price,instock);
                 goodsArray.add(good);
             }
+            manager.closeConnection(conn);
+            return goodsArray;
         } catch (SQLException ex) {
             System.out.println(ex);
+            manager.closeConnection(conn);
             return goodsArray;
         }
-        return goodsArray;
     }
     
-    public Good findId(long article){
-        //try (Connection conn = DriverManager.getConnection(url, username, password)){
+    public Good findId(long article) throws SQLException{
             
         String sqlStatement ="SELECT * FROM goods WHERE article = ?";
+        Good good = null;
+        Connection conn = manager.getConnection();
         try( PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement)){
             
             preparedStatement.setLong(1, article);
             
             ResultSet resultSet = preparedStatement.executeQuery();
             
-            while(resultSet.next()){
+            if(resultSet.next()){
                 String variety = resultSet.getString("variety");
                 String color = resultSet.getString("color");
                 BigDecimal price = resultSet.getBigDecimal("price");
                 long instock = resultSet.getLong("instock");
 
-                Good good = new Good(article,variety,color,price,instock);
-                return good;
+                good = new Good(article,variety,color,price,instock);
             }
-        } catch (SQLException ex) {
-            System.out.println(ex);
-            return null;
-        }
-        return null;
+            manager.closeConnection(conn);
+            return good;
+        } 
     }
     
     public int update(Good good){
-        //try (Connection conn = DriverManager.getConnection(url, username, password)){
         
         String sqlStatement = "UPDATE goods SET variety = ?, color = ?, price = ?, instock = ? WHERE article= ?";
+        Connection conn = manager.getConnection();
         try( PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement)){
             
             preparedStatement.setString(1, good.getVariety());
@@ -130,16 +117,19 @@ public class GoodsDAO {
             preparedStatement.setLong(5, good.getArticle());
             
             int row = preparedStatement.executeUpdate();
+            manager.closeConnection(conn);
             return row;
             
         } catch (SQLException ex) {
             System.out.println(ex);
+            manager.closeConnection(conn);
             return 0;
         }        
     }
     public int update(Collection<Good> goodsColl){
         
         String sqlStatement = "UPDATE goods SET variety = ?, color = ?, price = ?, instock = ? WHERE article= ?";
+        Connection conn = manager.getConnection();
         try( PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement)){
             Savepoint sp = conn.setSavepoint();
             conn.setAutoCommit(false);
@@ -156,37 +146,37 @@ public class GoodsDAO {
             conn.commit();
             conn.setAutoCommit(true);
             conn.releaseSavepoint(sp);
+            manager.closeConnection(conn);
             return row;
             
         } catch (SQLException ex) {
             System.out.println(ex);
-            if (conn != null) {
-                try {
-                    System.err.print("Transaction is being rolled back");
-                    conn.rollback();
-                }catch (SQLException ex1) {
-                    System.err.print("Transaction is being rolled back");
-                }
+            try {
+                System.err.print("Transaction is being rolled back");
+                conn.rollback();
+                manager.closeConnection(conn);
+            }catch (SQLException ex1) {
+                System.err.print("Transaction is being rolled back");
+                manager.closeConnection(conn);
             }
         }
+        manager.closeConnection(conn);
         return 0;
     }
     
     public int delete(long article){
-        //try (Connection conn = DriverManager.getConnection(url, username, password)){
         
         String sqlStatement ="DELETE FROM goods WHERE article = ?";
+        Connection conn = manager.getConnection();
         try( PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement)){
             
             preparedStatement.setLong(1, article);
             
             int row = preparedStatement.executeUpdate();
+            manager.closeConnection(conn);
             return row;
-            
         } catch (SQLException ex) {
             return 0;
         }
     }
-    
-    
 }

@@ -1,14 +1,15 @@
 
 package ru.avalon.java.dev.j120.practice.controller;
 
+import dao.ConnectionManager;
 import dao.GoodsDAO;
 import dao.OrdersDAO;
+import dao.PersonsDAO;
 import ru.avalon.java.dev.j120.practice.entity.*;
 
-import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import javax.swing.*;
 import javax.swing.SwingUtilities;
 
@@ -20,40 +21,48 @@ import static ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum.*;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 import ru.avalon.java.dev.j120.practice.entity.Good;
 
-public class MediatorSQL implements Mediator{
+public class MediatorSQLImpl implements Mediator{
     private GoodsDAO  goodsDAO;
-    private OrdersDAO ordersDAO ;
+    private OrdersDAO ordersDAO;
+    private PersonsDAO personsDAO;
+
     ArrayList<MyEventListener> listeners = new ArrayList<>();
+    long start, end;
     
-    public MediatorSQL() {
+    public MediatorSQLImpl() {
         try {
-            
-            Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
+            //Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
             
             String url = Config.get().getURL();            
             String username = Config.get().getUserName();
             String password = Config.get().getPassword();
             
+            start = System.currentTimeMillis();
+            ConnectionManager manager = new ConnectionManager(url,username,password);
+            end = System.currentTimeMillis();
+            System.out.println("manager time "  + (end-start)+" ms");
             
-            goodsDAO = new GoodsDAO(url,username,password);
-            ordersDAO = new OrdersDAO(url,username,password);
+            goodsDAO = new GoodsDAO(manager);
+            ordersDAO = new OrdersDAO(manager);
+            personsDAO = new PersonsDAO(manager);
             
-            System.out.println(goodsDAO.findAll());
-            System.out.println("----------------------");
-            System.out.println(ordersDAO.findAll());
-            
+            start = System.currentTimeMillis();    
             //---------------------------------------------------------------------
             SwingUtilities.invokeLater(() -> {
               JFrame mainframe = new MainFrame(this);
             });
             //--------------------------------------------------------------------- 
+            end = System.currentTimeMillis();
+            System.out.println("GUI start time "  + (end-start)+" ms");
             
-            
-        } catch (ClassNotFoundException | IllegalArgumentException| 
-                NoSuchMethodException | SecurityException | InstantiationException | 
-                IllegalAccessException | InvocationTargetException ex) {
-            ErrorFrame.create(ex);
+        } catch (IllegalArgumentException| SecurityException ex) {
+            ErrorFrame.create(ex, JFrame.EXIT_ON_CLOSE);
         }
+        /*} catch (ClassNotFoundException | IllegalArgumentException| 
+                NoSuchMethodException | SecurityException | InstantiationException | 
+                IllegalAccessException | InvocationTargetException | SQLException ex) {
+            ErrorFrame.create(ex, JFrame.EXIT_ON_CLOSE);
+        }*/
         
     }    
     
@@ -63,22 +72,37 @@ public class MediatorSQL implements Mediator{
 
     @Override
     public ArrayList<Good> getGoodsArray(){
-        return goodsDAO.findAll();   
+        return goodsDAO.findAll();
     }
     
     @Override
     public Good getGood(long article){
-        return goodsDAO.findId(article);    
+        try {
+            Good tempGood = goodsDAO.findId(article);
+            if (tempGood != null){
+                return tempGood;
+            }
+            else{
+                throw new NullPointerException("Товар не найден");
+            }
+        } catch (SQLException | NullPointerException ex) {
+            ErrorFrame.create(ex, JFrame.DISPOSE_ON_CLOSE);
+        }
+        return null;
     }
     
     @Override
     public ArrayList<Order> getOrdersArray(){
-        return ordersDAO.findAll();   
+        return ordersDAO.findAll();
     }
     
     @Override
     public Order getOrder(long orderNumber){
-        return ordersDAO.findId(orderNumber);
+        start = System.currentTimeMillis();       
+        Order order =  ordersDAO.findId(orderNumber);
+        end = System.currentTimeMillis();
+        System.out.println("getOrder time "  + (end-start)+" ms");
+        return order;
     }
     
     @Override
@@ -88,7 +112,7 @@ public class MediatorSQL implements Mediator{
             fireDataChanged("GoodUpdate");
             return newGood;
         } catch (IllegalArgumentException ex) {
-            ErrorFrame.create(ex);
+            ErrorFrame.create(ex, JFrame.DISPOSE_ON_CLOSE);
         }
         return null;
     }    
@@ -105,7 +129,7 @@ public class MediatorSQL implements Mediator{
             ordersDAO.delete(orderNumber);
             fireDataChanged("OrdersMapChanged");
         } catch (IllegalArgumentException ex) {
-             ErrorFrame.create(ex);
+             ErrorFrame.create(ex, JFrame.DISPOSE_ON_CLOSE);
         }
     }
     
@@ -134,10 +158,16 @@ public class MediatorSQL implements Mediator{
                 break;
         }
     }
+    
+    public ArrayList<Person> getPersonsArray(){
+        return personsDAO.findAll();
+    }
+    
  /**Проверить достаточно ли на складе товара, и обработать заказ
      * @param order
      */
     private void checkAndProcess(Order order){
+        start = System.currentTimeMillis();       
         boolean enoughFlag = true;
         long article;
         HashMap<Long, Good> goodMap = new HashMap<>();
@@ -149,7 +179,7 @@ public class MediatorSQL implements Mediator{
            
             for (OrderedItem Item : order.getOrderList().values()){
                 article = Item.getItem().getArticle();
-                goodMap.put(article,goodsDAO.findId(article));
+                goodMap.put(article,getGood(article));
                 
                 if (goodMap.get(article).getInstock() < Item.getOrderedQuantity()){
                     //Если товара недостаточно, то опустить флаг достаточности товара
@@ -170,8 +200,14 @@ public class MediatorSQL implements Mediator{
                     tempGood.reduceInstock(Item.getOrderedQuantity());
                     goodsDAO.update(tempGood);
                 }*/
-                goodsDAO.update (goodMap.values());
+                goodsDAO.update(goodMap.values());
+                
+                end = System.currentTimeMillis();
+                System.out.println("checkAndProcess  goodsDAO.update time "  + (end-start)+" ms");
                 ordersDAO.update(order);
+                
+                end = System.currentTimeMillis();
+                System.out.println("checkAndProcess  ordersDAO.update time "  + (end-start)+" ms");
                 fireDataChanged("OrderSHIPPED");
                 
             }
@@ -179,6 +215,8 @@ public class MediatorSQL implements Mediator{
                 fireDataChanged("NotEnoughGoods");
             }
         }
+        end = System.currentTimeMillis();
+        System.out.println("checkAndProcess time "  + (end-start)+" ms");
     }   
     
 //------------------------------------------------------------------------------    

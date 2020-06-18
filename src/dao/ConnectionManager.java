@@ -5,37 +5,44 @@
  */
 package dao;
 
+import static com.mchange.v1.db.sql.ConnectionUtils.attemptClose;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
+import com.mchange.v2.c3p0.*;
+import java.beans.PropertyVetoException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ConnectionManager {
-    private String url;
-    private String username;
-    private String password;
     private Connection connection;
+    private ComboPooledDataSource cpds;
     
     public ConnectionManager(String url, String username, String password)  {
         try {
-            this.url = url;
+            /*this.url = url;
             this.username = username;
             this.password = password;
-            connection = DriverManager.getConnection(url, username, password);
-        } catch (SQLException ex) {
+            connection = DriverManager.getConnection(url, username, password);*/
             
+            cpds = new ComboPooledDataSource();
+            cpds.setDriverClass("com.mysql.cj.jdbc.Driver"); //loads the jdbc driver            
+            cpds.setJdbcUrl(url);
+            cpds.setUser(username);                                  
+            cpds.setPassword(password);
+        } catch (PropertyVetoException ex) {
+            Logger.getLogger(ConnectionManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public Connection getConnection() {
-        return connection;
-    }
-    public void closeConnection() {
         try {
-            connection.close();
+            return cpds.getConnection();
         } catch (SQLException ex) {
             
         }
+        return null;
+    }
+    public void closeConnection(Connection conn) {
+        attemptClose(conn);
     }
 }
