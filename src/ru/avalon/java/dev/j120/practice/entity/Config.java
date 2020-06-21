@@ -24,52 +24,52 @@ public class Config {
     }   
 
     public String getPricePath() {        
-        return prop.getProperty("PricePath");
+        return prop.getProperty("path.price");
     }
     
     public String getOrderPath() {
-        return prop.getProperty("OrderPath");
+        return prop.getProperty("path.order");
     }
 
     public int getMaxDiscount() {
-        return Integer.valueOf(prop.getProperty("maxDiscount","0"));
+        return Integer.valueOf(prop.getProperty("discount.max","0"));
     }
     
     public String getURL() {
-        return String.valueOf(prop.getProperty("url"));
+        return String.valueOf(prop.getProperty("database.url"));
     }
     
     public String getUserName() {
-        return String.valueOf(prop.getProperty("username"));
+        return String.valueOf(prop.getProperty("database.username"));
     }
     
     public String getPassword() {
-        return String.valueOf(prop.getProperty("password"));
+        return String.valueOf(prop.getProperty("database.password"));
     }
 
     public void setPricePath(String pricePath) {
-        prop.setProperty("PricePath", pricePath);
+        prop.setProperty("path.price", pricePath);
     }
 
     public void setOrderPath(String orderPath) {
-        prop.setProperty("PricePath", orderPath);
+        prop.setProperty("path.order", orderPath);
     }
     public void setMaxDiscount(int maxDiscount) {
         if (maxDiscount >= 0 && maxDiscount <= 100){
-            prop.setProperty("maxDiscount", String.valueOf(maxDiscount));            
+            prop.setProperty("discount.max", String.valueOf(maxDiscount));            
         }        
     }
     
     public void setURL(String url) {
-        prop.setProperty("url", url);
+        prop.setProperty("database.url", url);
     }
     
     public void setUser(String user) {
-        prop.setProperty("user", user);
+        prop.setProperty("database.username", user);
     }
     
     public void setPassword(String password) {
-        prop.setProperty("password", password);
+        prop.setProperty("database.password", password);
     }
     
     @Override

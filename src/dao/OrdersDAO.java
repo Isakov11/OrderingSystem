@@ -36,7 +36,7 @@ public class OrdersDAO {
         this.manager= manager;
     }
 
-    public Order create(Order order){
+    public Order create(Order order) throws SQLException{
         long orderNumber=0;        
         
         //запись шапки заказа
@@ -72,7 +72,7 @@ public class OrdersDAO {
                 order.getContactPerson(), order.getDiscount(), order.getOrderStatus(),order.getOrderList());
     }
     
-    public ArrayList<Order> findAll(){
+    public ArrayList<Order> findAll() throws SQLException{
         
         ArrayList<Order> ordersArray = new ArrayList<>();
 
@@ -118,7 +118,7 @@ public class OrdersDAO {
         
     }
     
-    public Order findId(long orderNumber){
+    public Order findId(long orderNumber) throws SQLException{
         
         Order order = null;
         String sqlStatement =   "SELECT " +
@@ -162,7 +162,7 @@ public class OrdersDAO {
         }
     }
     
-    public int update(Order order){
+    public int update(Order order) throws SQLException{
         
         String sqlStatement = "UPDATE orders SET " +
                 "orderDate = ?, person = ?, discount = ? , orderStatus = ? WHERE orderNumber= ?";
@@ -189,7 +189,7 @@ public class OrdersDAO {
         }        
     }
     
-    public int delete(long orderNumber){
+    public int delete(long orderNumber) throws SQLException{
          
         String sqlStatement ="DELETE FROM orders WHERE orderNumber= ?";
         Connection conn = manager.getConnection();

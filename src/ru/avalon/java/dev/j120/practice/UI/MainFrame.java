@@ -4,8 +4,9 @@
  * and open the template in the editor.
  */
 package ru.avalon.java.dev.j120.practice.UI;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import ru.avalon.java.dev.j120.practice.controller.Mediator;
-import ru.avalon.java.dev.j120.practice.utils.StateEnum;
 
 public class MainFrame extends javax.swing.JFrame {    
     
@@ -15,9 +16,21 @@ public class MainFrame extends javax.swing.JFrame {
      */
     public MainFrame(Mediator mediator) {        
         initComponents();
-        mainTabbedPane.addTab("Номенклатура",new GoodsPanel(mediator,StateEnum.NEW));
-        mainTabbedPane.addTab("Заказы",new OrdersPanel(mediator));
-        setVisible(true);        
+        setVisible(true);
+        ConnectionWaitTask task = new ConnectionWaitTask(4);
+        task.addPropertyChangeListener(
+        new PropertyChangeListener() {
+         @Override
+         public  void propertyChange(PropertyChangeEvent evt) {
+             if ("progress".equals(evt.getPropertyName())) {
+                 jProgressBar1.setValue((Integer)evt.getNewValue());
+             }
+         }
+        });
+        task.execute();
+        //mainTabbedPane.addTab("Номенклатура",new GoodsPanel(mediator,StateEnum.NEW));
+        //mainTabbedPane.addTab("Заказы",new OrdersPanel(mediator));
+        
     }
 
     /**
@@ -30,6 +43,9 @@ public class MainFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         mainTabbedPane = new javax.swing.JTabbedPane();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jProgressBar1 = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -40,15 +56,48 @@ public class MainFrame extends javax.swing.JFrame {
 
         mainTabbedPane.setPreferredSize(new java.awt.Dimension(946, 700));
 
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 470, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 25, Short.MAX_VALUE)
+        );
+
+        jLabel1.setText("Ожидание подключения");
+
+        jProgressBar1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                jProgressBar1PropertyChange(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 846, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(mainTabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 676, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jProgressBar1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
         pack();
@@ -57,6 +106,11 @@ public class MainFrame extends javax.swing.JFrame {
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowClosing
+
+    private void jProgressBar1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jProgressBar1PropertyChange
+        System.out.println("hello");
+        jProgressBar1.setValue((Integer)evt.getNewValue());
+    }//GEN-LAST:event_jProgressBar1PropertyChange
 
     /**
      * @param args the command line arguments
@@ -94,6 +148,9 @@ public class MainFrame extends javax.swing.JFrame {
     }*/
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JTabbedPane mainTabbedPane;
     // End of variables declaration//GEN-END:variables
 }

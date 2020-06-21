@@ -21,7 +21,7 @@ public class PersonsDAO {
     }
     
 
-    public Person create(Person person){
+    public Person create(Person person) throws SQLException{
        
         String sqlStatement = "INSERT persons(name, surname,address,phoneNumber)" +
                 "SELECT ?, ?, ?, ? " +
@@ -46,7 +46,7 @@ public class PersonsDAO {
         return person;
     }
     
-    public ArrayList<Person> findAll(){
+    public ArrayList<Person> findAll() throws SQLException{
         
         ArrayList<Person> personsArray = new ArrayList<>();
         Connection conn = manager.getConnection();
@@ -70,7 +70,7 @@ public class PersonsDAO {
         return personsArray;
     }
     
-    public Person findId(String phoneNumber){
+    public Person findId(String phoneNumber) throws SQLException{
             
         String sqlStatement ="SELECT * FROM persons WHERE phoneNumber = ?";
         Connection conn = manager.getConnection();
@@ -96,7 +96,7 @@ public class PersonsDAO {
         return null;
     }
     
-    public int update(Person person){
+    public int update(Person person) throws SQLException{
         
         String sqlStatement = "UPDATE persons SET name = ?, surname = ?, address = ? WHERE phoneNumber= ?";
         Connection conn = manager.getConnection();
@@ -118,7 +118,7 @@ public class PersonsDAO {
         }        
     }
     
-    public int delete(String phoneNumber){
+    public int delete(String phoneNumber) throws SQLException{
         
         String sqlStatement ="DELETE FROM goods WHERE phoneNumber = ?";
         Connection conn = manager.getConnection();
@@ -135,6 +135,4 @@ public class PersonsDAO {
             return 0;
         }
     }
-    
-    
 }

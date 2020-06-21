@@ -5,6 +5,7 @@ import dao.ConnectionManager;
 import dao.GoodsDAO;
 import dao.OrdersDAO;
 import dao.PersonsDAO;
+import java.beans.PropertyVetoException;
 import ru.avalon.java.dev.j120.practice.entity.*;
 
 import java.sql.SQLException;
@@ -25,6 +26,7 @@ public class MediatorSQLImpl implements Mediator{
     private GoodsDAO  goodsDAO;
     private OrdersDAO ordersDAO;
     private PersonsDAO personsDAO;
+    boolean IsDBready = false;
 
     ArrayList<MyEventListener> listeners = new ArrayList<>();
     long start, end;
@@ -32,20 +34,6 @@ public class MediatorSQLImpl implements Mediator{
     public MediatorSQLImpl() {
         try {
             //Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
-            
-            String url = Config.get().getURL();            
-            String username = Config.get().getUserName();
-            String password = Config.get().getPassword();
-            
-            start = System.currentTimeMillis();
-            ConnectionManager manager = new ConnectionManager(url,username,password);
-            end = System.currentTimeMillis();
-            System.out.println("manager time "  + (end-start)+" ms");
-            
-            goodsDAO = new GoodsDAO(manager);
-            ordersDAO = new OrdersDAO(manager);
-            personsDAO = new PersonsDAO(manager);
-            
             start = System.currentTimeMillis();    
             //---------------------------------------------------------------------
             SwingUtilities.invokeLater(() -> {
@@ -55,9 +43,24 @@ public class MediatorSQLImpl implements Mediator{
             end = System.currentTimeMillis();
             System.out.println("GUI start time "  + (end-start)+" ms");
             
-        } catch (IllegalArgumentException| SecurityException ex) {
+            String url = Config.get().getURL();            
+            String username = Config.get().getUserName();
+            String password = Config.get().getPassword();
+            
+            start = System.currentTimeMillis();
+            ConnectionManager manager = new ConnectionManager(url,username,password);
+            end = System.currentTimeMillis();
+            System.out.println("manager time "  + (end-start)+" ms");
+
+            IsDBready = true;
+            
+            goodsDAO = new GoodsDAO(manager);
+            ordersDAO = new OrdersDAO(manager);
+            personsDAO = new PersonsDAO(manager);
+            
+        } catch (IllegalArgumentException| SecurityException | SQLException ex) {
             ErrorFrame.create(ex, JFrame.EXIT_ON_CLOSE);
-        }
+        } 
         /*} catch (ClassNotFoundException | IllegalArgumentException| 
                 NoSuchMethodException | SecurityException | InstantiationException | 
                 IllegalAccessException | InvocationTargetException | SQLException ex) {
@@ -72,7 +75,12 @@ public class MediatorSQLImpl implements Mediator{
 
     @Override
     public ArrayList<Good> getGoodsArray(){
-        return goodsDAO.findAll();
+        try {
+            return goodsDAO.findAll();
+        } catch (SQLException ex) {
+            ErrorFrame.create(ex, JFrame.DISPOSE_ON_CLOSE);
+        }
+        return new ArrayList<>();
     }
     
     @Override
@@ -93,7 +101,12 @@ public class MediatorSQLImpl implements Mediator{
     
     @Override
     public ArrayList<Order> getOrdersArray(){
-        return ordersDAO.findAll();
+        try {
+            return ordersDAO.findAll();
+        } catch (SQLException ex) {
+            ErrorFrame.create(ex, JFrame.DISPOSE_ON_CLOSE);
+        }
+        return new ArrayList<>();
     }
     
     @Override

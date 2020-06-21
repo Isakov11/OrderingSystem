@@ -27,7 +27,7 @@ public class GoodsDAO {
         this.manager= manager;
     }   
     
-    public Good create(Good good){
+    public Good create(Good good) throws SQLException{
         long article=0;
         Connection conn = manager.getConnection();
         String sqlStatement = "INSERT goods(variety, color, price, instock) VALUES (?,?,?,?)";
@@ -54,7 +54,7 @@ public class GoodsDAO {
         }
     }
     
-    public ArrayList<Good> findAll(){
+    public ArrayList<Good> findAll() throws SQLException{
         
         ArrayList<Good> goodsArray = new ArrayList<>();
         Connection conn = manager.getConnection();
@@ -104,7 +104,7 @@ public class GoodsDAO {
         } 
     }
     
-    public int update(Good good){
+    public int update(Good good) throws SQLException{
         
         String sqlStatement = "UPDATE goods SET variety = ?, color = ?, price = ?, instock = ? WHERE article= ?";
         Connection conn = manager.getConnection();
@@ -126,7 +126,7 @@ public class GoodsDAO {
             return 0;
         }        
     }
-    public int update(Collection<Good> goodsColl){
+    public int update(Collection<Good> goodsColl) throws SQLException{
         
         String sqlStatement = "UPDATE goods SET variety = ?, color = ?, price = ?, instock = ? WHERE article= ?";
         Connection conn = manager.getConnection();
@@ -164,7 +164,7 @@ public class GoodsDAO {
         return 0;
     }
     
-    public int delete(long article){
+    public int delete(long article) throws SQLException{
         
         String sqlStatement ="DELETE FROM goods WHERE article = ?";
         Connection conn = manager.getConnection();
