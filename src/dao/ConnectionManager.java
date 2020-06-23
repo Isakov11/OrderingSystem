@@ -6,20 +6,23 @@
 package dao;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConnectionManager {
-    private int cpds;
+    private String url, username, password;
     
     public ConnectionManager(String url, String username, String password) throws SQLException  {
-        
-        
+        this.url = url;
+        this.username = username;
+        this.password = password;
     }
 
-    public Connection getConnection() throws SQLException {
-        return null;
+    public final Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(url, username, password);
     }
-    public void closeConnection(Connection conn) {
-        
+    
+    public void closeConnection(Connection conn) throws SQLException {
+        conn.close();
     }
 }

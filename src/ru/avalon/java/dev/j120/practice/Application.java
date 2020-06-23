@@ -9,7 +9,6 @@ public class Application {
         
         //Mediator mediator  = new MediatorFile();
         Mediator mediator  = new MediatorSQLImpl();
-        
     }
            
 }

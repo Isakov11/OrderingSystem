@@ -224,7 +224,7 @@ public class GoodsCardPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_colorTextFieldActionPerformed
 
     private void submitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitButtonActionPerformed
-        
+        Good good;
         Matcher matcher;        
         if (varietyTextField.getText().isEmpty()){            
             varietyTextField.requestFocusInWindow();

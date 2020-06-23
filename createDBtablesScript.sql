@@ -1,8 +1,7 @@
 CREATE TABLE `config` (
   `key` varchar(64) NOT NULL,
   `value` varchar(64) NOT NULL,
-  PRIMARY KEY (`key`),
-  UNIQUE KEY `key_UNIQUE` (`key`)
+  PRIMARY KEY (`key`)  
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 CREATE TABLE `goods` (
@@ -12,8 +11,7 @@ CREATE TABLE `goods` (
   `price` decimal(8,2) NOT NULL,
   `instock` bigint NOT NULL DEFAULT '0',
   PRIMARY KEY (`article`),
-  UNIQUE KEY `article_UNIQUE` (`article`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 CREATE TABLE `persons` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -22,8 +20,7 @@ CREATE TABLE `persons` (
   `address` varchar(100) NOT NULL,
   `phoneNumber` varchar(20) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+  ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 CREATE TABLE `orders` (
   `orderNumber` int NOT NULL AUTO_INCREMENT,
@@ -32,13 +29,12 @@ CREATE TABLE `orders` (
   `discount` int NOT NULL,
   `orderStatus` enum('PREPARING','SHIPPED','CANCELED') NOT NULL DEFAULT 'PREPARING',
   PRIMARY KEY (`orderNumber`),
-  UNIQUE KEY `orderNumber_UNIQUE` (`orderNumber`),
   KEY `person_idx` (`person`),
   CONSTRAINT `pers` FOREIGN KEY (`person`) REFERENCES `persons` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 CREATE TABLE `ordereditems` (
-  `id` varchar(45) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `orderNumber` int NOT NULL,
   `article` bigint NOT NULL,
   `variety` varchar(255) NOT NULL,
@@ -46,7 +42,8 @@ CREATE TABLE `ordereditems` (
   `fixedPrice` decimal(8,2) NOT NULL,
   `orderedQuantity` bigint NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `orderNumber_idx` (`orderNumber`),
+  KEY `article_idx` (`article`),
+  CONSTRAINT `article` FOREIGN KEY (`article`) REFERENCES `goods` (`article`),
   CONSTRAINT `orderNumber` FOREIGN KEY (`orderNumber`) REFERENCES `orders` (`orderNumber`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB AUTO_INCREMENT=104 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

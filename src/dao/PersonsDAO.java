@@ -14,19 +14,16 @@ import java.util.ArrayList;
 import ru.avalon.java.dev.j120.practice.entity.Person;
 
 public class PersonsDAO {
-    ConnectionManager manager;
 
-    public PersonsDAO(ConnectionManager manager) {
-        this.manager = manager;
+    public PersonsDAO() {
     }
     
-
-    public Person create(Person person) throws SQLException{
+    public Person create(Person person, Connection conn) throws SQLException{
        
         String sqlStatement = "INSERT persons(name, surname,address,phoneNumber)" +
                 "SELECT ?, ?, ?, ? " +
                 "WHERE NOT EXISTS (SELECT phoneNumber FROM persons WHERE phoneNumber = ?);";
-        Connection conn = manager.getConnection();
+        
         try (PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement)){
 
             preparedStatement.setString(1, person.getName());
@@ -42,14 +39,13 @@ public class PersonsDAO {
             System.out.println(ex);
             return null;
         }
-        manager.closeConnection(conn);
         return person;
     }
     
-    public ArrayList<Person> findAll() throws SQLException{
+    public ArrayList<Person> findAll(Connection conn) throws SQLException{
         
         ArrayList<Person> personsArray = new ArrayList<>();
-        Connection conn = manager.getConnection();
+        
         try (Statement statement = conn.createStatement()) {
             ResultSet resultSet = statement.executeQuery("SELECT * FROM persons");
             while(resultSet.next()){
@@ -63,17 +59,17 @@ public class PersonsDAO {
             }
         } catch (SQLException ex) {
             System.out.println(ex);
-            manager.closeConnection(conn);
+            
             return personsArray;
         }
-        manager.closeConnection(conn);
+        
         return personsArray;
     }
     
-    public Person findId(String phoneNumber) throws SQLException{
+    public Person findId(String phoneNumber, Connection conn) throws SQLException{
             
         String sqlStatement ="SELECT * FROM persons WHERE phoneNumber = ?";
-        Connection conn = manager.getConnection();
+        
         try( PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement)){
             
             preparedStatement.setString(1, phoneNumber);
@@ -89,17 +85,17 @@ public class PersonsDAO {
             }
         } catch (SQLException ex) {
             System.out.println(ex);
-            manager.closeConnection(conn);
+            
             return null;
         }
-        manager.closeConnection(conn);
+        
         return null;
     }
     
-    public int update(Person person) throws SQLException{
+    public int update(Person person, Connection conn) throws SQLException{
         
         String sqlStatement = "UPDATE persons SET name = ?, surname = ?, address = ? WHERE phoneNumber= ?";
-        Connection conn = manager.getConnection();
+        
         try( PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement)){
             
             preparedStatement.setString(1, person.getName());
@@ -108,30 +104,30 @@ public class PersonsDAO {
             preparedStatement.setString(4, person.getPhoneNumber());
             
             int row = preparedStatement.executeUpdate();
-            manager.closeConnection(conn);
+            
             return row;
             
         } catch (SQLException ex) {
             System.out.println(ex);
-            manager.closeConnection(conn);
+            
             return 0;
         }        
     }
     
-    public int delete(String phoneNumber) throws SQLException{
+    public int delete(String phoneNumber, Connection conn) throws SQLException{
         
         String sqlStatement ="DELETE FROM goods WHERE phoneNumber = ?";
-        Connection conn = manager.getConnection();
+        
         try( PreparedStatement preparedStatement = conn.prepareStatement(sqlStatement)){
             
             preparedStatement.setString(1, phoneNumber);
             
             int row = preparedStatement.executeUpdate();
-            manager.closeConnection(conn);
+            
             return row;
             
         } catch (SQLException ex) {
-            manager.closeConnection(conn);
+            
             return 0;
         }
     }

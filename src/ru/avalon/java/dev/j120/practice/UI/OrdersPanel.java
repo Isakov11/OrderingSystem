@@ -9,6 +9,7 @@ import ru.avalon.java.dev.j120.practice.UI.tablemodels.OrderTableModel;
 import javax.swing.JTabbedPane;
 import javax.swing.table.TableModel;
 import ru.avalon.java.dev.j120.practice.controller.Mediator;
+import ru.avalon.java.dev.j120.practice.entity.Order;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 public class OrdersPanel extends javax.swing.JPanel {
@@ -120,18 +121,14 @@ public class OrdersPanel extends javax.swing.JPanel {
             //Получение данных о заказе из таблицы
             Long orderNumber = (Long) otm.getValueAt(ordersTable.getSelectedRow(), 0);
             
-            /*LocalDate orderDate =(LocalDate) otm.getValueAt(ordersTable.getSelectedRow(), 1);
-            Person contactPerson =(Person) otm.getValueAt(ordersTable.getSelectedRow(), 2);
-            int discount = (int) otm.getValueAt(ordersTable.getSelectedRow(), 3);
-            OrderStatusEnum orderStatus = (OrderStatusEnum) otm.getValueAt(ordersTable.getSelectedRow(), 4);*/
-
             //Инициализация панели заказа
-            orderCard = new OrderCardPanel(mediator,this, mediator.getOrder(orderNumber));
-            end = System.currentTimeMillis();            
-            System.out.println("ordersTableMouseClicked new OrderCardPanel time "  + (end-start)+" ms");
-            maintab = (JTabbedPane) this.getParent();
-            maintab.addTab("Заказ " + orderNumber, orderCard);
-            maintab.setSelectedIndex(maintab.getTabCount() -1);
+            Order order = mediator.getOrder(orderNumber);
+            if (order != null){
+                orderCard = new OrderCardPanel(mediator,this, order);
+                maintab = (JTabbedPane) this.getParent();
+                maintab.addTab("Заказ " + orderNumber, orderCard);
+                maintab.setSelectedIndex(maintab.getTabCount() -1);
+            }
             end = System.currentTimeMillis();
             System.out.println("ordersTableMouseClicked  all time "  + (end-start)+" ms");
         }
@@ -139,7 +136,6 @@ public class OrdersPanel extends javax.swing.JPanel {
 
     private void removeOrderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeOrderButtonActionPerformed
         long orderNumber = (long) otm.getValueAt(ordersTable.getSelectedRow(), 0);
-        
         mediator.removeOrder(orderNumber);
     }//GEN-LAST:event_removeOrderButtonActionPerformed
 
