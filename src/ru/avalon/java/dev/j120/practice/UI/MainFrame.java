@@ -17,7 +17,7 @@ public class MainFrame extends javax.swing.JFrame {
         initComponents();
         mainTabbedPane.addTab("Номенклатура",new GoodsPanel(mediator,StateEnum.NEW));
         mainTabbedPane.addTab("Заказы",new OrdersPanel(mediator));
-        setVisible(true);        
+        setVisible(true);
     }
 
     /**
@@ -32,6 +32,11 @@ public class MainFrame extends javax.swing.JFrame {
         mainTabbedPane = new javax.swing.JTabbedPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         mainTabbedPane.setPreferredSize(new java.awt.Dimension(946, 700));
 
@@ -43,11 +48,17 @@ public class MainFrame extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(mainTabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(mainTabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 676, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments

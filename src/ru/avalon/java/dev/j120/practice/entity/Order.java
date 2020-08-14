@@ -6,11 +6,12 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
+import ru.avalon.java.dev.j120.practice.utils.MyEventSource;
 
 
-public class Order implements Serializable {    
-    private final long orderNumber;
-    private final LocalDate orderDate;    
+public class Order implements Serializable, MyEventSource {    
+    private long orderNumber;
+    private LocalDate orderDate;    
     private Person contactPerson;    
     private int discount;
     private OrderStatusEnum orderStatus;
@@ -18,6 +19,15 @@ public class Order implements Serializable {
     private HashMap<Long, OrderedItem> orderList; //HashMap <артикул, товар> 
     private transient ArrayList<MyEventListener> listeners = new ArrayList<>();
 
+    public Order(LocalDate orderDate, Person contactPerson, int discount, OrderStatusEnum orderStatus) {
+        this.orderDate = orderDate;
+        this.contactPerson = contactPerson;
+        setDiscount(discount);
+        this.orderStatus = orderStatus;
+        this.orderList = new HashMap<>();
+        totalPrice = new BigDecimal(0);        
+    }
+    
     public Order(long orderNumber, LocalDate orderDate, Person contactPerson, int discount, OrderStatusEnum orderStatus) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
@@ -27,7 +37,7 @@ public class Order implements Serializable {
         this.orderList = new HashMap<>();
         totalPrice = new BigDecimal(0);        
     }
-
+    
     public Order(long orderNumber, LocalDate orderDate, Person contactPerson, int discount, OrderStatusEnum orderStatus, HashMap<Long, OrderedItem> orderList) {
         this.orderNumber = orderNumber;
         this.orderDate = orderDate;
@@ -38,14 +48,38 @@ public class Order implements Serializable {
         calcTotalPrice();
     }
     
+    public Order(long orderNumber, Order order) {
+        if (order != null){
+            this.orderNumber = orderNumber;
+            this.orderDate = order.orderDate;
+            this.contactPerson = order.contactPerson;
+            setDiscount(order.discount);
+            this.orderStatus = order.orderStatus;
+            if (order.orderList != null){
+                this.orderList = order.orderList;
+            }
+            else{
+                this.orderList = new HashMap<>();
+            }
+            calcTotalPrice();
+        }
+    }
+    
     public Order(Order order) {
-        this.orderNumber = order.orderNumber;
-        this.orderDate = order.orderDate;
-        this.contactPerson = order.contactPerson;
-        setDiscount(order.discount);
-        this.orderStatus = order.orderStatus;
-        this.orderList = order.orderList;
-        calcTotalPrice();
+        if (order != null){
+            this.orderNumber = order.orderNumber;
+            this.orderDate = order.orderDate;
+            this.contactPerson = order.contactPerson;
+            setDiscount(order.discount);
+            this.orderStatus = order.orderStatus;
+            if (order.orderList != null){
+                this.orderList = order.orderList;
+            }
+            else{
+                this.orderList = new HashMap<>();
+            }
+            calcTotalPrice();
+        }
     }
 
     public long getOrderNumber() {
@@ -57,7 +91,10 @@ public class Order implements Serializable {
     }
 
     public Person getContactPerson() {
-        return new Person(contactPerson);
+        if (contactPerson != null){
+            return new Person(contactPerson);
+        }
+        else return null;
     }
 
     public int getDiscount() {
@@ -79,6 +116,9 @@ public class Order implements Serializable {
     public BigDecimal getDiscountPrice() {
         return totalPrice.multiply(new BigDecimal(1 - this.discount*0.01));
     }
+    
+    //--------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------
     
     public void setContactPerson(Person contactPerson)  {
         this.contactPerson = contactPerson;
@@ -136,8 +176,11 @@ public class Order implements Serializable {
         }
         this.totalPrice = temp;
     }
-
-        public void addListener(MyEventListener listener){
+    
+    //--------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------
+    
+    public void addListener(MyEventListener listener){
         if (!listeners.contains(listener)){
             listeners.add(listener);
         }
@@ -147,6 +190,11 @@ public class Order implements Serializable {
         if (listeners.contains(listener)){
             listeners.remove(listener);
         }
+    }
+    
+    @Override
+    public void removeAllListeners() {
+        listeners.clear();
     }
     
     public MyEventListener[] getListeners(){
@@ -187,6 +235,6 @@ public class Order implements Serializable {
                                     sb.append("\n");});
         return sb.toString();
     }
-    
+
     
 }

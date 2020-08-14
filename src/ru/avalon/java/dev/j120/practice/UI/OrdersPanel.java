@@ -6,13 +6,10 @@
 package ru.avalon.java.dev.j120.practice.UI;
 
 import ru.avalon.java.dev.j120.practice.UI.tablemodels.OrderTableModel;
-import java.time.LocalDate;
 import javax.swing.JTabbedPane;
 import javax.swing.table.TableModel;
 import ru.avalon.java.dev.j120.practice.controller.Mediator;
 import ru.avalon.java.dev.j120.practice.entity.Order;
-import ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum;
-import ru.avalon.java.dev.j120.practice.entity.Person;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 public class OrdersPanel extends javax.swing.JPanel {
@@ -29,6 +26,7 @@ public class OrdersPanel extends javax.swing.JPanel {
         this.mediator = mediator;
         
         otm = new OrderTableModel(mediator);
+        mediator.addListener((MyEventListener) otm);
         ordersTable.setModel(otm);
     }
 
@@ -43,6 +41,8 @@ public class OrdersPanel extends javax.swing.JPanel {
 
         jToolBar1 = new javax.swing.JToolBar();
         addOrderButton = new javax.swing.JButton();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(10, 0), new java.awt.Dimension(10, 0), new java.awt.Dimension(10, 32767));
+        removeOrderButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         ordersTable = new javax.swing.JTable();
 
@@ -59,6 +59,18 @@ public class OrdersPanel extends javax.swing.JPanel {
             }
         });
         jToolBar1.add(addOrderButton);
+        jToolBar1.add(filler1);
+
+        removeOrderButton.setText("Удалить заказ");
+        removeOrderButton.setFocusable(false);
+        removeOrderButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        removeOrderButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        removeOrderButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeOrderButtonActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(removeOrderButton);
 
         ordersTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -90,7 +102,8 @@ public class OrdersPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(21, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -103,31 +116,36 @@ public class OrdersPanel extends javax.swing.JPanel {
 
     private void ordersTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ordersTableMouseClicked
         if (evt.getButton() == 1 && evt.getClickCount() == 2){
-            
+            long start = System.currentTimeMillis();    
+            long end;
             //Получение данных о заказе из таблицы
             Long orderNumber = (Long) otm.getValueAt(ordersTable.getSelectedRow(), 0);
-            LocalDate orderDate =(LocalDate) otm.getValueAt(ordersTable.getSelectedRow(), 1);
-            Person contactPerson =(Person) otm.getValueAt(ordersTable.getSelectedRow(), 2);
-            int discount = (int) otm.getValueAt(ordersTable.getSelectedRow(), 3);
-            OrderStatusEnum orderStatus = (OrderStatusEnum) otm.getValueAt(ordersTable.getSelectedRow(), 4);
-
+            
             //Инициализация панели заказа
-            orderCard = new OrderCardPanel(mediator,this, new Order (
-                orderNumber, orderDate, contactPerson,
-                discount, orderStatus,
-                mediator.getOrderList().getOrder(orderNumber).getOrderList()
-            ));
-            maintab = (JTabbedPane) this.getParent();
-            maintab.addTab("Заказ " + orderNumber, orderCard);
-            maintab.setSelectedIndex(maintab.getTabCount() -1);
+            Order order = mediator.getOrder(orderNumber);
+            if (order != null){
+                orderCard = new OrderCardPanel(mediator,this, order);
+                maintab = (JTabbedPane) this.getParent();
+                maintab.addTab("Заказ " + orderNumber, orderCard);
+                maintab.setSelectedIndex(maintab.getTabCount() -1);
+            }
+            end = System.currentTimeMillis();
+            System.out.println("ordersTableMouseClicked  all time "  + (end-start)+" ms");
         }
     }//GEN-LAST:event_ordersTableMouseClicked
+
+    private void removeOrderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeOrderButtonActionPerformed
+        long orderNumber = (long) otm.getValueAt(ordersTable.getSelectedRow(), 0);
+        mediator.removeOrder(orderNumber);
+    }//GEN-LAST:event_removeOrderButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addOrderButton;
+    private javax.swing.Box.Filler filler1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JTable ordersTable;
+    private javax.swing.JButton removeOrderButton;
     // End of variables declaration//GEN-END:variables
 }

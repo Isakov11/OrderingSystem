@@ -19,7 +19,7 @@ public class GoodsCardPanel extends javax.swing.JPanel {
     private final StateEnum state;
     private final Mediator mediator;    
     private final JPanel opParent;    //Панель, из которй открыта текущая вкладка
-    private final long newArticle;
+    private long newArticle;
     
     //patterns:
     //1-digit, int and float, only digits
@@ -34,8 +34,8 @@ public class GoodsCardPanel extends javax.swing.JPanel {
         initComponents();
         this.mediator = mediator;
         this.opParent = opParent;
-        newArticle = mediator.getPriceList().getFreeArticle();
-        articleLabel.setText(String.valueOf(newArticle));
+        //newArticle = mediator.getPriceList().getFreeArticle();
+        articleLabel.setText("");
         state = StateEnum.NEW;
     }
     /**
@@ -224,13 +224,13 @@ public class GoodsCardPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_colorTextFieldActionPerformed
 
     private void submitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitButtonActionPerformed
-        
+        Good good;
         Matcher matcher;        
         if (varietyTextField.getText().isEmpty()){            
             varietyTextField.requestFocusInWindow();
             stateLabel.setText("Введите наименование товара");
             return;
-        }        
+        }
         matcher = patterns[1].matcher(priceTextField.getText().trim());
         if (priceTextField.getText().isEmpty() || !matcher.find()){            
             stateLabel.setText("Введите цену товара");
@@ -244,14 +244,26 @@ public class GoodsCardPanel extends javax.swing.JPanel {
             return;
         }
         
-        mediator.updateGood(state, new Good(
+        if (state.equals(StateEnum.NEW)){
+            mediator.addGood(new Good(
+                                    varietyTextField.getText(),
+                                    colorTextField.getText(),                
+                                    new BigDecimal(priceTextField.getText()), 
+                                    Long.valueOf(instockTextField.getText() )
+                                    )
+                            );
+        }
+        
+        if (state.equals(StateEnum.EXIST)){
+            mediator.updateGood(new Good(
                                     newArticle,
                                     varietyTextField.getText(),
                                     colorTextField.getText(),                
                                     new BigDecimal(priceTextField.getText()), 
                                     Long.valueOf(instockTextField.getText() )
-                                            )
-                            );        
+                                    )
+                                );        
+        }
         stateLabel.setText("Изменения сохранены");
         submitButton.setEnabled(false);
     }//GEN-LAST:event_submitButtonActionPerformed

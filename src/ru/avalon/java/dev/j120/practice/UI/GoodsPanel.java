@@ -5,7 +5,7 @@
  */
 package ru.avalon.java.dev.j120.practice.UI;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.table.TableModel;
@@ -15,18 +15,16 @@ import ru.avalon.java.dev.j120.practice.entity.Good;
 import ru.avalon.java.dev.j120.practice.entity.Order;
 import ru.avalon.java.dev.j120.practice.entity.OrderedItem;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
+import ru.avalon.java.dev.j120.practice.utils.MyEventSource;
 import ru.avalon.java.dev.j120.practice.utils.StateEnum;
 
-/**
- *
- * @author Hino
- */
-public class GoodsPanel extends javax.swing.JPanel {    
+public class GoodsPanel extends javax.swing.JPanel implements MyEventSource {    
     private final Mediator mediator;
     private TableModel gtm;
     private JPanel opParent;
     private final StateEnum state; //NEW == панель номенклятуры; EXIST == панель добавления товара в заказ
     private Order order;
+    private ArrayList<MyEventListener> listeners = new ArrayList<>();
     
     /**
      * Открывает панель номенклатуры
@@ -41,7 +39,9 @@ public class GoodsPanel extends javax.swing.JPanel {
         this.mediator = mediator;
         
         gtm = new GoodsTableModel(mediator);
+        mediator.addListener((MyEventListener) gtm);
         goodsTable.setModel(gtm);
+        
         this.state = state;
         ItemAddedLabel.setVisible(false);
         addToOrderButton.setVisible(false);
@@ -52,10 +52,11 @@ public class GoodsPanel extends javax.swing.JPanel {
      * Открывает панель добавления товара
      * @param mediator
      * @param opParent
+     * @param oitm
      * @param order
      * @param state
      */
-    public GoodsPanel(Mediator mediator, JPanel opParent, Order order, StateEnum state) {
+    public GoodsPanel(Mediator mediator, JPanel opParent, MyEventListener oitm, Order order, StateEnum state) {
         if (!state.equals(StateEnum.EXIST)){
             //TODO ERROR      
         }
@@ -66,7 +67,13 @@ public class GoodsPanel extends javax.swing.JPanel {
         this.order = order;
         this.opParent = opParent;
         gtm = new GoodsTableModel(mediator);
+        
+        mediator.addListener((MyEventListener) gtm);
         goodsTable.setModel(gtm);
+        
+        addListener((MyEventListener) opParent);
+        addListener(oitm);
+        
         this.state = state;
         ItemAddedLabel.setVisible(false);
         openNewGoodsCardButton.setVisible(false);
@@ -176,26 +183,22 @@ public class GoodsPanel extends javax.swing.JPanel {
         if (evt.getButton() == 1 && evt.getClickCount() == 2){
             
             Good good = getRowGood();
-
-            if (state.equals(StateEnum.NEW)){
-                openGoodCardPanel(good);
-            }
-            if (state.equals(StateEnum.EXIST)){
-                addOrderedItem(good);
+            if (good !=null){
+                //NEW == панель номенклатуры; EXIST == панель добавления товара в заказ
+                if (state.equals(StateEnum.NEW)){
+                    openGoodCardPanel(good);
+                }
+                if (state.equals(StateEnum.EXIST)){
+                    addOrderedItem(good);
+                }
             }
         }
     }//GEN-LAST:event_goodsTableMouseClicked
     
     private Good getRowGood(){ 
         //Получение данных о товаре из таблицы
-        //-----------------------------------------------------------------------------
         Long article = (Long) gtm.getValueAt(goodsTable.getSelectedRow(), 0);        
-        String variety =(String) gtm.getValueAt(goodsTable.getSelectedRow(), 1);
-        String color =(String) gtm.getValueAt(goodsTable.getSelectedRow(), 2);
-        BigDecimal price = (BigDecimal) gtm.getValueAt(goodsTable.getSelectedRow(), 3);
-        Long instock = (Long) gtm.getValueAt(goodsTable.getSelectedRow(), 4);            
-        //-----------------------------------------------------------------------------        
-        return new Good (article,variety,color,price,instock);
+        return mediator.getGood(article);
     }      
     
     private void addOrderedItem(Good good){ 
@@ -215,10 +218,10 @@ public class GoodsPanel extends javax.swing.JPanel {
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
         JTabbedPane maintab = (JTabbedPane) this.getParent();        
         maintab.setSelectedComponent(opParent);        
-        MyEventListener listener = (MyEventListener) opParent;
-        listener.update("unlock");
+        fireDataChanged("unlock");
         maintab.remove(this);
         mediator.removeListener((MyEventListener) gtm);
+        removeAllListeners();
     }//GEN-LAST:event_closeButtonActionPerformed
 
     private void addToOrderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addToOrderButtonActionPerformed
@@ -227,6 +230,37 @@ public class GoodsPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_addToOrderButtonActionPerformed
 
+    @Override
+    public final void addListener(MyEventListener listener){
+        if (!listeners.contains(listener)){
+            listeners.add(listener);
+        }
+    } 
+    
+    @Override
+    public void removeListener(MyEventListener listener){
+        if (listeners.contains(listener)){
+            listeners.remove(listener);
+        }
+    }
+    
+    @Override
+    public void removeAllListeners(){
+        listeners.clear();
+    }
+    
+    @Override
+    public MyEventListener[] getListeners(){
+        return listeners.toArray(new MyEventListener[listeners.size()]);
+    }
+    
+    @Override
+    public void fireDataChanged(String message){                
+        listeners.forEach((listener) -> {
+            listener.update(message);
+        });
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel ItemAddedLabel;
     private javax.swing.JButton addToOrderButton;

@@ -8,12 +8,16 @@ package ru.avalon.java.dev.j120.practice.UI;
 import java.time.LocalDate;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SpinnerNumberModel;
 import ru.avalon.java.dev.j120.practice.UI.tablemodels.OrderItemTableModel;
 import ru.avalon.java.dev.j120.practice.controller.Mediator;
 import ru.avalon.java.dev.j120.practice.entity.Order;
 import ru.avalon.java.dev.j120.practice.entity.OrderStatusEnum;
+import ru.avalon.java.dev.j120.practice.entity.Config;
+import ru.avalon.java.dev.j120.practice.entity.OrderedItem;
 import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 import ru.avalon.java.dev.j120.practice.utils.StateEnum;
+import static ru.avalon.java.dev.j120.practice.utils.StateEnum.*;
 
 public class OrderCardPanel extends javax.swing.JPanel implements MyEventListener {
     private Mediator mediator;    
@@ -21,28 +25,28 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
     private Order order;
     StateEnum state;
     OrderItemTableModel oitm;
+    
     /**Конструктор вкладки нового заказа
      * @param mediator 
      * @param opParent     
      */
-    public OrderCardPanel(Mediator mediator, JPanel opParent) {
+    public OrderCardPanel(Mediator mediator, JPanel opParent){
         initComponents();
         this.mediator = mediator;
         
         this.opParent = opParent;
-        //Person person = new Person("Ash Apple", "Mapple st., 5", "+7(961)126-54-98");
-        order = new Order(mediator.getOrderList().getFreeNumber(),
-                        LocalDate.now(),null, 0, OrderStatusEnum.PREPARING);
+
+        order = new Order(LocalDate.now(),null, 0, OrderStatusEnum.PREPARING);
         oitm = new OrderItemTableModel(order);
-        this.order.addListener(oitm);
+        this.order.addListener((MyEventListener) oitm);
         this.order.addListener((MyEventListener) this);
         orderListTable.setModel(oitm); 
         
         orderNumberLabel.setText(String.valueOf( order.getOrderNumber() ));
         orderDateLabel.setText(order.getOrderDate().toString());
         orderStatusComboBox.setSelectedIndex(0);
-        orderStatusComboBox.setEnabled(false);
-        discountSpinner.setValue(order.getDiscount());
+        orderStatusComboBox.setEnabled(false);        
+        discountSpinner.setModel( new SpinnerNumberModel(order.getDiscount(), 0, Config.get().getMaxDiscount(), 1));
         state = StateEnum.NEW;
         mediator.addListener((MyEventListener) this);
     }
@@ -61,7 +65,7 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
         orderNumberLabel.setText( String.valueOf( order.getOrderNumber()) );
         orderDateLabel.setText(order.getOrderDate().toString());
         personLabel.setText(order.getContactPerson().toString());       
-        discountSpinner.setValue(order.getDiscount());
+                discountSpinner.setModel( new SpinnerNumberModel(order.getDiscount(), 0, Config.get().getMaxDiscount(), 1));
         priceLabel.setText(String.valueOf( order.getTotalPrice().floatValue() ));
         discountPriceLabel.setText(String.valueOf( order.getDiscountPrice().floatValue() ));
         
@@ -71,13 +75,16 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
                 break;
             case SHIPPED: 
                 orderStatusComboBox.setSelectedIndex(1);
+                orderStatusComboBox.setEnabled(false);
                 discountSpinner.setEnabled(false);                
                 personButton.setEnabled(false);
                 addOrderItemButton.setEnabled(false);
                 removeOrderItemButton.setEnabled(false);
+                
                 break;
             case CANCELED: 
                 orderStatusComboBox.setSelectedIndex(2);
+                orderStatusComboBox.setEnabled(false);
                 discountSpinner.setEnabled(false);
                 personButton.setEnabled(false);
                 addOrderItemButton.setEnabled(false);
@@ -85,7 +92,7 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
                 break;
         }        
         oitm = new OrderItemTableModel(order);
-        this.order.addListener((MyEventListener) oitm);
+        order.addListener((MyEventListener) oitm);
         this.order.addListener((MyEventListener) this);
         orderListTable.setModel(oitm);
         state = StateEnum.EXIST;
@@ -174,6 +181,12 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
 
         jLabel4.setText("Клиент");
 
+        discountSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                discountSpinnerStateChanged(evt);
+            }
+        });
+
         jLabel5.setText("Скидка, %");
 
         priceLabel.setText("0");
@@ -204,11 +217,11 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
                             .addComponent(priceLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(discountPriceLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(16, 16, 16))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(discountSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(discountSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
                             .addComponent(orderStatusComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(personLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -242,7 +255,6 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
                         .addComponent(jLabel5)
                         .addGap(4, 4, 4))
                     .addComponent(discountSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(priceLabel))
@@ -347,7 +359,7 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addComponent(stateLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(submitButton)
                     .addComponent(cancelButton))
@@ -382,37 +394,39 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
 
     private void submitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitButtonActionPerformed
         
-        if (order.getContactPerson().getContactPerson() != null && 
+        if (order.getContactPerson() != null && order.getContactPerson().getContactPerson() != null && 
             order.getContactPerson().getDeliveryAddress() != null && 
             order.getContactPerson().getPhoneNumber() != null){
                 
-                mediator.updateOrder(state, order);
+            if (state == NEW) mediator.addOrder(order);
+            if (state == EXIST) mediator.updateOrder(order);
         }
         else{
             stateLabel.setText("Укажите контактное лицо");            
             personButton.requestFocusInWindow();
         }
-        
     }//GEN-LAST:event_submitButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         JTabbedPane maintab = (JTabbedPane) this.getParent();
         maintab.setSelectedComponent(opParent);
         maintab.remove(this);
+        
+        order.removeAllListeners();
         mediator.removeListener((MyEventListener) this);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void addOrderItemButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addOrderItemButtonActionPerformed
         JTabbedPane maintab = (JTabbedPane) this.getParent();
-        maintab.addTab("Добавить в заказ",new GoodsPanel(mediator, this, order, StateEnum.EXIST));
+        maintab.addTab("Добавить в заказ",new GoodsPanel(mediator, this, oitm, order, StateEnum.EXIST));
         maintab.setSelectedIndex(maintab.getTabCount() -1);
         cancelButton.setEnabled(false);
     }//GEN-LAST:event_addOrderItemButtonActionPerformed
 
     private void removeOrderItemButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeOrderItemButtonActionPerformed
+        Long orderNumber = (Long) oitm.getValueAt(orderListTable.getSelectedRow(), 0);       
+        order.removeItem(orderNumber);
         
-            Long orderNumber = (Long) oitm.getValueAt(orderListTable.getSelectedRow(), 0);       
-            order.removeItem(orderNumber);
     }//GEN-LAST:event_removeOrderItemButtonActionPerformed
 
     private void personButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_personButtonActionPerformed
@@ -440,6 +454,11 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
                 break;
         }
     }//GEN-LAST:event_orderStatusComboBoxItemStateChanged
+
+    private void discountSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_discountSpinnerStateChanged
+        order.setDiscount((int) discountSpinner.getModel().getValue());
+        discountPriceLabel.setText(String.valueOf( order.getDiscountPrice().floatValue() ));        
+    }//GEN-LAST:event_discountSpinnerStateChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addOrderItemButton;
@@ -471,6 +490,10 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
     private javax.swing.JButton submitButton;
     // End of variables declaration//GEN-END:variables
 
+    public void addItem(OrderedItem orderedItem){
+        order.add(orderedItem);
+    }
+    
     @Override
     public void update(String eventType) {
         if (eventType.equals("update")){
@@ -491,10 +514,9 @@ public class OrderCardPanel extends javax.swing.JPanel implements MyEventListene
             submitButton.setEnabled(false);
             stateLabel.setText("Статус заказа изменен на: отгружен");
         }
-        if (eventType.equals("DataChanged")){
+        if (eventType.equals("OrdersMapChanged")){
             submitButton.setEnabled(false);
             stateLabel.setText("Заказ сохранён");
         }
-        
     }
 }

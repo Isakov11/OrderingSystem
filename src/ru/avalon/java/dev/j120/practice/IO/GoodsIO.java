@@ -14,10 +14,13 @@ public class GoodsIO {
         //2-й поиск натурального числа
     private final Pattern digitPattern = Pattern.compile("\\d+");
     private final Pattern pricePattern = Pattern.compile("\\d+[.,]{1}\\d+");
+    private final String filePath;
     
-    public GoodsIO(){}
+    public GoodsIO(String filePath){
+        this.filePath = filePath;
+    }
     
-    public HashMap<Long, Good> read(String filePath) throws IOException{        
+    public HashMap<Long, Good> read() throws IOException{        
                 
         File file = new File(filePath);
         HashMap<Long, Good> goodsMap = new HashMap<>();
@@ -99,7 +102,7 @@ public class GoodsIO {
         else {return null;}
     }
     
-    public void write(String filePath, HashMap<Long, Good> map) throws IOException{        
+    public void write(HashMap<Long, Good> map) throws IOException{        
         StringBuilder sb = new StringBuilder();
 
         map.forEach((k,v) -> {  sb.append(k);

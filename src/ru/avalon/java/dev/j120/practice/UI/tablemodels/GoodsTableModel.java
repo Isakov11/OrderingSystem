@@ -1,6 +1,5 @@
 package ru.avalon.java.dev.j120.practice.UI.tablemodels;
 
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
@@ -10,18 +9,15 @@ import ru.avalon.java.dev.j120.practice.utils.MyEventListener;
 
 public class GoodsTableModel extends AbstractTableModel implements MyEventListener {
     private final Mediator mediator;    
-    private ArrayList<Good> arrayPriceList;
-    private final String[] columnHeader = {"Article","Variety","Color","Price","Instock"};
+    private ArrayList<Good> GoodsArray;
+    private final String[] columnHeader = {"Артикул","Наименование","Цвет","Цена","Остаток"};
     private final Class[] columnClasses = new Class[]{
         Long.class, String.class, String.class, BigDecimal.class, Long.class};
     
-    public GoodsTableModel(Mediator mediator) {
-        mediator.getPriceList().addListener((MyEventListener) this);
-        mediator.addListener((MyEventListener) this);
+    public GoodsTableModel(Mediator mediator) {        
         this.mediator = mediator;
-        
-        this.arrayPriceList = new ArrayList<>(mediator.getPriceList().getPriceList().values());
-        arrayPriceList.sort((Good o1, Good o2) -> o1.getArticle()>o2.getArticle()? 1: -1);
+        this.GoodsArray = mediator.getGoodsArray();
+        GoodsArray.sort((Good o1, Good o2) -> o1.getArticle()>o2.getArticle()? 1: -1);
     }
 
     @Override
@@ -29,10 +25,10 @@ public class GoodsTableModel extends AbstractTableModel implements MyEventListen
      * Обновление данных модели и таблицы по событию от источника
      */
     public void update(String eventType) {
-        if (eventType.equals("update")|| eventType.equals("OrderSHIPPED")){
-            this.arrayPriceList = new ArrayList<>(mediator.getPriceList().getPriceList().values());
+        if (eventType.equals("GoodUpdate")|| eventType.equals("OrderSHIPPED")){
+            this.GoodsArray = mediator.getGoodsArray();
             //Сортировка по возрастанию артикула
-            arrayPriceList.sort((Good o1, Good o2) -> o1.getArticle()>o2.getArticle()? 1: -1);        
+            GoodsArray.sort((Good o1, Good o2) -> o1.getArticle()>o2.getArticle()? 1: -1);        
             this.fireTableDataChanged();
         }
     }
@@ -44,7 +40,7 @@ public class GoodsTableModel extends AbstractTableModel implements MyEventListen
     
     @Override
     public int getRowCount() {
-        return arrayPriceList.size();
+        return GoodsArray.size();
     }
 
     @Override
@@ -59,7 +55,7 @@ public class GoodsTableModel extends AbstractTableModel implements MyEventListen
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Good goods = arrayPriceList.get(rowIndex);
+        Good goods = GoodsArray.get(rowIndex);
         switch(columnIndex) { 
             case 0: return goods.getArticle(); 
             case 1: return goods.getVariety(); 

@@ -17,17 +17,22 @@ public class Good implements Serializable{
         setPrice(price);
         addInstock(instock);
     }
-
-    public Good(long article, String variety, BigDecimal price, long instock) {        
-        this(article, variety, "n/a", price, instock);
+    
+    public Good(String variety, String color, BigDecimal price, long instock) {
+        this.variety = variety;
+        this.color = color;
+        setPrice(price);
+        addInstock(instock);
     }
-     
+    
     public Good(Good good){
-        this.article = good.article;
-        this.variety = good.variety;
-        this.color = good.color;
-        setPrice(good.price);
-        addInstock(good.instock);
+        if (good !=null){            
+            this.article = good.article;
+            this.variety = good.variety;
+            this.color = good.color;
+            setPrice(good.price);
+            addInstock(good.instock);            
+        }
     }
     
     public long getArticle() {
@@ -49,7 +54,7 @@ public class Good implements Serializable{
     public long getInstock() {
         return instock;
     }
-     
+   
     public void setVariety(String variety) {
         this.variety = variety;
     }

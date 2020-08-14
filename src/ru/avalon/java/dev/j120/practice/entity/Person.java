@@ -4,26 +4,61 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Person implements Serializable{
-    private String contactPerson;
-    private String deliveryAddress;
-    private String phoneNumber;
+    private long id;
+    private final String name;
+    private final String surname;
+    private final String deliveryAddress;
+    private final String phoneNumber;
 
-    public Person(String contactPerson, String deliveryAddress, String phoneNumber) {
-        this.contactPerson = contactPerson;
+    public Person(String name, String surname, String deliveryAddress, String phoneNumber) {
+        this.name = name;
+        this.surname = surname;
+        this.deliveryAddress = deliveryAddress;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public Person(long id, String name,String surname, String deliveryAddress, String phoneNumber) {
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
         this.deliveryAddress = deliveryAddress;
         this.phoneNumber = phoneNumber;
     }
 
     public Person(Person person) {
-        if (person !=null){
-            this.contactPerson = person.contactPerson;
-            this.deliveryAddress = person.deliveryAddress;
-            this.phoneNumber = person.phoneNumber;
+        if (person != null){
+            if (person.name != null && person.surname !=null && 
+                    person.deliveryAddress !=null && person.phoneNumber !=null){
+                this.id =  person.id;
+                this.name =  person.name;
+                this.surname =  person.surname;
+                //this.contactPerson = person.contactPerson;
+                this.deliveryAddress = person.deliveryAddress;
+                this.phoneNumber = person.phoneNumber;
+            }
+            else{
+                throw new IllegalArgumentException("Argument is null"); 
+            }
         }
+        else{
+            throw new IllegalArgumentException("Argument is null"); 
+        }
+    }
+
+    public long getId() {
+        return id;
+    }
+       
+    public String getName() {
+        return name;
+    }
+
+    public String getSurname() {
+        return surname;
     }
     
     public String getContactPerson() {
-        return contactPerson;
+        return name + " " + surname;
     }
 
     public String getDeliveryAddress() {
@@ -34,27 +69,16 @@ public class Person implements Serializable{
         return phoneNumber;
     }
 
-    public void setContactPerson(String contactPerson) {
-        this.contactPerson = contactPerson;
-    }
-
-    public void setDeliveryAddress(String deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
     @Override
     public String toString() {
-        return contactPerson;
+        return name + " " + surname;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 59 * hash + Objects.hashCode(this.contactPerson);
+        hash = 59 * hash + Objects.hashCode(this.name);
+        hash = 59 * hash + Objects.hashCode(this.surname);
         hash = 59 * hash + Objects.hashCode(this.deliveryAddress);
         hash = 59 * hash + Objects.hashCode(this.phoneNumber);
         return hash;
@@ -72,9 +96,20 @@ public class Person implements Serializable{
             return false;
         }
         final Person other = (Person) obj;
-        if (!Objects.equals(this.contactPerson, other.contactPerson)) {
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.surname, other.surname)) {
+            return false;
+        }
+        if (!Objects.equals(this.deliveryAddress, other.deliveryAddress)) {
+            return false;
+        }
+        if (!Objects.equals(this.phoneNumber, other.phoneNumber)) {
             return false;
         }
         return true;
     }
+
+    
 }
